@@ -2,7 +2,7 @@
 	"name": "vscode-1c-metadata-viewer",
 	"displayName": "1C Metadata Viewer",
 	"description": "",
-	"version": "0.0.1",
+	"version": "0.0.2",
   "publisher": "zerobig",
 	"license": "MIT",
 	"engines": {
