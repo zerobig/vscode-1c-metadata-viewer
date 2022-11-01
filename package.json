@@ -1,9 +1,9 @@
 {
 	"name": "vscode-1c-metadata-viewer",
 	"displayName": "1C Metadata Viewer",
-	"description": "",
+	"description": "Explore 1C:Enterprise 8 configuration in the usual way",
 	"version": "0.0.2",
-  "publisher": "zerobig",
+	"publisher": "zerobig",
 	"license": "MIT",
 	"engines": {
 		"vscode": "^1.56.0"
