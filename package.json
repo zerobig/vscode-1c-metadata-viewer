@@ -1,0 +1,121 @@
+{
+	"name": "vscode-1c-metadata-viewer",
+	"displayName": "1C Metadata Viewer",
+	"description": "",
+	"version": "0.0.1",
+  "publisher": "zerobig",
+	"license": "MIT",
+	"engines": {
+		"vscode": "^1.56.0"
+	},
+	"repository": {
+		"type": "git",
+		"url": "https://github.com/zerobig/vscode-1c-metadata-viewer.git"
+	},
+	"categories": [
+		"Other"
+	],
+	"activationEvents": [
+		"onView:metadataView"
+	],
+	"main": "./out/extension.js",
+	"contributes": {
+		"views": {
+			"explorer": [
+				{
+					"id": "metadataView",
+					"name": "1C Metadata Viewer"
+				}
+			]
+		},
+		"commands": [
+			{
+				"command": "metadataViewer.openAppModule",
+				"title": "%1c-metadata-viewer.openManagedApplicationModule.title%"
+			},
+			{
+				"command": "metadataViewer.openSessionModule",
+				"title": "%1c-metadata-viewer.openSessionModule.title%"
+			},
+			{
+				"command": "metadataViewer.openExternalConnectionModule",
+				"title": "%1c-metadata-viewer.openExternalConnectionModule.title%"
+			},
+			{
+				"command": "metadataViewer.openObjectModule",
+				"title": "%1c-metadata-viewer.openObjectModule.title%"
+			},
+			{
+				"command": "metadataViewer.openManagerModule",
+				"title": "%1c-metadata-viewer.openManagerModule.title%"
+			},
+			{
+				"command": "metadataViewer.openForm",
+				"title": "%1c-metadata-viewer.openForm.title%"
+			},
+			{
+				"command": "metadataViewer.openModule",
+				"title": "%1c-metadata-viewer.openModule.title%"
+			},
+			{
+				"command": "metadataViewer.openCommandModule",
+				"title": "%1c-metadata-viewer.openCommandModule.title%"
+			}
+		],
+		"menus": {
+			"view/item/context": [
+				{
+					"command": "metadataViewer.openAppModule",
+					"when": "viewItem == main"
+				},
+				{
+					"command": "metadataViewer.openSessionModule",
+					"when": "viewItem == main"
+				},
+				{
+					"command": "metadataViewer.openExternalConnectionModule",
+					"when": "viewItem == main"
+				},
+				{
+					"command": "metadataViewer.openObjectModule",
+					"when": "viewItem == object_and_manager"
+				},
+				{
+					"command": "metadataViewer.openManagerModule",
+					"when": "viewItem == object_and_manager"
+				},
+				{
+					"command": "metadataViewer.openForm",
+					"when": "viewItem == form"
+				},
+				{
+					"command": "metadataViewer.openModule",
+					"when": "viewItem == module"
+				},
+				{
+					"command": "metadataViewer.openCommandModule",
+					"when": "viewItem == command"
+				}
+			]
+		},
+		"configuration": []
+	},
+	"scripts": {
+		"vscode:prepublish": "npm run compile",
+		"compile": "tsc -p ./",
+		"watch": "tsc -watch -p ./",
+		"lint": "eslint . --ext .ts,.tsx"
+	},
+	"devDependencies": {
+		"@types/node": "^16.11.7",
+		"@types/vscode": "^1.56.0",
+		"@types/xml2js": "^0.4.11",
+		"@typescript-eslint/eslint-plugin": "^5.30.0",
+		"@typescript-eslint/parser": "^5.30.0",
+		"eslint": "^8.13.0",
+		"typescript": "^4.8.4"
+	},
+	"dependencies": {
+		"xml2js": "^0.4.23"
+	}
+}

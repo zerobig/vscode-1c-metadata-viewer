@@ -1,0 +1,10 @@
+{
+	"1c-metadata-viewer.openManagedApplicationModule.title": "Открыть модуль приложения",
+	"1c-metadata-viewer.openSessionModule.title": "Открыть модуль сеанса",
+	"1c-metadata-viewer.openExternalConnectionModule.title": "Открыть модуль внешнего соединения",
+	"1c-metadata-viewer.openObjectModule.title": "Открыть модуль объекта",
+	"1c-metadata-viewer.openManagerModule.title": "Открыть модуль менеджера",
+	"1c-metadata-viewer.openForm.title": "Открыть форму",
+	"1c-metadata-viewer.openModule.title": "Открыть модуль",
+	"1c-metadata-viewer.openCommandModule.title": "Открыть модуль команды"
+}

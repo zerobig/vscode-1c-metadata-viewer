@@ -1,0 +1,10 @@
+{
+	"1c-metadata-viewer.openManagedApplicationModule.title": "Open managed application module",
+	"1c-metadata-viewer.openSessionModule.title": "Open session module",
+	"1c-metadata-viewer.openExternalConnectionModule.title": "Open external connection module",
+	"1c-metadata-viewer.openObjectModule.title": "Open object module",
+	"1c-metadata-viewer.openManagerModule.title": "Open manager module",
+	"1c-metadata-viewer.openForm.title": "Open form",
+	"1c-metadata-viewer.openModule.title": "Open module",
+	"1c-metadata-viewer.openCommandModule.title": "Open command module"
+}
