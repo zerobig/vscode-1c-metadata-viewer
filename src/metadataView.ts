@@ -16,6 +16,8 @@ interface MetadataObjects {
 	catalog: TreeItem[],
 	document: TreeItem[],
 	enum: TreeItem[],
+	report: TreeItem[],
+	dataProcessor: TreeItem[],
 }
 
 export class TreeItem extends vscode.TreeItem {
@@ -162,9 +164,37 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 					undefined,
 					undefined,
 					FillEnumItemsByMetadata(current, attributeReduceResult)));
+		} else if (current.$.name.startsWith('Report.') &&
+			!current.$.name.includes('.Form.') &&
+			!current.$.name.includes('.Template.') &&
+			!current.$.name.includes('.Command.') &&
+			!current.$.name.endsWith('.Help') &&
+			!current.$.name.endsWith('.ManagerModule') &&
+			!current.$.name.endsWith('.ObjectModule')) {
+				previous.report.push(new TreeItem(
+					current.$.id,
+					current.$.name.split('.').pop() ?? '',
+					getIconPath('report'),
+					'object_and_manager',
+					CreatePath(current.$.name),
+					FillObjectItemsByMetadata(current, attributeReduceResult)));
+		} else if (current.$.name.startsWith('DataProcessor.') &&
+			!current.$.name.includes('.Form.') &&
+			!current.$.name.includes('.Template.') &&
+			!current.$.name.includes('.Command.') &&
+			!current.$.name.endsWith('.Help') &&
+			!current.$.name.endsWith('.ManagerModule') &&
+			!current.$.name.endsWith('.ObjectModule')) {
+				previous.dataProcessor.push(new TreeItem(
+					current.$.id,
+					current.$.name.split('.').pop() ?? '',
+					getIconPath('dataProcessor'),
+					'object_and_manager',
+					CreatePath(current.$.name),
+					FillObjectItemsByMetadata(current, attributeReduceResult)));
 		}
 		return previous;
-	}, { commonModule: [], constant: [], catalog: [], document: [], enum: []});
+	}, { commonModule: [], constant: [], catalog: [], document: [], enum: [], report: [], dataProcessor: []});
 
 	SearchTree(tree[0], 'commonModules')!.children = reduceResult.commonModule;
 	SearchTree(tree[0], 'constants')!.children = reduceResult.constant;
@@ -174,6 +204,8 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 	documents!.children = [ ...documents!.children ?? [], ...reduceResult.document];
 
 	SearchTree(tree[0], 'enums')!.children = reduceResult.enum;
+	SearchTree(tree[0], 'reports')!.children = reduceResult.report;
+	SearchTree(tree[0], 'dataProcessors')!.children = reduceResult.dataProcessor;
 	console.timeEnd('reduce');
 }
 
@@ -247,7 +279,9 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 function CreatePath(name: string): string {
 	return name
 		.replace('Catalog.', 'Catalogs/')
-		.replace('Document.', 'Documents/');
+		.replace('Document.', 'Documents/')
+		.replace('Report.', 'Reports/')
+		.replace('DataProcessor.', 'DataProcessors/');
 }
 
 function NodeWithIdTreeDataProvider(): vscode.TreeDataProvider<TreeItem> {
