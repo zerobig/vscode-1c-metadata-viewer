@@ -184,11 +184,23 @@ function FillObjectItemsByMetadata(versionMetadata: VersionMetadata, objectData:
 		.Metadata ?? [])
 		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.Attribute.'))
 		.map(m => new TreeItem(m.$.id, m.$.name.replace(versionMetadata.$.name + '.Attribute.', ''), getIconPath('attribute')));
-	// TODO: Реквизиты табличных частей добавить
-	const tabularSection = (versionMetadata
-		.Metadata ?? [])
+
+	const tabularSection = (versionMetadata.Metadata ?? [])
 		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.TabularSection.') && !m.$.name.includes('.Attribute.'))
-		.map(m => new TreeItem(m.$.id, m.$.name.replace(versionMetadata.$.name + '.TabularSection.', ''), getIconPath('tabularSection')));
+		.map(m => new TreeItem(
+			m.$.id,
+			m.$.name.replace(versionMetadata.$.name + '.TabularSection.', ''),
+			getIconPath('tabularSection'),
+			undefined,
+			undefined,
+			(versionMetadata.Metadata ?? [])
+				.filter(f => f.$.name.startsWith(versionMetadata.$.name + '.TabularSection.' + m.$.name.split('.').pop()) && f.$.name.includes('.Attribute.'))
+				.map(f => new TreeItem(
+					f.$.id,
+					f.$.name.split('.').pop() ?? '',
+					getIconPath('attribute'),
+				))));
+
 	const commands = (versionMetadata
 		.Metadata ?? [])
 		.filter(m => m.$.name.includes('.Command.'))
