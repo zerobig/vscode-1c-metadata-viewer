@@ -21,7 +21,7 @@ interface ObjectParams {
 	configVersion: string;
 }
 
-interface ObjectMetadata {
+export interface ObjectMetadata {
 	$: AttributeParams;
 }
 
