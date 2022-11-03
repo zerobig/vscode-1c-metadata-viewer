@@ -146,7 +146,7 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 			!current.$.name.endsWith('.ManagerModule') &&
 			!current.$.name.includes('.EnumValue.')) {
 				previous.enum.push(GetTreeItem(current, {
-					icon: 'enum', children: FillEnumItemsByMetadata(current, attributeReduceResult) }));
+					icon: 'enum', context: 'manager', children: FillEnumItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('Report.') &&
 			!current.$.name.includes('.Form.') &&
 			!current.$.name.includes('.Template.') &&
@@ -303,6 +303,7 @@ function CreatePath(name: string): string {
 		.replace('Constant.', 'Constants/')
 		.replace('Catalog.', 'Catalogs/')
 		.replace('Document.', 'Documents/')
+		.replace('Enum.', 'Enums/')
 		.replace('Report.', 'Reports/')
 		.replace('DataProcessor.', 'DataProcessors/')
 		.replace('InformationRegister.', 'InformationRegisters/')
