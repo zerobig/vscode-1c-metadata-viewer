@@ -7,5 +7,5 @@
 	"1c-metadata-viewer.openForm.title": "Открыть форму",
 	"1c-metadata-viewer.openModule.title": "Открыть модуль",
 	"1c-metadata-viewer.openCommandModule.title": "Открыть модуль команды",
-	"1c-metadata-viewer.openRecordSetModule.title": "Открыть модуль записи"
+	"1c-metadata-viewer.openValueManagerModule.title": "Открыть модуль менеджера значения"
 }

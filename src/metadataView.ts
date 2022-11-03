@@ -129,8 +129,11 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 	const reduceResult = versionMetadata.reduce<MetadataObjects>((previous, current) => {
 		if (!current.Metadata && current.$.name.startsWith('CommonModule.') && !current.$.name.endsWith('.Module')) {
 			previous.commonModule.push(GetTreeItem(current, { icon: 'commonModule', context: 'module' }));
-		} else if (!current.Metadata && current.$.name.startsWith('Constant.') && !current.$.name.endsWith('ValueManagerModule')) {
-			previous.constant.push(GetTreeItem(current, { icon: 'constant' }));
+		} else if (!current.Metadata &&
+			current.$.name.startsWith('Constant.') &&
+			!current.$.name.endsWith('ManagerModule') &&
+			!current.$.name.endsWith('ValueManagerModule')) {
+				previous.constant.push(GetTreeItem(current, { icon: 'constant', context: 'valueManager_and_manager' }));
 		} else if (current.Metadata && current.$.name.startsWith('Catalog.')) {
 			previous.catalog.push(GetTreeItem(current, {
 				icon: 'catalog', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult ) }));
@@ -297,6 +300,7 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 
 function CreatePath(name: string): string {
 	return name
+		.replace('Constant.', 'Constants/')
 		.replace('Catalog.', 'Catalogs/')
 		.replace('Document.', 'Documents/')
 		.replace('Report.', 'Reports/')
