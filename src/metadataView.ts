@@ -31,7 +31,8 @@ type IconType = 'common' | 'subsystem' | 'commonModule' | 'sessionParameter' | '
 	'exchangePlan' | 'constant' | 'catalog' | 'document' | 'documentJournal' | 'enum' | 'report' |
 	'dataProcessor' | 'chartsOfCharacteristicType' | 'chartsOfAccount' | 'chartsOfCalculationType' |
 	'informationRegister' | 'accumulationRegister' | 'tabularSection' | 'form' | 'command' |
-	'template' | 'dimension' | 'resource' | 'column';
+	'template' | 'dimension' | 'resource' | 'column' | 'task' | 'businessProcess' | 'externalDataSource' |
+	'accountingRegister' | 'calculationRegister' | 'filterCriteria' | 'eventSubscription' | 'scheduledJob';
 
 interface TreeItemParams {
 	icon?: IconType,
@@ -79,6 +80,27 @@ const tree: TreeItem[] = [
 			GetTreeItem({ $: { id: 'roles', name: 'Роли' } }, { icon: 'role', children: [] }),
 			GetTreeItem({ $: { id: 'commonAttributes', name: 'Общие реквизиты' } }, { icon: 'attribute', children: [] }),
 			GetTreeItem({ $: { id: 'exchangePlans', name: 'Планы обмена' } }, { icon: 'exchangePlan', children: [] }),
+			GetTreeItem({ $: { id: 'filterCriteria', name: 'Критерии отбора' } }, { icon: 'filterCriteria', children: [] }),
+			GetTreeItem({ $: { id: 'eventSubscriptions', name: 'Подписки на события' } }, { icon: 'eventSubscription', children: [] }),
+			GetTreeItem({ $: { id: 'scheduledJobs', name: 'Регламентные задания' } }, { icon: 'scheduledJob', children: [] }),
+			//GetTreeItem({ $: { id: '', name: 'Боты' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'functionalOptions', name: 'Функциональные опции' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'functionalOptionsParameters', name: 'Параметры функциональных опций' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'definedTypes', name: 'Определяемые типы' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'settingsStorages', name: 'Хранилища настроек' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'commonCommands', name: 'Общие команды' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'commandGroups', name: 'Группы команд' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'commonForms', name: 'Общие формы' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'commonTemplates', name: 'Общие макеты' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'commonPictures', name: 'Общие картинки' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'xdtoPackages', name: 'XDTO-пакеты' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'webServices', name: 'Web-сервисы' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'httpServices', name: 'HTTP-сервисы' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'wsReferences', name: 'WS-ссылки' } }, { children: [] }),
+			//GetTreeItem({ $: { id: '', name: 'Сервисы интеграции' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'styleItems', name: 'Элементы стиля' } }, { children: [] }),
+			//GetTreeItem({ $: { id: '', name: 'Стили' } }, { children: [] }),
+			GetTreeItem({ $: { id: 'languages', name: 'Языки' } }, { children: [] }),
 		]}),
 		GetTreeItem({ $: { id: 'constants', name: 'Константы' } }, { icon: 'constant', children: [] }),
 		GetTreeItem({ $: { id: 'catalogs', name: 'Справочники' } }, { icon: 'catalog', children: [] }),
@@ -95,11 +117,11 @@ const tree: TreeItem[] = [
 		GetTreeItem({ $: { id: 'chartsOfCalculationTypes', name: 'Планы видов расчета' } }, { icon: 'chartsOfCalculationType', children: [] }),
 		GetTreeItem({ $: { id: 'informationRegisters', name: 'Регистры сведений' } }, { icon: 'informationRegister', children: [] }),
 		GetTreeItem({ $: { id: 'accumulationRegisters', name: 'Регистры накопления' } }, { icon: 'accumulationRegister', children: [] }),
-		GetTreeItem({ $: { id: 'accountingRegisters', name: 'Регистры бухгалтерии', } }, { children: [] }),
-		GetTreeItem({ $: { id: 'calculationRegisters', name: 'Регистры расчета', } }, { children: [] }),
-		GetTreeItem({ $: { id: 'businessProcesses', name: 'Бизнес-процессы', } }, { children: [] }),
-		GetTreeItem({ $: { id: 'tasks', name: 'Задачи', } }, { children: [] }),
-		GetTreeItem({ $: { id: 'externalDataSources', name: 'Внешние источники данных', } }, { children: [] }),
+		GetTreeItem({ $: { id: 'accountingRegisters', name: 'Регистры бухгалтерии', } }, { icon: 'accountingRegister', children: [] }),
+		GetTreeItem({ $: { id: 'calculationRegisters', name: 'Регистры расчета', } }, { icon: 'calculationRegister', children: [] }),
+		GetTreeItem({ $: { id: 'businessProcesses', name: 'Бизнес-процессы', } }, { icon: 'businessProcess', children: [] }),
+		GetTreeItem({ $: { id: 'tasks', name: 'Задачи', } }, { icon: 'task', children: [] }),
+		GetTreeItem({ $: { id: 'externalDataSources', name: 'Внешние источники данных', } }, { icon: 'externalDataSource', children: [] }),
 	]}),
 ];
 
