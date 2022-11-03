@@ -79,43 +79,53 @@
 			"view/item/context": [
 				{
 					"command": "metadataViewer.openAppModule",
+					"group": "bsl",
 					"when": "viewItem == main"
 				},
 				{
 					"command": "metadataViewer.openSessionModule",
+					"group": "bsl",
 					"when": "viewItem == main"
 				},
 				{
 					"command": "metadataViewer.openExternalConnectionModule",
+					"group": "bsl",
 					"when": "viewItem == main"
 				},
 				{
 					"command": "metadataViewer.openObjectModule",
-					"when": "viewItem == object_and_manager"
+					"group": "bsl",
+					"when": "viewItem =~ /object/"
 				},
 				{
 					"command": "metadataViewer.openManagerModule",
-					"when": "viewItem == manager || viewItem == object_and_manager || viewItem == recordset_and_manager || viewItem == valueManager_and_manager"
+					"group": "bsl",
+					"when": "viewItem =~ /manager/"
 				},
 				{
 					"command": "metadataViewer.openForm",
+					"group": "bsl",
 					"when": "viewItem == form"
 				},
 				{
 					"command": "metadataViewer.openModule",
+					"group": "bsl",
 					"when": "viewItem == module"
 				},
 				{
 					"command": "metadataViewer.openCommandModule",
+					"group": "bsl",
 					"when": "viewItem == command"
 				},
 				{
 					"command": "metadataViewer.openRecordSetModule",
-					"when": "viewItem == recordset_and_manager"
+					"group": "bsl",
+					"when": "viewItem =~ /recordset/"
 				},
 				{
 					"command": "metadataViewer.openValueManagerModule",
-					"when": "viewItem == valueManager_and_manager"
+					"group": "bsl",
+					"when": "viewItem =~ /valueManager/"
 				}
 			]
 		},
