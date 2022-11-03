@@ -41,6 +41,10 @@ export function activate(context: vscode.ExtensionContext) {
 		const filePath = rootPath + '/' + node.path + '/Commands/' + node.label + '/Ext/CommandModule.bsl';
 		OpenFile(filePath);
 	});
+	vscode.commands.registerCommand('metadataViewer.openRecordSetModule', (node: TreeItem) => {
+		const filePath = rootPath + '/' + node.path + '/Ext/RecordSetModule.bsl';
+		OpenFile(filePath);
+	});
 
 	new MetadataView(context);
 }

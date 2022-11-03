@@ -60,6 +60,10 @@
 			{
 				"command": "metadataViewer.openCommandModule",
 				"title": "%1c-metadata-viewer.openCommandModule.title%"
+			},
+			{
+				"command": "metadataViewer.openRecordSetModule",
+				"title": "%1c-metadata-viewer.openRecordSetModule.title%"
 			}
 		],
 		"menus": {
@@ -82,7 +86,7 @@
 				},
 				{
 					"command": "metadataViewer.openManagerModule",
-					"when": "viewItem == object_and_manager"
+					"when": "viewItem == object_and_manager || viewItem == recordset_and_manager"
 				},
 				{
 					"command": "metadataViewer.openForm",
@@ -95,6 +99,10 @@
 				{
 					"command": "metadataViewer.openCommandModule",
 					"when": "viewItem == command"
+				},
+				{
+					"command": "metadataViewer.openRecordSetModule",
+					"when": "viewItem == recordset_and_manager"
 				}
 			]
 		},

@@ -17,13 +17,15 @@ interface MetadataObjects {
 	enum: TreeItem[],
 	report: TreeItem[],
 	dataProcessor: TreeItem[],
+	informationRegister: TreeItem[],
+	accumulationRegister: TreeItem[],
 }
 
 type IconType = 'common' | 'subsystem' | 'commonModule' | 'sessionParameter' | 'role' | 'attribute' |
 	'exchangePlan' | 'constant' | 'catalog' | 'document' | 'documentJournal' | 'enum' | 'report' |
 	'dataProcessor' | 'chartsOfCharacteristicType' | 'chartsOfAccount' | 'chartsOfCalculationType' |
 	'informationRegister' | 'accumulationRegister' | 'tabularSection' | 'form' | 'command' |
-	'template';
+	'template' | 'dimension' | 'resource';
 
 interface TreeItemParams {
 	icon?: IconType,
@@ -160,9 +162,15 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 			!current.$.name.endsWith('.ObjectModule')) {
 				previous.dataProcessor.push(GetTreeItem(current, {
 					icon: 'dataProcessor', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.Metadata && current.$.name.startsWith('InformationRegister')) {
+			previous.informationRegister.push(GetTreeItem(current, {
+				icon: 'informationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
+		} else if (current.Metadata && current.$.name.startsWith('AccumulationRegister')) {
+			previous.accumulationRegister.push(GetTreeItem(current, {
+				icon: 'accumulationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
 		}
 		return previous;
-	}, { commonModule: [], constant: [], catalog: [], document: [], enum: [], report: [], dataProcessor: []});
+	}, { commonModule: [], constant: [], catalog: [], document: [], enum: [], report: [], dataProcessor: [], informationRegister: [], accumulationRegister: [] });
 
 	SearchTree(tree[0], 'commonModules')!.children = reduceResult.commonModule;
 	SearchTree(tree[0], 'constants')!.children = reduceResult.constant;
@@ -174,6 +182,8 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 	SearchTree(tree[0], 'enums')!.children = reduceResult.enum;
 	SearchTree(tree[0], 'reports')!.children = reduceResult.report;
 	SearchTree(tree[0], 'dataProcessors')!.children = reduceResult.dataProcessor;
+	SearchTree(tree[0], 'informationRegisters')!.children = reduceResult.informationRegister;
+	SearchTree(tree[0], 'accumulationRegisters')!.children = reduceResult.accumulationRegister;
 	console.timeEnd('reduce');
 }
 
@@ -224,6 +234,37 @@ function FillEnumItemsByMetadata(versionMetadata: VersionMetadata, objectData: M
 	];
 }
 
+function FillRegisterItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
+	const dimensions = (versionMetadata
+		.Metadata ?? [])
+		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.Dimension.'))
+		.map(m => GetTreeItem(m, { icon: 'dimension' }));
+
+	const resources = (versionMetadata
+		.Metadata ?? [])
+		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.Resource.'))
+		.map(m => GetTreeItem(m, { icon: 'resource' }));
+
+	const attributes = (versionMetadata
+		.Metadata ?? [])
+		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.Attribute.'))
+		.map(m => GetTreeItem(m, { icon: 'attribute' }));
+
+	const commands = (versionMetadata
+		.Metadata ?? [])
+		.filter(m => m.$.name.includes('.Command.'))
+		.map(m => GetTreeItem(m, { icon: 'command', context: 'command' }));
+
+	return [
+		GetTreeItem({ $: { id: '', name: 'Измерения'}}, { icon: 'dimension', children: dimensions.length === 0 ? undefined : dimensions }),
+		GetTreeItem({ $: { id: '', name: 'Ресурсы'}}, { icon: 'resource', children: resources.length === 0 ? undefined : resources }),
+		GetTreeItem({ $: { id: '', name: 'Реквизиты'}}, { icon: 'attribute', children: attributes.length === 0 ? undefined : attributes }),
+		GetTreeItem({ $: { id: '', name: 'Формы'}}, { icon: 'form', children: objectData.form[versionMetadata.$.name] }),
+		GetTreeItem({ $: { id: '', name: 'Команды'}}, { icon: 'command', children: commands.length === 0 ? undefined : commands }),
+		GetTreeItem({ $: { id: '', name: 'Макеты'}}, { icon: 'template', children: objectData.template[versionMetadata.$.name] }),
+	];
+}
+
 function GetTreeItem(element: ObjectMetadata, params?: TreeItemParams ): TreeItem {
 	const treeItem = new TreeItem(element.$.id, element.$.name.split('.').pop() ?? '', params?.children);
 
@@ -259,8 +300,10 @@ function CreatePath(name: string): string {
 		.replace('Catalog.', 'Catalogs/')
 		.replace('Document.', 'Documents/')
 		.replace('Report.', 'Reports/')
-		.replace('DataProcessor.', 'DataProcessors/');
-}
+		.replace('DataProcessor.', 'DataProcessors/')
+		.replace('InformationRegister.', 'InformationRegisters/')
+		.replace('AccumulationRegister.', 'AccumulationRegisters/');
+	}
 
 function NodeWithIdTreeDataProvider(): vscode.TreeDataProvider<TreeItem> {
 	return {
