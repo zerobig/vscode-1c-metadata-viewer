@@ -5,8 +5,8 @@ import * as path from 'path';
 import { MetadataFile, ObjectMetadata, VersionMetadata } from './metadataInterfaces';
 
 interface MetadataDictionaries {
-	 form: { [key: string]: TreeItem[] },
-	 template: { [key: string]: TreeItem[] },
+	form: { [key: string]: TreeItem[] },
+	template: { [key: string]: TreeItem[] },
 }
 
 interface MetadataObjects {
@@ -162,11 +162,11 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 			previous.enum.push(GetTreeItem(current, {
 					icon: 'enum', context: 'manager', children: FillEnumItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('Report.')) {
-				previous.report.push(GetTreeItem(current, {
-					icon: 'report', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+      previous.report.push(GetTreeItem(current, {
+        icon: 'report', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('DataProcessor.')) {
-				previous.dataProcessor.push(GetTreeItem(current, {
-					icon: 'dataProcessor', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+      previous.dataProcessor.push(GetTreeItem(current, {
+        icon: 'dataProcessor', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('ChartOfCharacteristicTypes.')) {
       previous.сhartOfCharacteristicTypes.push(GetTreeItem(current, {
         icon: 'chartsOfCharacteristicType', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
@@ -231,7 +231,7 @@ function FillObjectItemsByMetadata(versionMetadata: VersionMetadata, objectData:
 			// TODO: undefined for children if length eq zero
 			children: (versionMetadata.Metadata ?? [])
 				.filter(f => f.$.name.startsWith(versionMetadata.$.name + '.TabularSection.' + m.$.name.split('.').pop()) && f.$.name.includes('.Attribute.'))
-				.map(f => GetTreeItem(f, { icon: 'attribute' })) }))
+				.map(f => GetTreeItem(f, { icon: 'attribute' })) }));
 
 	const items = [
 		GetTreeItem({ $: { id: '', name: 'Реквизиты'}}, { icon: 'attribute', children: attributes.length === 0 ? undefined : attributes }),
