@@ -38,6 +38,7 @@ interface TreeItemParams {
 	context?: string,
 	command?: string,
 	commandTitle?: string,
+  path?: string,
 	children?: TreeItem[],
 }
 
@@ -70,7 +71,7 @@ export class MetadataView {
 }
 
 const tree: TreeItem[] = [
-	GetTreeItem({ $: { id: 'configuration', name: 'Конфигурация' } }, { context: 'main', children: [
+	GetTreeItem({ $: { id: 'configuration', name: 'Конфигурация' } }, { path: 'Configuration', context: 'main', children: [
 		GetTreeItem({ $: { id: 'common', name: 'Общие' } }, { icon: 'common', children: [
 			GetTreeItem({ $: { id: 'subsystems', name: 'Подсистемы' } }, { icon: 'subsystem', children: [] }),
 			GetTreeItem({ $: { id: 'commonModules', name: 'Общие модули' } }, { icon: 'commonModule', children: [] }),
@@ -122,7 +123,8 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 			if (!previous.form[objectName]) {
 				previous.form[objectName] = [];
 			}
-			previous.form[objectName].push(GetTreeItem(current, { icon: 'form', context: 'form' }));
+			previous.form[objectName].push(GetTreeItem(current, {
+        icon: 'form', path: `${CreatePath(objectName)}/Forms/${current.$.name.split('.').pop()}`, context: 'form' }));
 		} else if (current.$.name.includes('.Template.') && !current.$.name.endsWith('.Template')) {
 			if (!previous.template[objectName]) {
 				previous.template[objectName] = [];
@@ -314,7 +316,7 @@ function GetTreeItem(element: ObjectMetadata, params?: TreeItemParams ): TreeIte
 	if (params?.context) {
 		treeItem.contextValue = params.context;
 	}
-	treeItem.path = CreatePath(element.$.name.split('.').slice(0,2).join('.'));
+	treeItem.path = params?.path ?? CreatePath(element.$.name.split('.').slice(0,2).join('.'));
 	if (params?.command && params.commandTitle) {
 		treeItem.command = { command: params.command, title: params.commandTitle };
 	}
@@ -337,6 +339,7 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 
 function CreatePath(name: string): string {
 	return name
+		.replace('CommonModule.', 'CommonModules/')
 		.replace('ExchangePlan.', 'ExchangePlans/')
 		.replace('Constant.', 'Constants/')
 		.replace('Catalog.', 'Catalogs/')

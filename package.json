@@ -73,6 +73,10 @@
 			{
 				"command": "metadataViewer.openValueManagerModule",
 				"title": "%1c-metadata-viewer.openValueManagerModule.title%"
+			},
+			{
+				"command": "metadataViewer.openXml",
+				"title": "%1c-metadata-viewer.openXml.title%"
 			}
 		],
 		"menus": {
@@ -126,6 +130,11 @@
 					"command": "metadataViewer.openValueManagerModule",
 					"group": "bsl",
 					"when": "viewItem =~ /valueManager/"
+				},
+				{
+					"command": "metadataViewer.openXml",
+					"group": "xml",
+					"when": "viewItem"
 				}
 			]
 		},

@@ -49,6 +49,10 @@ export function activate(context: vscode.ExtensionContext) {
 		const filePath = rootPath + '/Constants/' + node.label + '/Ext/ValueManagerModule.bsl';
 		OpenFile(filePath);
 	});
+	vscode.commands.registerCommand('metadataViewer.openXml', (node: TreeItem) => {
+		const filePath = rootPath + '/' + node.path + '.xml';
+		OpenFile(filePath);
+	});
 
 	new MetadataView(context);
 }

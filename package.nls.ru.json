@@ -8,5 +8,6 @@
 	"1c-metadata-viewer.openModule.title": "Открыть модуль",
 	"1c-metadata-viewer.openCommandModule.title": "Открыть модуль команды",
 	"1c-metadata-viewer.openRecordSetModule.title": "Открыть модуль набора записей",
-	"1c-metadata-viewer.openValueManagerModule.title": "Открыть модуль менеджера значения"
+	"1c-metadata-viewer.openValueManagerModule.title": "Открыть модуль менеджера значения",
+	"1c-metadata-viewer.openXml.title": "Открыть XML"
 }
