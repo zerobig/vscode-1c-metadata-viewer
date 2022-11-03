@@ -11,6 +11,9 @@ interface MetadataDictionaries {
 
 interface MetadataObjects {
 	commonModule: TreeItem[],
+	sessionParameter: TreeItem[],
+	role: TreeItem[],
+	commonAttribute: TreeItem[],
 	exchangePlan: TreeItem[],
 	constant: TreeItem[],
 	catalog: TreeItem[],
@@ -19,6 +22,7 @@ interface MetadataObjects {
 	enum: TreeItem[],
 	report: TreeItem[],
 	dataProcessor: TreeItem[],
+  сhartOfCharacteristicTypes: TreeItem[],
 	informationRegister: TreeItem[],
 	accumulationRegister: TreeItem[],
 }
@@ -134,6 +138,12 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 		}
 		if (current.$.name.startsWith('CommonModule.')) {
 			previous.commonModule.push(GetTreeItem(current, { icon: 'commonModule', context: 'module' }));
+		} else if (current.$.name.startsWith('SessionParameter.')) {
+			previous.sessionParameter.push(GetTreeItem(current, { icon: 'sessionParameter' }));
+		} else if (current.$.name.startsWith('Role.')) {
+			previous.role.push(GetTreeItem(current, { icon: 'role' }));
+		} else if (current.$.name.startsWith('CommonAttribute.')) {
+			previous.commonAttribute.push(GetTreeItem(current, { icon: 'attribute' }));
 		} else if (current.$.name.startsWith('ExchangePlan.')) {
 			previous.exchangePlan.push(GetTreeItem(current,
 				{ icon: 'exchangePlan', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
@@ -157,6 +167,9 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 		} else if (current.$.name.startsWith('DataProcessor.')) {
 				previous.dataProcessor.push(GetTreeItem(current, {
 					icon: 'dataProcessor', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('ChartOfCharacteristicTypes.')) {
+      previous.сhartOfCharacteristicTypes.push(GetTreeItem(current, {
+        icon: 'chartsOfCharacteristicType', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('InformationRegister')) {
 			previous.informationRegister.push(GetTreeItem(current, {
 				icon: 'informationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
@@ -168,6 +181,9 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 		return previous;
 	}, {
 		commonModule: [],
+		sessionParameter: [],
+		role: [],
+		commonAttribute: [],
 		exchangePlan: [],
 		constant: [],
 		catalog: [],
@@ -176,11 +192,15 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 		enum: [],
 		report: [],
 		dataProcessor: [],
+    сhartOfCharacteristicTypes: [],
 		informationRegister: [],
 		accumulationRegister: []
 	});
 
 	SearchTree(tree[0], 'commonModules')!.children = reduceResult.commonModule;
+	SearchTree(tree[0], 'sessionParameters')!.children = reduceResult.sessionParameter;
+	SearchTree(tree[0], 'roles')!.children = reduceResult.role;
+	SearchTree(tree[0], 'commonAttributes')!.children = reduceResult.commonAttribute;
 	SearchTree(tree[0], 'exchangePlans')!.children = reduceResult.exchangePlan;
 	SearchTree(tree[0], 'constants')!.children = reduceResult.constant;
 	SearchTree(tree[0], 'catalogs')!.children = reduceResult.catalog;
@@ -192,6 +212,7 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 	SearchTree(tree[0], 'enums')!.children = reduceResult.enum;
 	SearchTree(tree[0], 'reports')!.children = reduceResult.report;
 	SearchTree(tree[0], 'dataProcessors')!.children = reduceResult.dataProcessor;
+	SearchTree(tree[0], 'chartsOfCharacteristicTypes')!.children = reduceResult.сhartOfCharacteristicTypes;
 	SearchTree(tree[0], 'informationRegisters')!.children = reduceResult.informationRegister;
 	SearchTree(tree[0], 'accumulationRegisters')!.children = reduceResult.accumulationRegister;
 	console.timeEnd('reduce');
