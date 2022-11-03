@@ -129,57 +129,42 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 	}, { form: {}, template: {} });
 
 	const reduceResult = versionMetadata.reduce<MetadataObjects>((previous, current) => {
-		if (!current.Metadata && current.$.name.startsWith('CommonModule.') && !current.$.name.endsWith('.Module')) {
+		if (current.$.name.split('.').length !== 2) {
+			return previous;
+		}
+		if (current.$.name.startsWith('CommonModule.')) {
 			previous.commonModule.push(GetTreeItem(current, { icon: 'commonModule', context: 'module' }));
-		} else if (current.$.name.startsWith('ExchangePlan.') && current.$.name.split('.').length === 2) {
+		} else if (current.$.name.startsWith('ExchangePlan.')) {
 			previous.exchangePlan.push(GetTreeItem(current,
 				{ icon: 'exchangePlan', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
-		} else if (!current.Metadata &&
-			current.$.name.startsWith('Constant.') &&
-			!current.$.name.endsWith('ManagerModule') &&
-			!current.$.name.endsWith('ValueManagerModule')) {
+		} if (current.$.name.startsWith('Constant.')) {
 				previous.constant.push(GetTreeItem(current, { icon: 'constant', context: 'valueManager_and_manager' }));
-		} else if (current.Metadata && current.$.name.startsWith('Catalog.')) {
+		} if (current.$.name.startsWith('Catalog.')) {
 			previous.catalog.push(GetTreeItem(current, {
 				icon: 'catalog', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult ) }));
-		} else if (current.Metadata && current.$.name.startsWith('Document.')) {
+		} else if (current.$.name.startsWith('Document.')) {
 			previous.document.push(GetTreeItem(current, {
 				icon: 'document', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult ) }));
-		} else if (current.Metadata && current.$.name.startsWith('DocumentJournal.')) {
+		} else if (current.$.name.startsWith('DocumentJournal.')) {
 			previous.documentJournal.push(GetTreeItem(current, {
 				icon: 'documentJournal', context: 'manager', children: FillDocumentJournalItemsByMetadata(current, attributeReduceResult ) }));
-		} else if (current.$.name.startsWith('Enum.') &&
-			!current.$.name.includes('.Form.') &&
-			!current.$.name.includes('.Template.') &&
-			!current.$.name.endsWith('.ManagerModule') &&
-			!current.$.name.includes('.EnumValue.')) {
-				previous.enum.push(GetTreeItem(current, {
+		} if (current.$.name.startsWith('Enum.')) {
+			previous.enum.push(GetTreeItem(current, {
 					icon: 'enum', context: 'manager', children: FillEnumItemsByMetadata(current, attributeReduceResult) }));
-		} else if (current.$.name.startsWith('Report.') &&
-			!current.$.name.includes('.Form.') &&
-			!current.$.name.includes('.Template.') &&
-			!current.$.name.includes('.Command.') &&
-			!current.$.name.endsWith('.Help') &&
-			!current.$.name.endsWith('.ManagerModule') &&
-			!current.$.name.endsWith('.ObjectModule')) {
+		} else if (current.$.name.startsWith('Report.')) {
 				previous.report.push(GetTreeItem(current, {
 					icon: 'report', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
-		} else if (current.$.name.startsWith('DataProcessor.') &&
-			!current.$.name.includes('.Form.') &&
-			!current.$.name.includes('.Template.') &&
-			!current.$.name.includes('.Command.') &&
-			!current.$.name.endsWith('.Help') &&
-			!current.$.name.endsWith('.ManagerModule') &&
-			!current.$.name.endsWith('.ObjectModule')) {
+		} else if (current.$.name.startsWith('DataProcessor.')) {
 				previous.dataProcessor.push(GetTreeItem(current, {
 					icon: 'dataProcessor', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
-		} else if (current.Metadata && current.$.name.startsWith('InformationRegister')) {
+		} else if (current.$.name.startsWith('InformationRegister')) {
 			previous.informationRegister.push(GetTreeItem(current, {
 				icon: 'informationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
-		} else if (current.Metadata && current.$.name.startsWith('AccumulationRegister')) {
+		} else if (current.$.name.startsWith('AccumulationRegister')) {
 			previous.accumulationRegister.push(GetTreeItem(current, {
 				icon: 'accumulationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
 		}
+		
 		return previous;
 	}, {
 		commonModule: [],
