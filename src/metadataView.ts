@@ -163,7 +163,7 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 			!current.$.name.endsWith('.ManagerModule') &&
 			!current.$.name.endsWith('.ObjectModule')) {
 				previous.report.push(GetTreeItem(current, {
-					icon: 'report', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+					icon: 'report', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('DataProcessor.') &&
 			!current.$.name.includes('.Form.') &&
 			!current.$.name.includes('.Template.') &&
@@ -172,7 +172,7 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 			!current.$.name.endsWith('.ManagerModule') &&
 			!current.$.name.endsWith('.ObjectModule')) {
 				previous.dataProcessor.push(GetTreeItem(current, {
-					icon: 'dataProcessor', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+					icon: 'dataProcessor', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.Metadata && current.$.name.startsWith('InformationRegister')) {
 			previous.informationRegister.push(GetTreeItem(current, {
 				icon: 'informationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
