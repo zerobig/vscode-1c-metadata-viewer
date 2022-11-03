@@ -11,6 +11,7 @@ interface MetadataDictionaries {
 
 interface MetadataObjects {
 	commonModule: TreeItem[],
+	exchangePlan: TreeItem[],
 	constant: TreeItem[],
 	catalog: TreeItem[],
 	document: TreeItem[],
@@ -130,6 +131,9 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 	const reduceResult = versionMetadata.reduce<MetadataObjects>((previous, current) => {
 		if (!current.Metadata && current.$.name.startsWith('CommonModule.') && !current.$.name.endsWith('.Module')) {
 			previous.commonModule.push(GetTreeItem(current, { icon: 'commonModule', context: 'module' }));
+		} else if (current.$.name.startsWith('ExchangePlan.') && current.$.name.split('.').length === 2) {
+			previous.exchangePlan.push(GetTreeItem(current,
+				{ icon: 'exchangePlan', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (!current.Metadata &&
 			current.$.name.startsWith('Constant.') &&
 			!current.$.name.endsWith('ManagerModule') &&
@@ -177,9 +181,22 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 				icon: 'accumulationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
 		}
 		return previous;
-	}, { commonModule: [], constant: [], catalog: [], document: [], documentJournal: [], enum: [], report: [], dataProcessor: [], informationRegister: [], accumulationRegister: [] });
+	}, {
+		commonModule: [],
+		exchangePlan: [],
+		constant: [],
+		catalog: [],
+		document: [],
+		documentJournal: [],
+		enum: [],
+		report: [],
+		dataProcessor: [],
+		informationRegister: [],
+		accumulationRegister: []
+	});
 
 	SearchTree(tree[0], 'commonModules')!.children = reduceResult.commonModule;
+	SearchTree(tree[0], 'exchangePlans')!.children = reduceResult.exchangePlan;
 	SearchTree(tree[0], 'constants')!.children = reduceResult.constant;
 	SearchTree(tree[0], 'catalogs')!.children = reduceResult.catalog;
 
@@ -205,6 +222,7 @@ function FillObjectItemsByMetadata(versionMetadata: VersionMetadata, objectData:
 		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.TabularSection.') && !m.$.name.includes('.Attribute.'))
 		.map(m => GetTreeItem(m, {
 			icon: 'tabularSection',
+			// TODO: undefined for children if length eq zero
 			children: (versionMetadata.Metadata ?? [])
 				.filter(f => f.$.name.startsWith(versionMetadata.$.name + '.TabularSection.' + m.$.name.split('.').pop()) && f.$.name.includes('.Attribute.'))
 				.map(f => GetTreeItem(f, { icon: 'attribute' })) }))
@@ -313,6 +331,7 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 
 function CreatePath(name: string): string {
 	return name
+		.replace('ExchangePlan.', 'ExchangePlans/')
 		.replace('Constant.', 'Constants/')
 		.replace('Catalog.', 'Catalogs/')
 		.replace('Document.', 'Documents/')
