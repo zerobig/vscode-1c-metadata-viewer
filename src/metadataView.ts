@@ -209,18 +209,12 @@ function FillObjectItemsByMetadata(versionMetadata: VersionMetadata, objectData:
 				.filter(f => f.$.name.startsWith(versionMetadata.$.name + '.TabularSection.' + m.$.name.split('.').pop()) && f.$.name.includes('.Attribute.'))
 				.map(f => GetTreeItem(f, { icon: 'attribute' })) }))
 
-	const commands = (versionMetadata
-		.Metadata ?? [])
-		.filter(m => m.$.name.includes('.Command.'))
-		.map(m => GetTreeItem(m, { icon: 'command', context: 'command' }));
-
-	return [
+	const items = [
 		GetTreeItem({ $: { id: '', name: 'Реквизиты'}}, { icon: 'attribute', children: attributes.length === 0 ? undefined : attributes }),
 		GetTreeItem({ $: { id: '', name: 'Табличные части'}}, { icon: 'tabularSection', children: tabularSection }),
-		GetTreeItem({ $: { id: '', name: 'Формы'}}, { icon: 'form', children: objectData.form[versionMetadata.$.name] }),
-		GetTreeItem({ $: { id: '', name: 'Команды'}}, { icon: 'command', children: commands.length === 0 ? undefined : commands }),
-		GetTreeItem({ $: { id: '', name: 'Макеты'}}, { icon: 'template', children: objectData.template[versionMetadata.$.name] }),
 	];
+
+	return [ ...items, ...FillCommonItems(versionMetadata, objectData) ];
 }
 
 function FillDocumentJournalItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
@@ -229,17 +223,11 @@ function FillDocumentJournalItemsByMetadata(versionMetadata: VersionMetadata, ob
 		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.Column.'))
 		.map(m => GetTreeItem(m, { icon: 'column' }));
 
-	const commands = (versionMetadata
-		.Metadata ?? [])
-		.filter(m => m.$.name.includes('.Command.'))
-		.map(m => GetTreeItem(m, { icon: 'command', context: 'command' }));
-
-	return [
+	const items = [
 		GetTreeItem({ $: { id: '', name: 'Графы'}}, { icon: 'column', children: columns.length === 0 ? undefined : columns }),
-		GetTreeItem({ $: { id: '', name: 'Формы'}}, { icon: 'form', children: objectData.form[versionMetadata.$.name] }),
-		GetTreeItem({ $: { id: '', name: 'Команды'}}, { icon: 'command', children: commands.length === 0 ? undefined : commands }),
-		GetTreeItem({ $: { id: '', name: 'Макеты'}}, { icon: 'template', children: objectData.template[versionMetadata.$.name] }),
 	];
+
+	return [ ...items, ...FillCommonItems(versionMetadata, objectData) ];
 }
 
 function FillEnumItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
@@ -248,17 +236,11 @@ function FillEnumItemsByMetadata(versionMetadata: VersionMetadata, objectData: M
 		.filter(m => m.$.name.startsWith('Enum.'))
 		.map(m => GetTreeItem(m, { icon: 'attribute' }));
 	
-	const commands = (versionMetadata
-		.Metadata ?? [])
-		.filter(m => m.$.name.includes('.Command.'))
-		.map(m => GetTreeItem(m, { icon: 'command', context: 'command' }));
-
-	return [
+	const items = [
 		GetTreeItem({ $: { id: '', name: 'Значения'}}, { icon: 'attribute', children: values.length === 0 ? undefined : values }),
-		GetTreeItem({ $: { id: '', name: 'Формы'}}, { icon: 'form', children: objectData.form[versionMetadata.$.name] }),
-		GetTreeItem({ $: { id: '', name: 'Команды'}}, { icon: 'command', children: commands.length === 0 ? undefined : commands }),
-		GetTreeItem({ $: { id: '', name: 'Макеты'}}, { icon: 'template', children: objectData.template[versionMetadata.$.name] }),
 	];
+
+	return [ ...items, ...FillCommonItems(versionMetadata, objectData) ];
 }
 
 function FillRegisterItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
@@ -277,15 +259,22 @@ function FillRegisterItemsByMetadata(versionMetadata: VersionMetadata, objectDat
 		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.Attribute.'))
 		.map(m => GetTreeItem(m, { icon: 'attribute' }));
 
+	const items = [
+		GetTreeItem({ $: { id: '', name: 'Измерения'}}, { icon: 'dimension', children: dimensions.length === 0 ? undefined : dimensions }),
+		GetTreeItem({ $: { id: '', name: 'Ресурсы'}}, { icon: 'resource', children: resources.length === 0 ? undefined : resources }),
+		GetTreeItem({ $: { id: '', name: 'Реквизиты'}}, { icon: 'attribute', children: attributes.length === 0 ? undefined : attributes }),
+	];
+
+	return [ ...items, ...FillCommonItems(versionMetadata, objectData) ];
+}
+
+function FillCommonItems(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
 	const commands = (versionMetadata
 		.Metadata ?? [])
 		.filter(m => m.$.name.includes('.Command.'))
 		.map(m => GetTreeItem(m, { icon: 'command', context: 'command' }));
 
 	return [
-		GetTreeItem({ $: { id: '', name: 'Измерения'}}, { icon: 'dimension', children: dimensions.length === 0 ? undefined : dimensions }),
-		GetTreeItem({ $: { id: '', name: 'Ресурсы'}}, { icon: 'resource', children: resources.length === 0 ? undefined : resources }),
-		GetTreeItem({ $: { id: '', name: 'Реквизиты'}}, { icon: 'attribute', children: attributes.length === 0 ? undefined : attributes }),
 		GetTreeItem({ $: { id: '', name: 'Формы'}}, { icon: 'form', children: objectData.form[versionMetadata.$.name] }),
 		GetTreeItem({ $: { id: '', name: 'Команды'}}, { icon: 'command', children: commands.length === 0 ? undefined : commands }),
 		GetTreeItem({ $: { id: '', name: 'Макеты'}}, { icon: 'template', children: objectData.template[versionMetadata.$.name] }),
