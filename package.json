@@ -77,6 +77,10 @@
 			{
 				"command": "metadataViewer.openXml",
 				"title": "%1c-metadata-viewer.openXml.title%"
+			},
+			{
+				"command": "metadataViewer.openPredefinedData",
+				"title": "%1c-metadata-viewer.openPredefinedData.title%"
 			}
 		],
 		"menus": {
@@ -135,6 +139,11 @@
 					"command": "metadataViewer.openXml",
 					"group": "xml",
 					"when": "viewItem"
+				},
+				{
+					"command": "metadataViewer.openPredefinedData",
+					"group": "bsl",
+					"when": "viewItem =~ /predefined/"
 				}
 			]
 		},
