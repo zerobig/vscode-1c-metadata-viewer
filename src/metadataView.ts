@@ -23,8 +23,15 @@ interface MetadataObjects {
 	report: TreeItem[],
 	dataProcessor: TreeItem[],
   сhartOfCharacteristicTypes: TreeItem[],
+  chartOfAccounts: TreeItem[],
+  chartOfCalculationTypes: TreeItem[],
 	informationRegister: TreeItem[],
 	accumulationRegister: TreeItem[],
+  accountingRegister: TreeItem[],
+  calculationRegister: TreeItem[],
+  businessProcess: TreeItem[],
+  task: TreeItem[],
+  externalDataSource: TreeItem[],
 }
 
 type IconType = 'common' | 'subsystem' | 'commonModule' | 'sessionParameter' | 'role' | 'attribute' |
@@ -32,7 +39,8 @@ type IconType = 'common' | 'subsystem' | 'commonModule' | 'sessionParameter' | '
 	'dataProcessor' | 'chartsOfCharacteristicType' | 'chartsOfAccount' | 'chartsOfCalculationType' |
 	'informationRegister' | 'accumulationRegister' | 'tabularSection' | 'form' | 'command' |
 	'template' | 'dimension' | 'resource' | 'column' | 'task' | 'businessProcess' | 'externalDataSource' |
-	'accountingRegister' | 'calculationRegister' | 'filterCriteria' | 'eventSubscription' | 'scheduledJob';
+	'accountingRegister' | 'calculationRegister' | 'filterCriteria' | 'eventSubscription' | 'scheduledJob' |
+  'accountingFlag' | 'extDimensionAccountingFlag';
 
 interface TreeItemParams {
 	icon?: IconType,
@@ -175,13 +183,13 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 				previous.constant.push(GetTreeItem(current, { icon: 'constant', context: 'valueManager_and_manager' }));
 		} if (current.$.name.startsWith('Catalog.')) {
 			previous.catalog.push(GetTreeItem(current, {
-				icon: 'catalog', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult ) }));
+				icon: 'catalog', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('Document.')) {
 			previous.document.push(GetTreeItem(current, {
-				icon: 'document', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult ) }));
+				icon: 'document', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('DocumentJournal.')) {
 			previous.documentJournal.push(GetTreeItem(current, {
-				icon: 'documentJournal', context: 'manager', children: FillDocumentJournalItemsByMetadata(current, attributeReduceResult ) }));
+				icon: 'documentJournal', context: 'manager', children: FillDocumentJournalItemsByMetadata(current, attributeReduceResult) }));
 		} if (current.$.name.startsWith('Enum.')) {
 			previous.enum.push(GetTreeItem(current, {
 					icon: 'enum', context: 'manager', children: FillEnumItemsByMetadata(current, attributeReduceResult) }));
@@ -194,12 +202,33 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 		} else if (current.$.name.startsWith('ChartOfCharacteristicTypes.')) {
       previous.сhartOfCharacteristicTypes.push(GetTreeItem(current, {
         icon: 'chartsOfCharacteristicType', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
-		} else if (current.$.name.startsWith('InformationRegister')) {
+		} else if (current.$.name.startsWith('ChartOfAccounts.')) {
+      previous.chartOfAccounts.push(GetTreeItem(current, {
+        icon: 'chartsOfAccount', context: 'object_and_manager', children: FillChartOfAccountsItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('ChartOfCalculationTypes.')) {
+      previous.chartOfCalculationTypes.push(GetTreeItem(current, {
+        icon: 'chartsOfCalculationType', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('InformationRegister.')) {
 			previous.informationRegister.push(GetTreeItem(current, {
-				icon: 'informationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
-		} else if (current.$.name.startsWith('AccumulationRegister')) {
+				icon: 'informationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('AccumulationRegister.')) {
 			previous.accumulationRegister.push(GetTreeItem(current, {
-				icon: 'accumulationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult ) }));
+				icon: 'accumulationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('AccountingRegister.')) {
+      previous.accountingRegister.push(GetTreeItem(current, {
+        icon: 'accountingRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('CalculationRegister.')) {
+      previous.calculationRegister.push(GetTreeItem(current, {
+        icon: 'calculationRegister', context: 'recordset_and_manager', children: FillCalculationRegisterItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('BusinessProcess.')) {
+      previous.businessProcess.push(GetTreeItem(current, {
+        icon: 'businessProcess', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('Task.')) {
+      previous.task.push(GetTreeItem(current, {
+        icon: 'task', context: 'object_and_manager', children: FillTaskItemsByMetadata(current, attributeReduceResult) }));
+		} else if (current.$.name.startsWith('ExternalDataSource.')) {
+      previous.externalDataSource.push(GetTreeItem(current, {
+        icon: 'externalDataSource', children: FillExternalDataSourceItemsByMetadata(current, attributeReduceResult) }));
 		}
 		
 		return previous;
@@ -217,8 +246,15 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 		report: [],
 		dataProcessor: [],
     сhartOfCharacteristicTypes: [],
+    chartOfAccounts: [],
+    chartOfCalculationTypes: [],
 		informationRegister: [],
-		accumulationRegister: []
+		accumulationRegister: [],
+    accountingRegister: [],
+    calculationRegister: [],
+    businessProcess: [],
+    task: [],
+    externalDataSource: [],
 	});
 
 	SearchTree(tree[0], 'commonModules')!.children = reduceResult.commonModule;
@@ -237,8 +273,15 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 	SearchTree(tree[0], 'reports')!.children = reduceResult.report;
 	SearchTree(tree[0], 'dataProcessors')!.children = reduceResult.dataProcessor;
 	SearchTree(tree[0], 'chartsOfCharacteristicTypes')!.children = reduceResult.сhartOfCharacteristicTypes;
+	SearchTree(tree[0], 'chartsOfAccounts')!.children = reduceResult.chartOfAccounts;
+	SearchTree(tree[0], 'chartsOfCalculationTypes')!.children = reduceResult.chartOfCalculationTypes;
 	SearchTree(tree[0], 'informationRegisters')!.children = reduceResult.informationRegister;
 	SearchTree(tree[0], 'accumulationRegisters')!.children = reduceResult.accumulationRegister;
+	SearchTree(tree[0], 'accountingRegisters')!.children = reduceResult.accountingRegister;
+	SearchTree(tree[0], 'calculationRegisters')!.children = reduceResult.calculationRegister;
+	SearchTree(tree[0], 'businessProcesses')!.children = reduceResult.businessProcess;
+	SearchTree(tree[0], 'tasks')!.children = reduceResult.task;
+	SearchTree(tree[0], 'externalDataSources')!.children = reduceResult.externalDataSource;
 	console.timeEnd('reduce');
 }
 
@@ -291,6 +334,27 @@ function FillEnumItemsByMetadata(versionMetadata: VersionMetadata, objectData: M
 	return [ ...items, ...FillCommonItems(versionMetadata, objectData) ];
 }
 
+function FillChartOfAccountsItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
+	const accountingFlags = (versionMetadata
+		.Metadata ?? [])
+		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.AccountingFlag.'))
+		.map(m => GetTreeItem(m, { icon: 'accountingFlag' }));
+
+	const extDimensionAccountingFlag = (versionMetadata
+		.Metadata ?? [])
+		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.ExtDimensionAccountingFlag.'))
+		.map(m => GetTreeItem(m, { icon: 'extDimensionAccountingFlag' }));
+
+  const items = [
+		GetTreeItem({ $: { id: '', name: 'Признаки учета'}}, { icon: 'accountingFlag', children: accountingFlags.length === 0 ? undefined : accountingFlags }),
+		GetTreeItem({ $: { id: '', name: 'Признаки учета субконто'}}, {
+      icon: 'extDimensionAccountingFlag', children: extDimensionAccountingFlag.length === 0 ? undefined : extDimensionAccountingFlag }),
+	];
+
+	return [ ...items, ...FillObjectItemsByMetadata(versionMetadata, objectData) ]
+    .sort((x, y) => { return x.label == "Реквизиты" ? -1 : y.label == "Реквизиты" ? 1 : 0; });
+}
+
 function FillRegisterItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
 	const dimensions = (versionMetadata
 		.Metadata ?? [])
@@ -314,6 +378,36 @@ function FillRegisterItemsByMetadata(versionMetadata: VersionMetadata, objectDat
 	];
 
 	return [ ...items, ...FillCommonItems(versionMetadata, objectData) ];
+}
+
+function FillCalculationRegisterItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
+  const items: TreeItem[] = [
+    // TODO: Перерасчеты
+	];
+
+  return [ ...items, ...FillRegisterItemsByMetadata(versionMetadata, objectData) ];
+}
+
+function FillTaskItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
+	const attributes = (versionMetadata
+		.Metadata ?? [])
+		.filter(m => m.$.name.startsWith(versionMetadata.$.name + '.AddressingAttribute.'))
+		.map(m => GetTreeItem(m, { icon: 'attribute' }));
+
+  const items = [
+		GetTreeItem({ $: { id: '', name: 'Реквизиты адресации'}}, { icon: 'attribute', children: attributes.length === 0 ? undefined : attributes }),
+	];
+
+	return [ ...items, ...FillObjectItemsByMetadata(versionMetadata, objectData) ]
+    .sort((x, y) => { return x.label == "Реквизиты" ? -1 : y.label == "Реквизиты" ? 1 : 0; });
+}
+
+function FillExternalDataSourceItemsByMetadata(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
+  const items: TreeItem[] = [
+    // TODO:
+	];
+
+  return items;
 }
 
 function FillCommonItems(versionMetadata: VersionMetadata, objectData: MetadataDictionaries): TreeItem[] {
@@ -359,6 +453,7 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 	return null;
 }
 
+// TODO: Ужасная функция!!!1 Первая очередь на рефакторинг!
 function CreatePath(name: string): string {
 	return name
 		.replace('CommonModule.', 'CommonModules/')
@@ -370,8 +465,16 @@ function CreatePath(name: string): string {
 		.replace('Enum.', 'Enums/')
 		.replace('Report.', 'Reports/')
 		.replace('DataProcessor.', 'DataProcessors/')
+		.replace('ChartOfCharacteristicTypes.', 'ChartsOfCharacteristicTypes/')
+		.replace('ChartOfAccounts.', 'ChartsOfAccounts/')
+		.replace('ChartOfCalculationTypes.', 'ChartsOfCalculationTypes/')
 		.replace('InformationRegister.', 'InformationRegisters/')
-		.replace('AccumulationRegister.', 'AccumulationRegisters/');
+		.replace('AccumulationRegister.', 'AccumulationRegisters/')
+		.replace('AccountingRegister.', 'AccountingRegisters/')
+		.replace('CalculationRegister.', 'CalculationRegisters/')
+		.replace('BusinessProcess.', 'BusinessProcesses/')
+		.replace('Task.', 'Tasks/')
+		.replace('ExternalDataSource.', 'ExternalDataSources/');
 	}
 
 function NodeWithIdTreeDataProvider(): vscode.TreeDataProvider<TreeItem> {
