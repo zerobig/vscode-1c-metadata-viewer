@@ -13,6 +13,7 @@ jobs:
         with:
           node-version: '16'
       - run: npm install
+      - run: npm install -g vsce
       - name: Build package
         run: npx vsce package
       - name: Upload vsix to release
