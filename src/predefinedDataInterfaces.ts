@@ -6,7 +6,7 @@ export interface PredefinedData {
 	Item: PredefinedDataItem[];
 }
 
-interface PredefinedDataItem {
+export interface PredefinedDataItem {
 	ChildItems: PredefinedData[];
 	Code: string[];
 	Description: string[];
