@@ -28,6 +28,13 @@ interface TemplateFormat {
 	width: string[];
 	horizontalAlignment: string[];
 	bySelectedColumns: string[];
+	border: string[];
+	leftBorder: string[];
+	topBorder: string[];
+	bottomBorder: string[];
+	rightBorder: string[];
+	textPlacement: string[];
+	font: string[];
 }
 
 export interface TemplateMergeCells {
@@ -55,5 +62,9 @@ interface TemplateCell {
 interface TemplateCellData {
 	f: TemplateFormat[];
 	parameter: string[];
-	tl: [];
+	tl: TemplateTextData[];
+}
+
+interface TemplateTextData {
+	[key: string]: TemplateTextData[]
 }
