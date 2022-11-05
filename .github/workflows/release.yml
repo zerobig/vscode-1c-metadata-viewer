@@ -1,0 +1,29 @@
+name: Publish package to VSCode Marketplace
+
+on:
+    release:
+        types: [published]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - uses: actions/setup-node@v1
+        with:
+          node-version: '16'
+      - run: npm install
+      - run: npm install -g vsce
+      - name: Build package
+        run: npx vsce package
+      - name: Upload vsix to release
+        uses: AButler/upload-release-assets@v1.0
+        with:
+            files: '*.vsix'
+            repo-token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: lannonbr/vsce-action@master
+        if: github.event.release.prerelease == false
+        with:
+          args: "publish -p $VSCE_TOKEN"
+        env:
+          VSCE_TOKEN: ${{ secrets.VSCE_TOKEN }}
