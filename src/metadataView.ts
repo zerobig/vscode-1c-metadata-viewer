@@ -89,6 +89,10 @@ export class MetadataView {
         .then(configXml => {
           xml2js.parseString(configXml, (err, result) => {
             const typedResult = result as TemplateFile;
+            if (!typedResult.document) {
+              // Это макет, но другого типа. Для него нужно писать свою панель
+              return;
+            }
             TemplatePanel.show(context.extensionUri, typedResult.document);
           });
         });
