@@ -15,7 +15,7 @@ export interface VersionMetadata {
 	Metadata?: ObjectMetadata[];
 }
 
-interface ObjectParams {
+export interface ObjectParams {
 	name: string;
 	id: string;
 	configVersion: string;
