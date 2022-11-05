@@ -1,3 +1,4 @@
+import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as xml2js from 'xml2js';
 import { posix } from 'path';
@@ -78,8 +79,13 @@ export class MetadataView {
   private openTemplate(context: vscode.ExtensionContext, template: ObjectParams): void {
     const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
       ? vscode.workspace.workspaceFolders[0].uri : undefined;
+
     if (rootPath) {
-      vscode.workspace.fs.readFile(rootPath.with({ path: posix.join(rootPath.path, CreatePath(template.name), 'Ext/Template.xml') }))
+      const fileName = posix.join(rootPath.fsPath, CreatePath(template.name), 'Ext/Template.xml');
+      if (!fs.existsSync(fileName)) {
+        return;
+      }
+      vscode.workspace.fs.readFile(rootPath.with({ path: fileName }))
         .then(configXml => {
           xml2js.parseString(configXml, (err, result) => {
             const typedResult = result as TemplateFile;
