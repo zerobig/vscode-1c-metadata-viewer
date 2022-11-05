@@ -1,8 +1,11 @@
+import * as fs from 'fs';
 import * as vscode from 'vscode';
 import * as xml2js from 'xml2js';
 import { posix } from 'path';
 import * as path from 'path';
-import { MetadataFile, ObjectMetadata, VersionMetadata } from './metadataInterfaces';
+import { MetadataFile, ObjectMetadata, ObjectParams, VersionMetadata } from './metadataInterfaces';
+import { PredefinedDataFile } from './predefinedDataInterfaces';
+import { PredefinedDataPanel } from './predefinedDataPanel';
 
 interface MetadataDictionaries {
 	form: { [key: string]: TreeItem[] },
@@ -76,7 +79,29 @@ export class MetadataView {
 			const folderUri = folder.uri;
 			LoadAndParseConfigurationXml(folderUri);
 		});
-	}
+
+    vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
+  }
+
+  private openPredefinedData(context: vscode.ExtensionContext, item: TreeItem): void {
+    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+      ? vscode.workspace.workspaceFolders[0].uri : undefined;
+
+    if (rootPath) {
+      const fileName = posix.join(rootPath.fsPath, item.path!, 'Ext/Predefined.xml');
+      if (!fs.existsSync(fileName)) {
+        PredefinedDataPanel.show(context.extensionUri, { Item: [] });
+      } else {
+        vscode.workspace.fs.readFile(rootPath.with({ path: fileName }))
+          .then(configXml => {
+            xml2js.parseString(configXml, (err, result) => {
+              const typedResult = result as PredefinedDataFile;
+              PredefinedDataPanel.show(context.extensionUri, typedResult.PredefinedData);
+            });
+          });
+      }
+    }
+  }
 }
 
 const tree: TreeItem[] = [
@@ -183,7 +208,7 @@ function CreateTreeElements(metadataFile: MetadataFile) {
 				previous.constant.push(GetTreeItem(current, { icon: 'constant', context: 'valueManager_and_manager' }));
 		} if (current.$.name.startsWith('Catalog.')) {
 			previous.catalog.push(GetTreeItem(current, {
-				icon: 'catalog', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+				icon: 'catalog', context: 'object_and_manager_and_predefined', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('Document.')) {
 			previous.document.push(GetTreeItem(current, {
 				icon: 'document', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
@@ -201,13 +226,13 @@ function CreateTreeElements(metadataFile: MetadataFile) {
         icon: 'dataProcessor', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('ChartOfCharacteristicTypes.')) {
       previous.сhartOfCharacteristicTypes.push(GetTreeItem(current, {
-        icon: 'chartsOfCharacteristicType', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+        icon: 'chartsOfCharacteristicType', context: 'object_and_manager_and_predefined', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('ChartOfAccounts.')) {
       previous.chartOfAccounts.push(GetTreeItem(current, {
-        icon: 'chartsOfAccount', context: 'object_and_manager', children: FillChartOfAccountsItemsByMetadata(current, attributeReduceResult) }));
+        icon: 'chartsOfAccount', context: 'object_and_manager_and_predefined', children: FillChartOfAccountsItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('ChartOfCalculationTypes.')) {
       previous.chartOfCalculationTypes.push(GetTreeItem(current, {
-        icon: 'chartsOfCalculationType', context: 'object_and_manager', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
+        icon: 'chartsOfCalculationType', context: 'object_and_manager_and_predefined', children: FillObjectItemsByMetadata(current, attributeReduceResult) }));
 		} else if (current.$.name.startsWith('InformationRegister.')) {
 			previous.informationRegister.push(GetTreeItem(current, {
 				icon: 'informationRegister', context: 'recordset_and_manager', children: FillRegisterItemsByMetadata(current, attributeReduceResult) }));
