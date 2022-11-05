@@ -154,7 +154,7 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri) {
     dot: true,
     cwd: uri.fsPath,
     absolute: true,
-    deep: vscode.workspace.getConfiguration().get('conf.metadataViewer.configurationSearchDepth'),
+    deep: vscode.workspace.getConfiguration().get('metadataViewer.configurationSearchDepth'),
   });
   console.timeEnd('glob');
 
