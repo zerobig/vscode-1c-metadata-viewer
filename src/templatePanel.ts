@@ -114,30 +114,30 @@ function _getColumn(templatecolumn: TemplateColumn, indexRow: number, document: 
           } else {
             style += `text-align: ${cellFormat.horizontalAlignment[0].toLowerCase()};`;
           }
+        }
 
-          if (cellFormat.border && cellFormat.border[0] === '1') {
-            style += ' border: 2px solid #fff;';
-          }
-          if (cellFormat.leftBorder && cellFormat.leftBorder[0] === '1') {
-            style += ' left-border: 2px solid #fff;';
-          }
-          if (cellFormat.topBorder && cellFormat.topBorder[0] === '1') {
-            style += ' top-border: 2px solid #fff;';
-          }
-          if (cellFormat.bottomBorder && cellFormat.bottomBorder[0] === '1') {
-            style += ' bottom-border: 2px solid #fff;';
-          }
-          if (cellFormat.rightBorder && cellFormat.rightBorder[0] === '1') {
-            style += ' right-border: 2px solid #fff;';
-          }
+        if (cellFormat.border && cellFormat.border[0] === '1') {
+          style += ' border: 2px solid #fff;';
+        }
+        if (cellFormat.leftBorder && cellFormat.leftBorder[0] === '1') {
+          style += ' left-border: 2px solid #fff;';
+        }
+        if (cellFormat.topBorder && cellFormat.topBorder[0] === '1') {
+          style += ' top-border: 2px solid #fff;';
+        }
+        if (cellFormat.bottomBorder && cellFormat.bottomBorder[0] === '1') {
+          style += ' bottom-border: 2px solid #fff;';
+        }
+        if (cellFormat.rightBorder && cellFormat.rightBorder[0] === '1') {
+          style += ' right-border: 2px solid #fff;';
+        }
 
-          if (cellFormat.textPlacement && cellFormat.textPlacement[0] === 'Wrap') {
-            style += ' white-space: normal;';
-          }
+        if (cellFormat.textPlacement && cellFormat.textPlacement[0] === 'Wrap') {
+          style += ' white-space: normal;';
+        }
 
-          if (cellFormat.font && cellFormat.font[0] === '1') {
-            // TODO:
-          }
+        if (cellFormat.font && cellFormat.font[0] === '1') {
+          // TODO:
         }
       }
       if (style) {
