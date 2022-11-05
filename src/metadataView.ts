@@ -184,6 +184,8 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri) {
 function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 	const versionMetadata = metadataFile.ConfigDumpInfo.ConfigVersions[0].Metadata;
 
+  const treeItemIdSlash = element.id + '/';
+
 	console.time('reduce');
 	const attributeReduceResult = versionMetadata.reduce<MetadataDictionaries>((previous, current) => {
 		const objectName = current.$.name.split('.').slice(0,2).join('.');
@@ -192,7 +194,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 				previous.form[objectName] = [];
 			}
 			previous.form[objectName].push(GetTreeItem(
-        element.id + '/' + current.$.id,
+        treeItemIdSlash + current.$.id,
         current.$.name,
         {
           icon: 'form',
@@ -204,7 +206,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 				previous.template[objectName] = [];
 			}
 			previous.template[objectName].push(GetTreeItem(
-        element.id + '/' + current.$.id,
+        treeItemIdSlash + current.$.id,
         current.$.name,
         {
           icon: 'template',
@@ -218,8 +220,10 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 		if (current.$.name.split('.').length !== 2) {
 			return previous;
 		}
-    const treeItemId = element.id + '/' + current.$.id;
-    const treeItemPath = `${element.id}/${CreatePath(current.$.name)}`;
+
+    const treeItemId = treeItemIdSlash + current.$.id;
+    const treeItemPath = `${treeItemIdSlash}${CreatePath(current.$.name)}`;
+  
     switch (true) {
       case current.$.name.startsWith('CommonModule.'):
         previous.commonModule.push(GetTreeItem(
@@ -240,7 +244,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
         previous.exchangePlan.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'exchangePlan', context: 'object_and_manager', path: treeItemPath,
-            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('Constant.'):
@@ -253,112 +257,112 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
         previous.catalog.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'catalog', context: 'object_and_manager_and_predefined', path: treeItemPath,
-            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('Document.'):
         previous.document.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'document', context: 'object_and_manager', path: treeItemPath,
-            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('DocumentJournal.'):
         previous.documentJournal.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'documentJournal', context: 'manager', path: treeItemPath,
-            children: FillDocumentJournalItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillDocumentJournalItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('Enum.'):
         previous.enum.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'enum', context: 'manager', path: treeItemPath,
-            children: FillEnumItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillEnumItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('Report.'):
         previous.report.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'report', context: 'object_and_manager', path: treeItemPath,
-            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('DataProcessor.'):
         previous.dataProcessor.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'dataProcessor', context: 'object_and_manager', path: treeItemPath,
-            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('ChartOfCharacteristicTypes.'):
         previous.сhartOfCharacteristicTypes.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'chartsOfCharacteristicType', context: 'object_and_manager_and_predefined', path: treeItemPath,
-            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('ChartOfAccounts.'):
         previous.chartOfAccounts.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'chartsOfAccount', context: 'object_and_manager_and_predefined', path: treeItemPath,
-            children: FillChartOfAccountsItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillChartOfAccountsItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('ChartOfCalculationTypes.'):
         previous.chartOfCalculationTypes.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'chartsOfCalculationType', context: 'object_and_manager_and_predefined', path: treeItemPath,
-            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('InformationRegister.'):
         previous.informationRegister.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'informationRegister', context: 'recordset_and_manager', path: treeItemPath,
-            children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillRegisterItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('AccumulationRegister.'):
         previous.accumulationRegister.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'accumulationRegister', context: 'recordset_and_manager', path: treeItemPath,
-            children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillRegisterItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('AccountingRegister.'):
         previous.accountingRegister.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'accountingRegister', context: 'recordset_and_manager', path: treeItemPath,
-            children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillRegisterItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('CalculationRegister.'):
         previous.calculationRegister.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'calculationRegister', context: 'recordset_and_manager', path: treeItemPath,
-            children: FillCalculationRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillCalculationRegisterItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('BusinessProcess.'):
         previous.businessProcess.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'businessProcess', context: 'object_and_manager', path: treeItemPath,
-            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('Task.'):
         previous.task.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'task', context: 'object_and_manager', path: treeItemPath,
-            children: FillTaskItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillTaskItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
       case current.$.name.startsWith('ExternalDataSource.'):
         previous.externalDataSource.push(GetTreeItem(
           treeItemId, current.$.name, {
             icon: 'externalDataSource',
-            children: FillExternalDataSourceItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+            children: FillExternalDataSourceItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
     }
