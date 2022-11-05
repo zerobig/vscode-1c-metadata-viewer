@@ -43,7 +43,7 @@ export class TemplatePanel {
                   .columnsItem
                   .map((c, index) => {
                     const formatIndex = Number(c.column[0].formatIndex[0]) - 1;
-                    const columnWidth = document.format[formatIndex].width[0];
+                    const columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width[0] : '80';
                     
                     return '<th' + (document.format[formatIndex] ?
                       ` style="max-width: ${columnWidth}px; width: ${columnWidth}px;"` :
