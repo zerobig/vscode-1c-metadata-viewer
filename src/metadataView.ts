@@ -106,6 +106,11 @@ export class MetadataView {
         vscode.workspace.fs.readFile(rootPath.with({ path: fileName }))
           .then(configXml => {
             xml2js.parseString(configXml, (err, result) => {
+              if (err) {
+                console.error(err);
+                return;
+              }
+
               const typedResult = result as PredefinedDataFile;
               PredefinedDataPanel.show(context.extensionUri, typedResult.PredefinedData);
             });
@@ -126,6 +131,11 @@ export class MetadataView {
       vscode.workspace.fs.readFile(rootPath.with({ path: posix.join(element.id, 'ConfigDumpInfo.xml') }))
         .then(configXml => {
           xml2js.parseString(configXml, (err, result) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+
             const typedResult = result as MetadataFile;
             CreateTreeElements(element, typedResult);
           });
@@ -165,10 +175,17 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri) {
     vscode.workspace.fs.readFile(uri.with({ path: posix.join(fc, 'Configuration.xml') }))
       .then(configXml => {
         xml2js.parseString(configXml, (err, result) => {
+          if (err) {
+            console.error(err);
+            return;
+          }
+
           let synonym = result.MetaDataObject.Configuration[0].Properties[0].Synonym[0]["v8:item"][0]["v8:content"][0];
           if (!synonym) {
             synonym = result.MetaDataObject.Configuration[0].Properties[0].Name[0];
           }
+
+          console.log(`Конфигурация ${synonym} найдена`);
 
           const treeItem = new TreeItem(fc, `${synonym} (${fc})`, CreateMetadata(fc));
           treeItem.contextValue = 'main';
