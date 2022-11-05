@@ -220,180 +220,148 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 		}
     const treeItemId = element.id + '/' + current.$.id;
     const treeItemPath = `${element.id}/${CreatePath(current.$.name)}`;
-		if (current.$.name.startsWith('CommonModule.')) {
-			previous.commonModule.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'commonModule',
-          context: 'module',
-          path: treeItemPath,
-        }));
-		} else if (current.$.name.startsWith('SessionParameter.')) {
-			previous.sessionParameter.push(GetTreeItem(treeItemId, current.$.name, { icon: 'sessionParameter' }));
-		} else if (current.$.name.startsWith('Role.')) {
-			previous.role.push(GetTreeItem(treeItemId, current.$.name, { icon: 'role' }));
-		} else if (current.$.name.startsWith('CommonAttribute.')) {
-			previous.commonAttribute.push(GetTreeItem(treeItemId, current.$.name, { icon: 'attribute' }));
-		} else if (current.$.name.startsWith('ExchangePlan.')) {
-			previous.exchangePlan.push(GetTreeItem(
-        treeItemId, current.$.name,
-				{
-          icon: 'exchangePlan',
-          context: 'object_and_manager',
-          path: treeItemPath,
-          children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} if (current.$.name.startsWith('Constant.')) {
-      previous.constant.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'constant',
-          context: 'valueManager_and_manager',
-          path: treeItemPath,
-        }));
-		} if (current.$.name.startsWith('Catalog.')) {
-			previous.catalog.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'catalog',
-          context: 'object_and_manager_and_predefined',
-          path: treeItemPath,
-          children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('Document.')) {
-			previous.document.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'document',
-          context: 'object_and_manager',
-          path: treeItemPath,
-          children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('DocumentJournal.')) {
-			previous.documentJournal.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'documentJournal',
-          context: 'manager',
-          path: treeItemPath,
-          children: FillDocumentJournalItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} if (current.$.name.startsWith('Enum.')) {
-			previous.enum.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'enum',
-          context: 'manager',
-          path: treeItemPath,
-          children: FillEnumItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('Report.')) {
-      previous.report.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'report',
-          context: 'object_and_manager',
-          path: treeItemPath,
-          children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('DataProcessor.')) {
-      previous.dataProcessor.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'dataProcessor',
-          context: 'object_and_manager',
-          path: treeItemPath,
-          children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('ChartOfCharacteristicTypes.')) {
-      previous.сhartOfCharacteristicTypes.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'chartsOfCharacteristicType',
-          context: 'object_and_manager_and_predefined',
-          path: treeItemPath,
-          children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('ChartOfAccounts.')) {
-      previous.chartOfAccounts.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'chartsOfAccount',
-          context: 'object_and_manager_and_predefined',
-          path: treeItemPath,
-          children: FillChartOfAccountsItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('ChartOfCalculationTypes.')) {
-      previous.chartOfCalculationTypes.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'chartsOfCalculationType',
-          context: 'object_and_manager_and_predefined',
-          path: treeItemPath,
-          children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('InformationRegister.')) {
-			previous.informationRegister.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'informationRegister',
-          context: 'recordset_and_manager',
-          path: treeItemPath,
-          children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('AccumulationRegister.')) {
-			previous.accumulationRegister.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'accumulationRegister',
-          context: 'recordset_and_manager',
-          path: treeItemPath,
-          children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('AccountingRegister.')) {
-      previous.accountingRegister.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'accountingRegister',
-          context: 'recordset_and_manager',
-          path: treeItemPath,
-          children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('CalculationRegister.')) {
-      previous.calculationRegister.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'calculationRegister',
-          context: 'recordset_and_manager',
-          path: treeItemPath,
-          children: FillCalculationRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('BusinessProcess.')) {
-      previous.businessProcess.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'businessProcess',
-          context: 'object_and_manager',
-          path: treeItemPath,
-          children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('Task.')) {
-      previous.task.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'task',
-          context: 'object_and_manager',
-          path: treeItemPath,
-          children: FillTaskItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		} else if (current.$.name.startsWith('ExternalDataSource.')) {
-      previous.externalDataSource.push(GetTreeItem(
-        treeItemId, current.$.name,
-        {
-          icon: 'externalDataSource',
-          children: FillExternalDataSourceItemsByMetadata(element.id + '/', current, attributeReduceResult)
-        }));
-		}
+    switch (true) {
+      case current.$.name.startsWith('CommonModule.'):
+        previous.commonModule.push(GetTreeItem(
+          treeItemId, current.$.name,
+          { icon: 'commonModule', context: 'module', path: treeItemPath, }));
+
+        break;
+      case current.$.name.startsWith('SessionParameter.'):
+        previous.sessionParameter.push(GetTreeItem(treeItemId, current.$.name, { icon: 'sessionParameter' }));
+        break;
+      case current.$.name.startsWith('Role.'):
+        previous.role.push(GetTreeItem(treeItemId, current.$.name, { icon: 'role' }));
+        break;
+      case current.$.name.startsWith('CommonAttribute.'):
+        previous.commonAttribute.push(GetTreeItem(treeItemId, current.$.name, { icon: 'attribute' }));
+        break;
+      case current.$.name.startsWith('ExchangePlan.'):
+        previous.exchangePlan.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'exchangePlan', context: 'object_and_manager', path: treeItemPath,
+            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('Constant.'):
+        previous.constant.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'constant', context: 'valueManager_and_manager', path: treeItemPath, }));
+
+        break;
+      case current.$.name.startsWith('Catalog.'):
+        previous.catalog.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'catalog', context: 'object_and_manager_and_predefined', path: treeItemPath,
+            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('Document.'):
+        previous.document.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'document', context: 'object_and_manager', path: treeItemPath,
+            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('DocumentJournal.'):
+        previous.documentJournal.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'documentJournal', context: 'manager', path: treeItemPath,
+            children: FillDocumentJournalItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('Enum.'):
+        previous.enum.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'enum', context: 'manager', path: treeItemPath,
+            children: FillEnumItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('Report.'):
+        previous.report.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'report', context: 'object_and_manager', path: treeItemPath,
+            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('DataProcessor.'):
+        previous.dataProcessor.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'dataProcessor', context: 'object_and_manager', path: treeItemPath,
+            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('ChartOfCharacteristicTypes.'):
+        previous.сhartOfCharacteristicTypes.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'chartsOfCharacteristicType', context: 'object_and_manager_and_predefined', path: treeItemPath,
+            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('ChartOfAccounts.'):
+        previous.chartOfAccounts.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'chartsOfAccount', context: 'object_and_manager_and_predefined', path: treeItemPath,
+            children: FillChartOfAccountsItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('ChartOfCalculationTypes.'):
+        previous.chartOfCalculationTypes.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'chartsOfCalculationType', context: 'object_and_manager_and_predefined', path: treeItemPath,
+            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('InformationRegister.'):
+        previous.informationRegister.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'informationRegister', context: 'recordset_and_manager', path: treeItemPath,
+            children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('AccumulationRegister.'):
+        previous.accumulationRegister.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'accumulationRegister', context: 'recordset_and_manager', path: treeItemPath,
+            children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('AccountingRegister.'):
+        previous.accountingRegister.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'accountingRegister', context: 'recordset_and_manager', path: treeItemPath,
+            children: FillRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('CalculationRegister.'):
+        previous.calculationRegister.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'calculationRegister', context: 'recordset_and_manager', path: treeItemPath,
+            children: FillCalculationRegisterItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('BusinessProcess.'):
+        previous.businessProcess.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'businessProcess', context: 'object_and_manager', path: treeItemPath,
+            children: FillObjectItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('Task.'):
+        previous.task.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'task', context: 'object_and_manager', path: treeItemPath,
+            children: FillTaskItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+      case current.$.name.startsWith('ExternalDataSource.'):
+        previous.externalDataSource.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'externalDataSource',
+            children: FillExternalDataSourceItemsByMetadata(element.id + '/', current, attributeReduceResult) }));
+  
+        break;
+    }
 		
 		return previous;
 	}, {
