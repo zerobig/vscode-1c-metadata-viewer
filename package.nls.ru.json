@@ -10,5 +10,6 @@
 	"1c-metadata-viewer.openRecordSetModule.title": "Открыть модуль набора записей",
 	"1c-metadata-viewer.openValueManagerModule.title": "Открыть модуль менеджера значения",
 	"1c-metadata-viewer.openXml.title": "Открыть XML",
-	"1c-metadata-viewer.openPredefinedData.title": "Открыть предопределенные данные"
+	"1c-metadata-viewer.openPredefinedData.title": "Открыть предопределенные данные",
+	"1c-metadata-viewer.conf.configurationSearchDepth.title": "Количество уровней вложенности каталогов в которых осуществляется поиск конфигураций 1С:Предприятия"
 }
