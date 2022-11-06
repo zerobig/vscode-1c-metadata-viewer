@@ -2,7 +2,7 @@
 	"name": "vscode-1c-metadata-viewer",
 	"displayName": "1C Metadata Viewer",
 	"description": "Explore 1C:Enterprise 8 configuration in the usual way",
-	"version": "0.0.4",
+	"version": "0.0.6",
 	"publisher": "zerobig",
 	"license": "MIT",
 	"engines": {
@@ -77,6 +77,10 @@
 			{
 				"command": "metadataViewer.openXml",
 				"title": "%1c-metadata-viewer.openXml.title%"
+			},
+			{
+				"command": "metadataViewer.openPredefinedData",
+				"title": "%1c-metadata-viewer.openPredefinedData.title%"
 			}
 		],
 		"menus": {
@@ -135,10 +139,26 @@
 					"command": "metadataViewer.openXml",
 					"group": "xml",
 					"when": "viewItem"
+				},
+				{
+					"command": "metadataViewer.openPredefinedData",
+					"group": "bsl",
+					"when": "viewItem =~ /predefined/"
 				}
 			]
 		},
-		"configuration": []
+		"configuration": [
+      {
+        "title": "1C Metadata Viewer",
+        "properties": {
+          "metadataViewer.searchDepth": {
+            "type": "integer",
+            "default": 3,
+            "description": "%1c-metadata-viewer.searchDepth.title%"
+          }
+        }
+      }
+    ]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -156,6 +176,7 @@
 		"typescript": "^4.8.4"
 	},
 	"dependencies": {
+		"fast-glob": "^3.2.12",
 		"xml2js": "^0.4.23"
 	}
 }
