@@ -98,12 +98,12 @@ export class MetadataView {
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
 	}
 
-  private openTemplate(context: vscode.ExtensionContext, template: ObjectParams): void {
+  private openTemplate(context: vscode.ExtensionContext, template: string): void {
     const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
       ? vscode.workspace.workspaceFolders[0].uri : undefined;
 
     if (rootPath) {
-      const fileName = posix.join(rootPath.fsPath, CreatePath(template.name), 'Ext/Template.xml');
+      const fileName = posix.join(template, 'Ext/Template.xml');
       if (!fs.existsSync(fileName)) {
         return;
       }
@@ -249,6 +249,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 			if (!previous.template[objectName]) {
 				previous.template[objectName] = [];
 			}
+      const path = `${element.id}/${CreatePath(objectName)}/Templates/${current.$.name.split('.').pop()}`;
 			previous.template[objectName].push(GetTreeItem(
         treeItemIdSlash + current.$.id,
         current.$.name,
@@ -256,8 +257,8 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
           icon: 'template',
           command: 'metadataViewer.showTemplate',
           commandTitle: 'Show template',
-          commandArguments: [ current.$ ],
-          path: `${element.id}/${CreatePath(objectName)}/Templates/${current.$.name.split('.').pop()}`,
+          commandArguments: [ path ],
+          path: path,
         }));
 		}
 		return previous;
