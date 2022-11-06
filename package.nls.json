@@ -10,5 +10,6 @@
 	"1c-metadata-viewer.openRecordSetModule.title": "Open record set module",
 	"1c-metadata-viewer.openValueManagerModule.title": "Open value manager module",
 	"1c-metadata-viewer.openXml.title": "Open XML",
-	"1c-metadata-viewer.openPredefinedData.title": "Open predefined data"
+	"1c-metadata-viewer.openPredefinedData.title": "Open predefined data",
+	"1c-metadata-viewer.configurationSearchDepth.title": "The number of nesting levels of directories in which 1C:Enterprise configurations are searched"
 }

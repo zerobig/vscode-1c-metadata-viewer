@@ -5,52 +5,49 @@ import { MetadataView, TreeItem } from './metadataView';
 import * as fs from 'fs';
 
 export function activate(context: vscode.ExtensionContext) {
-	const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-		? vscode.workspace.workspaceFolders[0].uri.fsPath : undefined;
-
 	vscode.commands.registerCommand('metadataViewer.openAppModule', (node: TreeItem) => {
-		const filePath = rootPath + '/Ext/ManagedApplicationModule.bsl';
+		const filePath = node.path + '/Ext/ManagedApplicationModule.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openSessionModule', (node: TreeItem) => {
-		const filePath = rootPath + '/Ext/SessionModule.bsl';
+		const filePath = node.path + '/Ext/SessionModule.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openExternalConnectionModule', (node: TreeItem) => {
 		// TODO: Имя модуля проверить. Может быть не верным.
-		const filePath = rootPath + '/Ext/ExternalConnectionModule.bsl';
+		const filePath = node.path + '/Ext/ExternalConnectionModule.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openObjectModule', (node: TreeItem) => {
-		const filePath = rootPath + '/' + node.path + '/Ext/ObjectModule.bsl';
+		const filePath = node.path + '/Ext/ObjectModule.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openManagerModule', (node: TreeItem) => {
-		const filePath = rootPath + '/' + node.path + '/Ext/ManagerModule.bsl';
+		const filePath = node.path + '/Ext/ManagerModule.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openForm', (node: TreeItem) => {
-		const filePath = rootPath + '/' + node.path + '/Ext/Form/Module.bsl';
+		const filePath = node.path + '/Ext/Form/Module.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openModule', (node: TreeItem) => {
-		const filePath = rootPath + '/CommonModules/' + node.label + '/Ext/Module.bsl';
+		const filePath = node.path + '/Ext/Module.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openCommandModule', (node: TreeItem) => {
-		const filePath = rootPath + '/' + node.path + '/Commands/' + node.label + '/Ext/CommandModule.bsl';
+		const filePath = node.path + '/Ext/CommandModule.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openRecordSetModule', (node: TreeItem) => {
-		const filePath = rootPath + '/' + node.path + '/Ext/RecordSetModule.bsl';
+		const filePath = node.path + '/Ext/RecordSetModule.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openValueManagerModule', (node: TreeItem) => {
-		const filePath = rootPath + '/Constants/' + node.label + '/Ext/ValueManagerModule.bsl';
+		const filePath = node.path + '/Ext/ValueManagerModule.bsl';
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openXml', (node: TreeItem) => {
-		const filePath = rootPath + '/' + node.path + '.xml';
+		const filePath = node.path + '.xml';
 		OpenFile(filePath);
 	});
 

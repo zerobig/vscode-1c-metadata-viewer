@@ -147,7 +147,18 @@
 				}
 			]
 		},
-		"configuration": []
+		"configuration": [
+      {
+        "title": "1C Metadata Viewer",
+        "properties": {
+          "metadataViewer.configurationSearchDepth": {
+            "type": "integer",
+            "default": 3,
+            "description": "%1c-metadata-viewer.configurationSearchDepth.title%"
+          }
+        }
+      }
+    ]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -165,6 +176,7 @@
 		"typescript": "^4.8.4"
 	},
 	"dependencies": {
+		"fast-glob": "^3.2.12",
 		"xml2js": "^0.4.23"
 	}
 }
