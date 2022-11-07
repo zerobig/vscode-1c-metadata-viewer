@@ -1,4 +1,3 @@
-import { json } from 'stream/consumers';
 import * as vscode from 'vscode';
 import { TemplateColumn, TemplateDocument, TemplateMergeCells, TemplateRow } from './templatInterfaces';
 
@@ -22,6 +21,13 @@ export class TemplatePanel {
 
 	private static _getHtmlForWebview(webview: vscode.Webview, extensionUri: vscode.Uri, document: TemplateDocument) {
 		const styleUri = webview.asWebviewUri(vscode.Uri.joinPath(extensionUri, 'media', 'template', 'styles.css'));
+    let indexRow = 0;
+    let hasColumndId = false;
+    document.columns.forEach(columns => {
+      if (columns.id) {
+        hasColumndId = true;
+      }
+    });
 
     return `<!DOCTYPE html>
       <html lang="en">
@@ -35,35 +41,42 @@ export class TemplatePanel {
           </style>
         </head>
         <body>
-          <table style="width: 800px; max-width: 800px; table-layout: fixed; white-space: nowrap; border-color: #333;" rules="all">
-            <thead>
-              <tr>
-                <th style="max-width: 30px; width: 30px;"></th>
-                ${document.columns[0]
-                  .columnsItem
-                  .map((c, index) => {
-                    const formatIndex = Number(c.column[0].formatIndex[0]) - 1;
-                    const columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width[0] : '80';
-                    
-                    return '<th' + (document.format[formatIndex] ?
-                      ` style="max-width: ${columnWidth}px; width: ${columnWidth}px;"` :
-                      '') + `>${index + 1}</th>`;
-                  }).join('')}
-              </tr>
-            </thead>
-            ${(() => {
-              let indexRow = 0;
-              return document.rowsItem.map((_) => {
-                let additionalRows = '';
-                for(let i = indexRow; i < Number(_.index) - 1; i++) {
-                  // TODO: Высота из формата
-                  additionalRows += `<tr style="height: 20px;"><td style="text-align: center;">${++indexRow + 1}</td></tr>`;
-                }
-                indexRow = Number(_.index);
-                return additionalRows + _getRow(_, document);
-              }).join('');
-            })()}
-          </table>
+          ${document.columns
+            .filter(columns => columns.size[0] !== '0')
+            .map(columns => { return `
+              <table style="width: 800px; max-width: 800px; table-layout: fixed; white-space: nowrap; border-color: #333;" rules="all">
+                <thead>
+                  <tr>
+                    <th style="max-width: 30px; width: 30px;"></th>
+                    ${(columns
+                      .columnsItem ?? [])
+                      .map((c, index) => {
+                        const formatIndex = Number(c.column[0].formatIndex[0]) - 1;
+                        const columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width[0] : '80';
+                        
+                        return '<th' + (document.format[formatIndex] ?
+                          ` style="max-width: ${columnWidth}px; width: ${columnWidth}px;"` :
+                          '') + `>${index + 1}</th>`;
+                      }).join('')}
+                  </tr>
+                </thead>
+                ${(() => {
+                  return document.rowsItem
+                    .filter(ri => hasColumndId ? (ri.row[0].columnsID ? ri.row[0].columnsID[0] === columns.id[0] : false) : true)
+                    .map((_) => {
+                      let additionalRows = '';
+                      for(let i = indexRow; i < Number(_.index) - 1; i++) {
+                        // TODO: Высота из формата
+                        additionalRows += `<tr style="height: 20px;"><td style="text-align: center;">${++indexRow + 1}</td></tr>`;
+                        indexRow++;
+                      }
+                      indexRow = Number(_.index);
+                      return additionalRows + _getRow(_, document);
+                    }).join('');
+                })()}
+              </table>`;
+            })
+          }
         </body>
       </html>`;
 	}
@@ -83,10 +96,23 @@ function _getColumn(templatecolumn: TemplateColumn, indexRow: number, document: 
     let indexColumn = 0;
     let merge: TemplateMergeCells[] = [];
     let mergeSkipColumns = 0;
+
+    const rowMerge = FindRowMerge(indexRow, document.merge);
+
     return templatecolumn.c.map((c) => {
+
       let additionalColumns = '';
+
       if (c.i) {
-        for(let i = indexColumn + (HasMergeColumns(merge) ? Number(merge[0].w) : 0); i < Number(c.i[0]); i++){
+        let mergeSkipRows = 0;
+        const mergeRows = rowMerge.filter(rm => Number(rm.c[0]) + 1 >= indexColumn && Number(rm.c[0]) + 1 <= Number(c.i[0]));
+        if (mergeRows.length !== 0) {
+          mergeSkipRows = mergeRows.reduce((previous, current) => {
+            previous += Number(current.w[0]) + 1;
+            return previous;
+          }, 0);
+        }
+        for(let i = indexColumn + (HasMergeColumns(merge) ? Number(merge[0].w) : 0) + mergeSkipRows; i < Number(c.i[0]); i++){
           additionalColumns += '<td></td>';
         }
         indexColumn = Number(c.i[0]);
@@ -166,6 +192,13 @@ function _getColumn(templatecolumn: TemplateColumn, indexRow: number, document: 
       }
     }).join('');
   }
+}
+
+function FindRowMerge(indexRow: number, merge: TemplateMergeCells[]) {
+  return merge
+    .filter(m => 
+      m.h && m.w &&
+      (Number(m.r[0]) < indexRow && Number(m.r[0]) + Number(m.h[0]) >= indexRow));
 }
 
 function HasMergeColumns(merge: TemplateMergeCells[]) {

@@ -11,6 +11,7 @@ export interface TemplateDocument {
 }
 
 interface TemplateColumns {
+	id: string[];
 	size: string[];
 	columnsItem: ColumnsItem[];
 }
@@ -50,6 +51,7 @@ export interface TemplateRow {
 }
 
 export interface TemplateColumn {
+	columnsID: string[];
 	formatIndex: number;
 	c: TemplateCell[];
 }
