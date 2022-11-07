@@ -4,14 +4,14 @@ import { PredefinedData, PredefinedDataItem } from './predefinedDataInterfaces';
 export class PredefinedDataPanel {
   public static readonly viewType = 'metadataViewer.predefinedPanel';
 
-  public static show(extensionUri: vscode.Uri, data: PredefinedData) {
+  public static show(extensionUri: vscode.Uri, metadataName: string, data: PredefinedData) {
 		const column = vscode.window.activeTextEditor
 			? vscode.window.activeTextEditor.viewColumn
 			: undefined;
 
 		const panel = vscode.window.createWebviewPanel(
 			PredefinedDataPanel.viewType,
-			"Предопределенные элементы",
+			`Предопределенные элементы (${metadataName})`,
 			column || vscode.ViewColumn.One
 		);
 
@@ -42,14 +42,17 @@ export class PredefinedDataPanel {
           <table rules="all">
             <thead>
               <tr>
-                <th>Имя</th>
-                <th>Код</th>
-                <th>Наименование</th>
+                <th style="min-width: 200px;">Имя</th>
+                <th style="min-width: 100px;">Код</th>
+                <th style="min-width: 500px;">Наименование</th>
               </tr>
             </thead>
             <tbody>
-              <tr><td colspan="3"><img src="${rootImagePath}" width="16px" height="16px" style="margin-bottom: 3px; vertical-align: middle;" />&nbsp;Элементы</td></tr>
-              ${data.Item.map(i => CreateItem(i, [ folderImagePath, elementImagePath ], 1)).join('')}
+              ${data.Item.length === 0 ?
+                '<tr><td colspan=3 style="height: 200px; text-align: center; vertical-align: middle;">Для данного объекта предопределенные элементы не созданы</td></tr>' :
+                `<tr><td colspan="3"><img src="${rootImagePath}" width="16px" height="16px" style="margin-bottom: 3px; vertical-align: middle;" />&nbsp;Элементы</td></tr>
+                  ${data.Item.map(i => CreateItem(i, [ folderImagePath, elementImagePath ], 1)).join('')}`
+              }
             </tbody>
           </table>
         </body>

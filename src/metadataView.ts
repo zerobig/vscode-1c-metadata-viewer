@@ -100,8 +100,9 @@ export class MetadataView {
 
     if (rootPath) {
       const fileName = posix.join(item.path!, 'Ext/Predefined.xml');
+      const metadataName = item.path!.split('/').slice(-2).join('.');
       if (!fs.existsSync(fileName)) {
-        PredefinedDataPanel.show(context.extensionUri, { Item: [] });
+        PredefinedDataPanel.show(context.extensionUri, GetMetadataName(metadataName), { Item: [] });
       } else {
         vscode.workspace.fs.readFile(rootPath.with({ path: fileName }))
           .then(configXml => {
@@ -112,7 +113,7 @@ export class MetadataView {
               }
 
               const typedResult = result as PredefinedDataFile;
-              PredefinedDataPanel.show(context.extensionUri, typedResult.PredefinedData);
+              PredefinedDataPanel.show(context.extensionUri, GetMetadataName(metadataName), typedResult.PredefinedData);
             });
           });
       }
@@ -711,4 +712,9 @@ function CreateMetadata(idPrefix: string) {
     GetTreeItem(idPrefix + '/tasks', 'Задачи', { icon: 'task', children: [] }),
     GetTreeItem(idPrefix + '/externalDataSources', 'Внешние источники данных', { icon: 'externalDataSource', children: [] }),
   ];
+}
+
+function GetMetadataName(name: string) {
+  return name
+    .replace('Catalogs.', 'Справочник ');
 }
