@@ -206,7 +206,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 
 	console.time('reduce');
 	const attributeReduceResult = versionMetadata.reduce<MetadataDictionaries>((previous, current) => {
-		const objectName = current.$.name.split('.').slice(0,2).join('.');
+		const objectName = current.$.name.split('.').slice(0, 2).join('.');
 		if (current.$.name.includes('.Form.') && !(current.$.name.endsWith('.Form') || current.$.name.endsWith('.Help'))) {
 			if (!previous.form[objectName]) {
 				previous.form[objectName] = [];
@@ -574,7 +574,7 @@ function FillCommonItems(idPrefix: string, versionMetadata: VersionMetadata, obj
       {
         icon: 'command',
         context: 'command',
-        path: `${idPrefix}${CreatePath(m.$.name)}/Commands/${m.$.name.split('.').pop()}`,
+        path: `${idPrefix}${CreatePath(m.$.name.split('.').slice(0, 2).join('.'))}/Commands/${m.$.name.split('.').pop()}`,
       }));
 
 	return [
