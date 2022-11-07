@@ -55,7 +55,7 @@ export function activate(context: vscode.ExtensionContext) {
 }
 
 function OpenFile(filePath: string) {
-	const openPath = vscode.Uri.parse('file:///' + filePath);
+	const openPath = vscode.Uri.file(filePath);
 	if (fs.existsSync(filePath)) {
 		vscode.workspace.openTextDocument(openPath).then(doc => {
 			vscode.window.showTextDocument(doc);
