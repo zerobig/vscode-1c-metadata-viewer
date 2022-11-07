@@ -5,6 +5,8 @@ import * as xml2js from 'xml2js';
 import { posix } from 'path';
 import * as path from 'path';
 import { MetadataFile, ObjectMetadata, ObjectParams, VersionMetadata } from './metadataInterfaces';
+import { TemplatePanel } from './templatePanel';
+import { TemplateFile } from './templatInterfaces';
 import { PredefinedDataFile } from './predefinedDataInterfaces';
 import { PredefinedDataPanel } from './predefinedDataPanel';
 
@@ -58,6 +60,7 @@ interface TreeItemParams {
 	context?: string,
 	command?: string,
 	commandTitle?: string,
+  commandArguments?: any[],
   path?: string,
 	children?: TreeItem[],
 }
@@ -98,7 +101,31 @@ export class MetadataView {
       view.reveal(tree[0]);
 		});
 
+    vscode.commands.registerCommand('metadataViewer.showTemplate', (template) => this.openTemplate(context, template));
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
+	}
+
+  private openTemplate(context: vscode.ExtensionContext, template: string): void {
+    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+      ? vscode.workspace.workspaceFolders[0].uri : undefined;
+
+    if (rootPath) {
+      const fileName = posix.join(template, 'Ext/Template.xml');
+      if (!fs.existsSync(fileName)) {
+        return;
+      }
+      vscode.workspace.fs.readFile(rootPath.with({ path: fileName }))
+        .then(configXml => {
+          xml2js.parseString(configXml, (err, result) => {
+            const typedResult = result as TemplateFile;
+            if (!typedResult.document) {
+              // Это макет, но другого типа. Для него нужно писать свою панель
+              return;
+            }
+            TemplatePanel.show(context.extensionUri, typedResult.document);
+          });
+        });
+    }
   }
 
   private openPredefinedData(context: vscode.ExtensionContext, item: TreeItem): void {
@@ -230,12 +257,16 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 			if (!previous.template[objectName]) {
 				previous.template[objectName] = [];
 			}
+      const path = `${element.id}/${CreatePath(objectName)}/Templates/${current.$.name.split('.').pop()}`;
 			previous.template[objectName].push(GetTreeItem(
         treeItemIdSlash + current.$.id,
         current.$.name,
         {
           icon: 'template',
-          path: `${element.id}/${CreatePath(objectName)}/Templates/${current.$.name.split('.').pop()}`,
+          command: 'metadataViewer.showTemplate',
+          commandTitle: 'Show template',
+          commandArguments: [ path ],
+          path: path,
         }));
 		}
 		return previous;
@@ -661,9 +692,9 @@ function GetTreeItem(id: string, name: string, params: TreeItemParams ): TreeIte
 	if (params.context) {
 		treeItem.contextValue = params.context;
 	}
-	treeItem.path = params.path; // ?? CreatePath(name.split('.').slice(0,2).join('.'));
+	treeItem.path = params.path;
 	if (params.command && params.commandTitle) {
-		treeItem.command = { command: params.command, title: params.commandTitle };
+		treeItem.command = { command: params.command, title: params.commandTitle, arguments: params.commandArguments };
 	}
 
 	return treeItem;
@@ -721,7 +752,8 @@ function CreatePath(name: string): string {
 		.replace('CalculationRegister.', 'CalculationRegisters/')
 		.replace('BusinessProcess.', 'BusinessProcesses/')
 		.replace('Task.', 'Tasks/')
-		.replace('ExternalDataSource.', 'ExternalDataSources/');
+		.replace('ExternalDataSource.', 'ExternalDataSources/')
+		.replace('.Template.', '/Templates/');
 }
 
 function NodeWithIdTreeDataProvider(): vscode.TreeDataProvider<TreeItem> {
