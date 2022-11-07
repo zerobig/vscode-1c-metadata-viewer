@@ -14,6 +14,7 @@ interface MetadataDictionaries {
 }
 
 interface MetadataObjects {
+  subsystem: TreeItem[],
 	commonModule: TreeItem[],
 	sessionParameter: TreeItem[],
 	role: TreeItem[],
@@ -242,6 +243,12 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
     const treeItemPath = `${treeItemIdSlash}${CreatePath(current.$.name)}`;
   
     switch (true) {
+      case current.$.name.startsWith('Subsystem.'):
+        previous.subsystem.push(GetTreeItem(
+          treeItemId, current.$.name,
+          { icon: 'subsystem', children: HasSubsystemChildren(treeItemId, current.$.name) }));
+
+        break;
       case current.$.name.startsWith('CommonModule.'):
         previous.commonModule.push(GetTreeItem(
           treeItemId, current.$.name,
@@ -386,6 +393,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 		
 		return previous;
 	}, {
+    subsystem: [],
 		commonModule: [],
 		sessionParameter: [],
 		role: [],
@@ -410,6 +418,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
     externalDataSource: [],
 	});
 
+	SearchTree(element, element.id + '/subsystems')!.children = reduceResult.subsystem;
 	SearchTree(element, element.id + '/commonModules')!.children = reduceResult.commonModule;
 	SearchTree(element, element.id + '/sessionParameters')!.children = reduceResult.sessionParameter;
 	SearchTree(element, element.id + '/roles')!.children = reduceResult.role;
@@ -613,9 +622,19 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 	return null;
 }
 
+function HasSubsystemChildren(id: string, name: string) {
+  const subPath = posix.join(id.split('/').slice(0, -1).join('/'), CreatePath(name), 'Subsystems');
+  if (!fs.existsSync(subPath)) {
+    return undefined;
+  }
+
+  return [];
+}
+
 // TODO: Ужасная функция!!!1 Первая очередь на рефакторинг!
 function CreatePath(name: string): string {
 	return name
+		.replace('Subsystem.', 'Subsystems/')
 		.replace('CommonModule.', 'CommonModules/')
 		.replace('ExchangePlan.', 'ExchangePlans/')
 		.replace('Constant.', 'Constants/')
