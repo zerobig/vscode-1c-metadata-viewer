@@ -99,7 +99,7 @@ export class MetadataView {
       ? vscode.workspace.workspaceFolders[0].uri : undefined;
 
     if (rootPath) {
-      const fileName = posix.join(rootPath.fsPath, item.path!, 'Ext/Predefined.xml');
+      const fileName = posix.join(item.path!, 'Ext/Predefined.xml');
       if (!fs.existsSync(fileName)) {
         PredefinedDataPanel.show(context.extensionUri, { Item: [] });
       } else {
