@@ -20,6 +20,8 @@ interface MetadataObjects {
 	role: TreeItem[],
 	commonAttribute: TreeItem[],
 	exchangePlan: TreeItem[],
+	eventSubscription: TreeItem[],
+	scheduledJob: TreeItem[],
 	constant: TreeItem[],
 	catalog: TreeItem[],
 	document: TreeItem[],
@@ -272,6 +274,12 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
             children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
+      case current.$.name.startsWith('EventSubscription.'):
+        previous.eventSubscription.push(GetTreeItem(treeItemId, current.$.name, { icon: 'eventSubscription' }));
+        break;
+      case current.$.name.startsWith('ScheduledJob.'):
+        previous.scheduledJob.push(GetTreeItem(treeItemId, current.$.name, { icon: 'scheduledJob' }));
+        break;
       case current.$.name.startsWith('Constant.'):
         previous.constant.push(GetTreeItem(
           treeItemId, current.$.name, {
@@ -400,7 +408,9 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 		role: [],
 		commonAttribute: [],
 		exchangePlan: [],
-		constant: [],
+    eventSubscription: [],
+    scheduledJob: [],
+    constant: [],
 		catalog: [],
 		document: [],
 		documentJournal: [],
@@ -425,6 +435,8 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 	SearchTree(element, element.id + '/roles')!.children = reduceResult.role;
 	SearchTree(element, element.id + '/commonAttributes')!.children = reduceResult.commonAttribute;
 	SearchTree(element, element.id + '/exchangePlans')!.children = reduceResult.exchangePlan;
+	SearchTree(element, element.id + '/eventSubscriptions')!.children = reduceResult.eventSubscription;
+	SearchTree(element, element.id + '/scheduledJobs')!.children = reduceResult.scheduledJob;
 	SearchTree(element, element.id + '/constants')!.children = reduceResult.constant;
 	SearchTree(element, element.id + '/catalogs')!.children = reduceResult.catalog;
 
