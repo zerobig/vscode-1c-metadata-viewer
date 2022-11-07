@@ -246,7 +246,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
       case current.$.name.startsWith('Subsystem.'):
         previous.subsystem.push(GetTreeItem(
           treeItemId, current.$.name,
-          { icon: 'subsystem', children: HasSubsystemChildren(treeItemId, current.$.name) }));
+          { icon: 'subsystem', children: GetSubsystemChildren(versionMetadata, current.$.name) }));
 
         break;
       case current.$.name.startsWith('CommonModule.'):
@@ -622,13 +622,19 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 	return null;
 }
 
-function HasSubsystemChildren(id: string, name: string) {
-  const subPath = posix.join(id.split('/').slice(0, -1).join('/'), CreatePath(name), 'Subsystems');
-  if (!fs.existsSync(subPath)) {
-    return undefined;
+function GetSubsystemChildren(versionMetadata: VersionMetadata[], name: string, level: number = 2): TreeItem[] | undefined {
+  const filtered = versionMetadata
+    .filter(f => f.$.name.startsWith(name) && f.$.name.split('.').length === 2 * level);
+
+  if (filtered.length !== 0) {
+    return filtered
+      .map(m => GetTreeItem(
+        '', m.$.name, {
+          icon: 'subsystem',
+          children: GetSubsystemChildren(versionMetadata, m.$.name, level + 1) }));
   }
 
-  return [];
+  return undefined;
 }
 
 // TODO: Ужасная функция!!!1 Первая очередь на рефакторинг!
