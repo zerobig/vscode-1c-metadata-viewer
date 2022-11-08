@@ -7,7 +7,7 @@ export interface TemplateDocument {
 	columns: TemplateColumns[];
 	format: TemplateFormat[];
 	merge: TemplateMergeCells[];
-	font: [];
+	font: TemplateFont[];
 }
 
 interface TemplateColumns {
@@ -36,6 +36,21 @@ interface TemplateFormat {
 	rightBorder: string[];
 	textPlacement: string[];
 	font: string[];
+}
+
+interface TemplateFont {
+	$: TemplateFontMetadata;
+}
+
+interface TemplateFontMetadata {
+	faceName: string;
+	height: string;
+	bold: string;
+	italic: string;
+	underline: string;
+	strikeout: string;
+	kind: string;
+	scale: string;
 }
 
 export interface TemplateMergeCells {

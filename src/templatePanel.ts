@@ -203,8 +203,17 @@ function _getColumn(templatecolumn: TemplateColumn, indexRow: number, document: 
           style += ' white-space: normal;';
         }
 
-        if (cellFormat.font && cellFormat.font[0] === '1') {
-          // TODO:
+        if (cellFormat.font) {
+          const font = document.font[Number(cellFormat.font)];
+          if (font) {
+            style += ` font-family: ${font.$.faceName}; font-size: ${Math.round(Number(font.$.height) * 1.333)}px;`;
+            if (font.$.bold === 'true') {
+              style += ` font-weight: bold;`;
+            }
+            if (font.$.italic === 'true') {
+              style += ` font-style: italic;`;
+            }
+          }
         }
       }
       if (style) {
