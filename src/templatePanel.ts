@@ -187,16 +187,16 @@ function _getColumn(templatecolumn: TemplateColumn, indexRow: number, document: 
           style += ' border: 2px solid #fff;';
         }
         if (cellFormat.leftBorder && cellFormat.leftBorder[0] === '1') {
-          style += ' left-border: 2px solid #fff;';
+          style += ' border-left: 2px solid #fff;';
         }
         if (cellFormat.topBorder && cellFormat.topBorder[0] === '1') {
-          style += ' top-border: 2px solid #fff;';
+          style += ' border-top: 2px solid #fff;';
         }
         if (cellFormat.bottomBorder && cellFormat.bottomBorder[0] === '1') {
-          style += ' bottom-border: 2px solid #fff;';
+          style += ' border-bottom: 2px solid #fff;';
         }
         if (cellFormat.rightBorder && cellFormat.rightBorder[0] === '1') {
-          style += ' right-border: 2px solid #fff;';
+          style += ' border-right: 2px solid #fff;';
         }
 
         if (cellFormat.textPlacement && cellFormat.textPlacement[0] === 'Wrap') {
