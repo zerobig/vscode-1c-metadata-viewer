@@ -43,8 +43,10 @@ export class TemplatePanel {
         <body>
           ${document.columns
             .filter(columns => columns.size[0] !== '0')
-            .map(columns => { return `
-              <table style="width: 800px; max-width: 800px; table-layout: fixed; white-space: nowrap; border-color: #333;" rules="all">
+            .map(columns => {
+              let totalAdditionalColumns = 0;
+
+              return `<table style="width: 800px; max-width: 800px; table-layout: fixed; white-space: nowrap; border-color: #333;" rules="all">
                 <thead>
                   <tr>
                     <th style="max-width: 30px; width: 30px;"></th>
@@ -54,9 +56,15 @@ export class TemplatePanel {
                         const formatIndex = Number(c.column[0].formatIndex[0]) - 1;
                         const columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width[0] : '80';
                         
-                        return '<th' + (document.format[formatIndex] ?
+                        let additionalColumns = '';
+                        for (let i = index + totalAdditionalColumns; i < Number(c.index[0]); i++) {
+                          additionalColumns += `<th style="max-width:80px; width: 80px;">${i + 1}</th>`;
+                          totalAdditionalColumns++;
+                        }
+
+                        return `${additionalColumns}<th` + (document.format[formatIndex] ?
                           ` style="max-width: ${columnWidth}px; width: ${columnWidth}px;"` :
-                          '') + `>${index + 1}</th>`;
+                          '') + `>${index + totalAdditionalColumns + 1}</th>`;
                       }).join('')}
                   </tr>
                 </thead>
