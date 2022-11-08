@@ -29,6 +29,8 @@ export class TemplatePanel {
       }
     });
 
+    const mainColumns = document.columns.filter(columns => columns.size[0] !== '0' && !columns.id);
+
     return `<!DOCTYPE html>
       <html lang="en">
         <head>
@@ -56,9 +58,19 @@ export class TemplatePanel {
                         const formatIndex = Number(c.column[0].formatIndex[0]) - 1;
                         const columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width[0] : '80';
                         
+                        // Колонки могут быть пропущены. Вставляем. Ширину при этом берём из группы колонок без id
                         let additionalColumns = '';
                         for (let i = index + totalAdditionalColumns; i < Number(c.index[0]); i++) {
-                          additionalColumns += `<th style="max-width:80px; width: 80px;">${i + 1}</th>`;
+                          let columnWidth = '80';
+                          if (mainColumns.length !== 0) {
+                            const columnFromMain = mainColumns[0].columnsItem.filter(column => Number(column.index[0]) === i);
+                            if (columnFromMain.length !== 0) {
+                              const formatIndex = Number(columnFromMain[0].column[0].formatIndex) - 1;
+                              columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width[0] : '80';
+                            }
+                          }
+
+                          additionalColumns += `<th style="max-width:${columnWidth}px; width: ${columnWidth}px;">${i + 1}</th>`;
                           totalAdditionalColumns++;
                         }
 
@@ -66,11 +78,32 @@ export class TemplatePanel {
                           ` style="max-width: ${columnWidth}px; width: ${columnWidth}px;"` :
                           '') + `>${index + totalAdditionalColumns + 1}</th>`;
                       }).join('')}
+                    ${(() => {
+                      // Таблица может быть не закончена. Заканчиваем. Ширину при этом берём из группы колонок без id
+                      let lastColumns = '';
+
+                      // Нет основной группы колонок => неоткуда брать формат колонок для окончания таблицы => пропускаем.
+                      if (mainColumns.length !== 0) {
+                        for(let i = (columns.columnsItem ?? []).length + totalAdditionalColumns; i < Number(columns.size[0]); i++) {
+                          const formatIndex = Number(mainColumns[0].columnsItem
+                            .filter(column => Number(column.index[0]) === i)[0].column[0].formatIndex) - 1;
+                          const columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width[0] : '80';
+
+                          lastColumns += `<th style="max-width:${columnWidth}px; width: ${columnWidth}px;">${i + 1}</th>`;
+                        }
+                      }
+
+                      return lastColumns;
+                    })()}
                   </tr>
                 </thead>
                 ${(() => {
                   return document.rowsItem
-                    .filter(ri => hasColumndId ? (ri.row[0].columnsID ? ri.row[0].columnsID[0] === columns.id[0] : false) : true)
+                    .filter(ri => hasColumndId ?
+                      (ri.row[0].columnsID && columns.id ?
+                        ri.row[0].columnsID[0] === columns.id[0] :
+                        !columns.id ? !ri.row[0].columnsID : false) :
+                      true)
                     .map((_) => {
                       let additionalRows = '';
                       for(let i = indexRow; i < Number(_.index) - 1; i++) {
