@@ -1,5 +1,6 @@
 export interface MetadataFile {
 	ConfigDumpInfo: ConfigDumpInfo;
+	MetaDataObject: MetaDataObject;
 }
 
 interface ConfigDumpInfo {
@@ -28,4 +29,27 @@ export interface ObjectMetadata {
 interface AttributeParams {
 	name: string;
 	id: string;
+}
+
+///////////////////////////////////////////////////////////////////////////////
+
+interface MetaDataObject {
+	EventSubscription: EventSubscriptionMetadata[];
+	ScheduledJob: ScheduledJobMetadata[];
+}
+
+interface EventSubscriptionMetadata {
+	Properties: EventSubscriptionMetadataProperties[];
+}
+
+interface ScheduledJobMetadata {
+	Properties: ScheduledJobMetadataProperties[];
+}
+
+interface EventSubscriptionMetadataProperties {
+	Handler: string[];
+}
+
+interface ScheduledJobMetadataProperties {
+	MethodName: string[];
 }

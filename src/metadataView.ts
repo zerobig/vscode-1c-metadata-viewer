@@ -87,7 +87,12 @@ export class TreeItem extends vscode.TreeItem {
 }
 
 export class MetadataView {
+  rootPath?: vscode.Uri;
+
 	constructor(context: vscode.ExtensionContext) {
+    this.rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
+      ? vscode.workspace.workspaceFolders[0].uri : undefined;
+
 		const view = vscode.window.createTreeView('metadataView', { treeDataProvider: NodeWithIdTreeDataProvider(), showCollapseAll: true });
 		context.subscriptions.push(view);
 
@@ -103,18 +108,16 @@ export class MetadataView {
 
     vscode.commands.registerCommand('metadataViewer.showTemplate', (template) => this.openTemplate(context, template));
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
+    vscode.commands.registerCommand('metadataViewer.openHandler', (item) => this.openHandler(item));
 	}
 
   private openTemplate(context: vscode.ExtensionContext, template: string): void {
-    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-      ? vscode.workspace.workspaceFolders[0].uri : undefined;
-
-    if (rootPath) {
+    if (this.rootPath) {
       const fileName = posix.join(template, 'Ext/Template.xml');
       if (!fs.existsSync(fileName)) {
         return;
       }
-      vscode.workspace.fs.readFile(rootPath.with({ path: fileName }))
+      vscode.workspace.fs.readFile(this.rootPath.with({ path: fileName }))
         .then(configXml => {
           xml2js.parseString(configXml, (err, result) => {
             const typedResult = result as TemplateFile;
@@ -129,16 +132,13 @@ export class MetadataView {
   }
 
   private openPredefinedData(context: vscode.ExtensionContext, item: TreeItem): void {
-    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-      ? vscode.workspace.workspaceFolders[0].uri : undefined;
-
-    if (rootPath) {
+    if (this.rootPath) {
       const fileName = posix.join(item.path!, 'Ext/Predefined.xml');
       const metadataName = item.path!.split('/').slice(-2).join('.');
       if (!fs.existsSync(fileName)) {
         PredefinedDataPanel.show(context.extensionUri, GetMetadataName(metadataName), { Item: [] });
       } else {
-        vscode.workspace.fs.readFile(rootPath.with({ path: fileName }))
+        vscode.workspace.fs.readFile(this.rootPath.with({ path: fileName }))
           .then(configXml => {
             xml2js.parseString(configXml, (err, result) => {
               if (err) {
@@ -154,16 +154,78 @@ export class MetadataView {
     }
   }
 
+  private openHandler(item: TreeItem): void {
+    if (this.rootPath) {
+      const fileName = CreatePath(item.path!) + '.xml';
+      if (!fs.existsSync(fileName)) {
+        vscode.window
+          .showInformationMessage(`File ${fileName} does not exist.`);
+
+        return;
+      }
+
+      vscode.workspace.fs.readFile(this.rootPath.with({ path: fileName }))
+          .then(configXml => {
+            xml2js.parseString(configXml, (err, result) => {
+              if (err) {
+                console.error(err);
+                return;
+              }
+
+              const typedResult = result as MetadataFile;
+              const handlerFileName = posix.join(
+                item.path!.split('/').slice(0, -2).join('/'),
+                item.path!.includes('/EventSubscriptions/') ? 
+                  CreatePath(typedResult.MetaDataObject.EventSubscription[0].Properties[0].Handler[0].split('.').slice(0, 2).join('.')) :
+                  CreatePath(typedResult.MetaDataObject.ScheduledJob[0].Properties[0].MethodName[0].split('.').slice(0, 2).join('.')),
+                'Ext',
+                'Module.bsl');
+
+              if (!fs.existsSync(handlerFileName)) {
+                vscode.window
+                  .showInformationMessage(`Handler file ${handlerFileName} does not exist.`);
+
+                return;
+              }
+
+              vscode.workspace.openTextDocument(handlerFileName).then(doc => {
+                const functionName = item.path!.includes('/EventSubscriptions/') ? 
+                  typedResult.MetaDataObject.EventSubscription[0].Properties[0].Handler[0].split('.').slice(-1).pop() :
+                  typedResult.MetaDataObject.ScheduledJob[0].Properties[0].MethodName[0].split('.').slice(-1).pop();
+                const regExpString = `^(процедура|функция|procedure|function)\\s*${functionName}\\([a-zа-яё\\s,]+\\)\\s*Экспорт`;
+
+                const text = doc.getText().split('\n');
+                // TODO: Без малого секунду ищет на 1500 строках и две секунды на 9000 строках.
+                //       Это на весьма древнем компьютере. Нормально? Или надо оптимизировать?
+                console.time('search procedure regexp');
+                const handlerPos = text.findIndex(row => new RegExp(regExpString, 'i').test(row));
+                console.timeEnd('search procedure regexp');
+
+                vscode.window.showTextDocument(doc)
+                  .then(editor => {
+                    if (handlerPos != -1) {
+                      const selection = new vscode.Selection(
+                        new vscode.Position(handlerPos, 0), new vscode.Position(handlerPos + 1, 0));
+    
+                      editor.selections = [selection, selection]; 
+                    } else {
+                      vscode.window
+                        .showInformationMessage(`Function ${functionName} not found in handler ${handlerFileName}.`);
+                    }
+                  });
+              });
+            });
+          });
+    }
+  }
+
   private expand(element: TreeItem) {
     if (!element.isConfiguration) {
       return;
     }
 
-    const rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
-      ? vscode.workspace.workspaceFolders[0].uri : undefined;
-
-    if (rootPath) {
-      vscode.workspace.fs.readFile(rootPath.with({ path: posix.join(element.id, 'ConfigDumpInfo.xml') }))
+    if (this.rootPath) {
+      vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(element.id, 'ConfigDumpInfo.xml') }))
         .then(configXml => {
           xml2js.parseString(configXml, (err, result) => {
             if (err) {
@@ -310,10 +372,14 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
   
         break;
       case current.$.name.startsWith('EventSubscription.'):
-        previous.eventSubscription.push(GetTreeItem(treeItemId, current.$.name, { icon: 'eventSubscription' }));
+        previous.eventSubscription.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'eventSubscription', context: 'handler', path: treeItemPath }));
         break;
       case current.$.name.startsWith('ScheduledJob.'):
-        previous.scheduledJob.push(GetTreeItem(treeItemId, current.$.name, { icon: 'scheduledJob' }));
+        previous.scheduledJob.push(GetTreeItem(
+          treeItemId, current.$.name, {
+            icon: 'scheduledJob', context: 'handler', path: treeItemPath }));
         break;
       case current.$.name.startsWith('WebService.'):
         previous.webService.push(GetTreeItem(treeItemId, current.$.name, {
@@ -734,6 +800,8 @@ function CreatePath(name: string): string {
 		.replace('Subsystem.', 'Subsystems/')
 		.replace('CommonModule.', 'CommonModules/')
 		.replace('ExchangePlan.', 'ExchangePlans/')
+    .replace('EventSubscription.', 'EventSubscriptions/')
+    .replace('ScheduledJob.', 'ScheduledJobs/')
 		.replace('WebService.', 'WebServices/')
 		.replace('HTTPService.', 'HTTPServices/')
 		.replace('Constant.', 'Constants/')

@@ -81,6 +81,10 @@
 			{
 				"command": "metadataViewer.openPredefinedData",
 				"title": "%1c-metadata-viewer.openPredefinedData.title%"
+			},
+			{
+				"command": "metadataViewer.openHandler",
+				"title": "%1c-metadata-viewer.openHandler.title%"
 			}
 		],
 		"menus": {
@@ -144,6 +148,10 @@
 					"command": "metadataViewer.openPredefinedData",
 					"group": "bsl",
 					"when": "viewItem =~ /predefined/"
+				},
+				{
+					"command": "metadataViewer.openHandler",
+					"when": "viewItem =~ /handler/"
 				}
 			]
 		},
