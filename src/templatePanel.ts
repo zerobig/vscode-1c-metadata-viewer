@@ -183,20 +183,21 @@ function _getColumn(templatecolumn: TemplateColumn, indexRow: number, document: 
           }
         }
 
+        const borderColor = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark ? '#fff' : '#000';
         if (cellFormat.border && cellFormat.border[0] === '1') {
-          style += ' border: 2px solid #fff;';
+          style += ` border: 2px solid ${borderColor};`;
         }
         if (cellFormat.leftBorder && cellFormat.leftBorder[0] === '1') {
-          style += ' border-left: 2px solid #fff;';
+          style += ` border-left: 2px solid ${borderColor};`;
         }
         if (cellFormat.topBorder && cellFormat.topBorder[0] === '1') {
-          style += ' border-top: 2px solid #fff;';
+          style += ` border-top: 2px solid ${borderColor};`;
         }
         if (cellFormat.bottomBorder && cellFormat.bottomBorder[0] === '1') {
-          style += ' border-bottom: 2px solid #fff;';
+          style += ` border-bottom: 2px solid ${borderColor};`;
         }
         if (cellFormat.rightBorder && cellFormat.rightBorder[0] === '1') {
-          style += ' border-right: 2px solid #fff;';
+          style += ` border-right: 2px solid ${borderColor};`;
         }
 
         if (cellFormat.textPlacement && cellFormat.textPlacement[0] === 'Wrap') {
