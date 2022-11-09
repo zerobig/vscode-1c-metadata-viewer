@@ -48,11 +48,19 @@
 			},
 			{
 				"command": "metadataViewer.openObjectModule",
-				"title": "%1c-metadata-viewer.openObjectModule.title%"
+				"title": "%1c-metadata-viewer.openObjectModule.title%",
+				"icon": {
+					"dark": "resources/dark/editObject.svg",
+					"light": "resources/light/editObject.svg"
+				}
 			},
 			{
 				"command": "metadataViewer.openManagerModule",
-				"title": "%1c-metadata-viewer.openManagerModule.title%"
+				"title": "%1c-metadata-viewer.openManagerModule.title%",
+				"icon": {
+					"dark": "resources/dark/editManager.svg",
+					"light": "resources/light/editManager.svg"
+				}
 			},
 			{
 				"command": "metadataViewer.openForm",
@@ -106,12 +114,22 @@
 				},
 				{
 					"command": "metadataViewer.openObjectModule",
-					"group": "bsl",
+					"group": "inline",
 					"when": "viewItem =~ /object/"
 				},
 				{
 					"command": "metadataViewer.openManagerModule",
 					"group": "bsl",
+					"when": "viewItem =~ /manager/"
+				},
+				{
+					"command": "metadataViewer.openObjectModule",
+					"group": "bsl",
+					"when": "viewItem =~ /object/"
+				},
+				{
+					"command": "metadataViewer.openManagerModule",
+					"group": "inline",
 					"when": "viewItem =~ /manager/"
 				},
 				{
