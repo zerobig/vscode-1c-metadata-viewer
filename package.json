@@ -93,6 +93,10 @@
 			{
 				"command": "metadataViewer.openHandler",
 				"title": "%1c-metadata-viewer.openHandler.title%"
+			},
+			{
+				"command": "metadataViewer.openMetadataProperties",
+				"title": "%1c-metadata-viewer.openMetadataProperties.title%"
 			}
 		],
 		"menus": {
@@ -170,21 +174,26 @@
 				{
 					"command": "metadataViewer.openHandler",
 					"when": "viewItem =~ /handler/"
+				},
+				{
+					"command": "metadataViewer.openMetadataProperties",
+					"group": "metadata",
+					"when": "viewItem == main"
 				}
 			]
 		},
 		"configuration": [
-      {
-        "title": "1C Metadata Viewer",
-        "properties": {
-          "metadataViewer.searchDepth": {
-            "type": "integer",
-            "default": 3,
-            "description": "%1c-metadata-viewer.searchDepth.title%"
-          }
-        }
-      }
-    ]
+			{
+				"title": "1C Metadata Viewer",
+				"properties": {
+					"metadataViewer.searchDepth": {
+						"type": "integer",
+						"default": 3,
+						"description": "%1c-metadata-viewer.searchDepth.title%"
+					}
+				}
+			}
+		]
 	},
 	"scripts": {
 		"vscode:prepublish": "npm run compile",
@@ -203,6 +212,7 @@
 	},
 	"dependencies": {
 		"fast-glob": "^3.2.12",
+		"@vscode/webview-ui-toolkit": "^1.1.0",
 		"xml2js": "^0.4.23"
 	}
 }

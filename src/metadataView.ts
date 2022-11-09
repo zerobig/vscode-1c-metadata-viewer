@@ -9,6 +9,8 @@ import { TemplatePanel } from './templatePanel';
 import { TemplateFile } from './templatInterfaces';
 import { PredefinedDataFile } from './predefinedDataInterfaces';
 import { PredefinedDataPanel } from './predefinedDataPanel';
+import { getWebviewContent } from './Metadata/Configuration/getWebviewContent';
+import { Configuration } from './Metadata/Configuration/configuration';
 
 interface MetadataDictionaries {
 	form: { [key: string]: TreeItem[] },
@@ -88,6 +90,7 @@ export class TreeItem extends vscode.TreeItem {
 
 export class MetadataView {
   rootPath?: vscode.Uri;
+  panel: vscode.WebviewPanel | undefined = undefined;
 
 	constructor(context: vscode.ExtensionContext) {
     this.rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
@@ -109,6 +112,7 @@ export class MetadataView {
     vscode.commands.registerCommand('metadataViewer.showTemplate', (template) => this.openTemplate(context, template));
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
     vscode.commands.registerCommand('metadataViewer.openHandler', (item) => this.openHandler(item));
+    vscode.commands.registerCommand('metadataViewer.openMetadataProperties', (item) => this.openMetadataProperties(context, item));
 	}
 
   private openTemplate(context: vscode.ExtensionContext, template: string): void {
@@ -217,6 +221,47 @@ export class MetadataView {
             });
           });
     }
+  }
+
+  private openMetadataProperties(context: vscode.ExtensionContext, item: TreeItem): void {
+    if (this.rootPath) {
+      vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(item.path!, 'Configuration.xml') }))
+        .then(configXml => {
+          xml2js.parseString(configXml, (err, result) => {
+            if (err) {
+              console.error(err);
+              return;
+            }
+
+            const configurationProperties = result.MetaDataObject.Configuration[0].Properties[0];
+            const newConfiguration: Configuration = {
+              id: '',
+              name: configurationProperties.Name[0],
+              synonym: configurationProperties.Synonym[0]["v8:item"][0]["v8:content"][0],
+              comment: configurationProperties.Comment[0],
+              vendor: configurationProperties.Vendor[0].replaceAll('"', '&quot;'),
+              version: configurationProperties.Version[0],
+            };
+
+            if (!this.panel) {
+              this.panel = vscode.window.createWebviewPanel("configurationDetailView", newConfiguration.name, vscode.ViewColumn.One, {
+                enableScripts: true,
+              });
+            }
+        
+            this.panel.title = newConfiguration.name;
+            this.panel.webview.html = getWebviewContent(this.panel.webview, context.extensionUri, newConfiguration);
+          });
+        });
+    }
+
+    this.panel?.onDidDispose(
+      () => {
+        this.panel = undefined;
+      },
+      null,
+      context.subscriptions
+    );
   }
 
   private expand(element: TreeItem) {
