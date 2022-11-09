@@ -239,6 +239,11 @@ export class MetadataView {
               name: configurationProperties.Name[0],
               synonym: configurationProperties.Synonym[0]["v8:item"][0]["v8:content"][0],
               comment: configurationProperties.Comment[0],
+              briefInformation: configurationProperties.BriefInformation[0]["v8:item"][0]["v8:content"][0],
+              detailedInformation: configurationProperties.DetailedInformation[0]["v8:item"][0]["v8:content"][0],
+              copyright: configurationProperties.Copyright[0]["v8:item"][0]["v8:content"][0].replaceAll('"', '&quot;'),
+              vendorInformationAddress: configurationProperties.VendorInformationAddress[0]["v8:item"][0]["v8:content"][0],
+              configurationInformationAddress: configurationProperties.ConfigurationInformationAddress[0]["v8:item"][0]["v8:content"][0],
               vendor: configurationProperties.Vendor[0].replaceAll('"', '&quot;'),
               version: configurationProperties.Version[0],
             };
