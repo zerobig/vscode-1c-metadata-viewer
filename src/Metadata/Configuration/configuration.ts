@@ -3,6 +3,10 @@ export type Configuration = {
 	name: string;
 	synonym: string;
 	comment: string;
+	defaultRunMode: string;
+	usePurposes: string[];
+	scriptVariant: string;
+	defaultRoles: string[];
 	briefInformation: string;
 	detailedInformation: string;
 	copyright: string;
@@ -10,4 +14,11 @@ export type Configuration = {
 	configurationInformationAddress: string;
 	vendor: string;
 	version: string;
+	updateCatalogAddress: string;
+	dataLockControlMode: string;
+	objectAutonumerationMode: string;
+	modalityUseMode: string;
+	synchronousPlatformExtensionAndAddInCallUseMode: string;
+	interfaceCompatibilityMode: string;
+	compatibilityMode: string;
 }

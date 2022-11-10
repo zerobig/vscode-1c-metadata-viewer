@@ -3,6 +3,19 @@
   flex-direction: column;
 }
 
+h1 {
+  margin-bottom: 0;
+  font-size: 26px;
+}
+
+.header {
+  color: var(--vscode-settings-headerForeground);
+  background-color: var(--vscode-settings-focusedRowBackground);
+  font-size: 22px;
+  font-weight: 600;
+  padding: 10px 10px 10px 15px;
+}
+
 .column-container {
   display: flex;
   flex-direction: column;
@@ -10,17 +23,20 @@
   padding: 1rem;
 }
 
-.column-container > * {
-  margin: 0.75rem 0;
-}
-
 .parameter-container {
   display: flex;
   flex-direction: column;
+  padding: 12px 14px 18px;
+  line-height: 1.4em!important;
+  outline-offset: -1px;
 }
 
 .parameter-container:hover {
   background-color: var(--vscode-settings-rowHoverBackground);
+}
+
+.parameter-container vscode-dropdown {
+  width: 320px;
 }
 
 .label {
@@ -30,17 +46,31 @@
 }
 
 .description {
-  margin-top: 0.25rem;
+  margin-top: -1px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.parameter-list {
+  margin-bottom: 1px;
 }
 
 .parameter-list-item {
   display: flex;
-  height: 24px;
-  max-height: 24px;
+  min-height: 24px;
+  line-height: 24px;
 }
 
 .parameter-list-item:hover {
   background-color: var(--vscode-settings-rowHoverBackground);
+}
+
+.parameter-list-item-text {
+  margin-left: 4px;
+  color: var(--vscode-descriptionForeground);
+}
+
+.parameter-button {
+  margin-top: 4px;
 }
 
 @media screen and (min-width: 1024px) {

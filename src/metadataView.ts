@@ -11,6 +11,7 @@ import { PredefinedDataFile } from './predefinedDataInterfaces';
 import { PredefinedDataPanel } from './predefinedDataPanel';
 import { getWebviewContent } from './Metadata/Configuration/getWebviewContent';
 import { Configuration } from './Metadata/Configuration/configuration';
+import { XMLParser } from 'fast-xml-parser';
 
 interface MetadataDictionaries {
 	form: { [key: string]: TreeItem[] },
@@ -227,37 +228,58 @@ export class MetadataView {
     if (this.rootPath) {
       vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(item.path!, 'Configuration.xml') }))
         .then(configXml => {
-          xml2js.parseString(configXml, (err, result) => {
-            if (err) {
-              console.error(err);
-              return;
-            }
+          const arrayPaths = [
+            'MetaDataObject.Configuration.Properties.UsePurposes.v8:Value',
+            'MetaDataObject.Configuration.Properties.DefaultRoles.xr:Item',
+          ];
 
-            const configurationProperties = result.MetaDataObject.Configuration[0].Properties[0];
-            const newConfiguration: Configuration = {
-              id: '',
-              name: configurationProperties.Name[0],
-              synonym: configurationProperties.Synonym[0]["v8:item"][0]["v8:content"][0],
-              comment: configurationProperties.Comment[0],
-              briefInformation: configurationProperties.BriefInformation[0]["v8:item"][0]["v8:content"][0],
-              detailedInformation: configurationProperties.DetailedInformation[0]["v8:item"][0]["v8:content"][0],
-              copyright: configurationProperties.Copyright[0]["v8:item"][0]["v8:content"][0].replaceAll('"', '&quot;'),
-              vendorInformationAddress: configurationProperties.VendorInformationAddress[0]["v8:item"][0]["v8:content"][0],
-              configurationInformationAddress: configurationProperties.ConfigurationInformationAddress[0]["v8:item"][0]["v8:content"][0],
-              vendor: configurationProperties.Vendor[0].replaceAll('"', '&quot;'),
-              version: configurationProperties.Version[0],
-            };
+          const parser = new XMLParser({
+            ignoreAttributes : false,
+            isArray: (name, jpath, isLeafNode, isAttribute) => { 
+              if(arrayPaths.indexOf(jpath) !== -1) return true;
 
-            if (!this.panel) {
-              this.panel = vscode.window.createWebviewPanel("configurationDetailView", newConfiguration.name, vscode.ViewColumn.One, {
-                enableScripts: true,
-              });
+              return false;
             }
-        
-            this.panel.title = newConfiguration.name;
-            this.panel.webview.html = getWebviewContent(this.panel.webview, context.extensionUri, newConfiguration);
           });
-        });
+          let result = parser.parse(Buffer.from(configXml));
+                      
+          const configurationProperties = result.MetaDataObject.Configuration.Properties;
+          const newConfiguration: Configuration = {
+            id: '',
+            name: configurationProperties.Name,
+            synonym: GetContent(configurationProperties.Synonym),
+            comment: configurationProperties.Comment,
+            defaultRunMode: configurationProperties.DefaultRunMode,
+            usePurposes: configurationProperties.UsePurposes['v8:Value'].map((p: { [key: string]: string }) =>
+              p['#text'] === 'PlatformApplication' ? 'Приложение для платформы' : 'Приложение для мобильной платформы'),
+            scriptVariant: configurationProperties.ScriptVariant,
+            defaultRoles: configurationProperties.DefaultRoles['xr:Item'].map((r: { [key: string]: string }) =>
+              r['#text'].replace('Role.', 'Роль.')),
+            briefInformation: GetContent(configurationProperties.BriefInformation),
+            detailedInformation: GetContent(configurationProperties.DetailedInformation),
+            copyright: GetContent(configurationProperties.Copyright),
+            vendorInformationAddress: GetContent(configurationProperties.VendorInformationAddress),
+            configurationInformationAddress: GetContent(configurationProperties.ConfigurationInformationAddress),
+            vendor: configurationProperties.Vendor.replaceAll('"', '&quot;'),
+            version: configurationProperties.Version,
+            updateCatalogAddress: configurationProperties.UpdateCatalogAddress,
+            dataLockControlMode: configurationProperties.DataLockControlMode,
+            objectAutonumerationMode: configurationProperties.ObjectAutonumerationMode,
+            modalityUseMode: configurationProperties.ModalityUseMode,
+            synchronousPlatformExtensionAndAddInCallUseMode: configurationProperties.SynchronousPlatformExtensionAndAddInCallUseMode,
+            interfaceCompatibilityMode: configurationProperties.InterfaceCompatibilityMode,
+            compatibilityMode: configurationProperties.CompatibilityMode,
+          };
+
+          if (!this.panel) {
+            this.panel = vscode.window.createWebviewPanel("configurationDetailView", newConfiguration.name, vscode.ViewColumn.One, {
+              enableScripts: true,
+            });
+          }
+      
+          this.panel.title = newConfiguration.name;
+          this.panel.webview.html = getWebviewContent(this.panel.webview, context.extensionUri, newConfiguration);
+      });
     }
 
     this.panel?.onDidDispose(
@@ -953,4 +975,12 @@ function CreateMetadata(idPrefix: string) {
 function GetMetadataName(name: string) {
   return name
     .replace('Catalogs.', 'Справочник ');
+}
+
+function GetContent(object: { [key: string]: { [key: string]: string } }) {
+  if (!object['v8:item']) {
+    return '';
+  }
+
+  return object['v8:item']['v8:content'].split('"').join('&quot;');
 }
