@@ -87,6 +87,10 @@ vscode-dropdown {
   margin-right: 4px;
 }
 
+vscode-dropdown[readonly] {
+  pointer-events: none;
+}
+
 .hidden {
   display: none;
 }
