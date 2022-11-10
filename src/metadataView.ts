@@ -279,16 +279,16 @@ export class MetadataView {
       
           this.panel.title = newConfiguration.name;
           this.panel.webview.html = getWebviewContent(this.panel.webview, context.extensionUri, newConfiguration);
-      });
-    }
 
-    this.panel?.onDidDispose(
-      () => {
-        this.panel = undefined;
-      },
-      null,
-      context.subscriptions
-    );
+          this.panel?.onDidDispose(
+            () => {
+              this.panel = undefined;
+            },
+            null,
+            context.subscriptions
+          );
+        });
+    }
   }
 
   private expand(element: TreeItem) {

@@ -56,11 +56,18 @@ export function getWebviewContent(webview: Webview, extensionUri: Uri, configura
           <div class="parameter-container">
             <p class="label">Назначение использования</p>
             <p class="description">Указывает назначение использования прикладного решения (Мобильное устройство или Персональный компьютер). Свойство доступно только в том случае, если свойство Основной режим запуска установлено в значение Управляемое приложение.</p>
-            <div class="parameter-list">
+            <div id="purposes-list" class="parameter-list">
               ${configuration.usePurposes.map(up => `<div class="parameter-list-item"><div class="parameter-list-item-text">${up}</div></div>`).join('')}
+              <div id="add-purpose" class="hidden">
+                <vscode-dropdown>
+                  <vscode-option>111</vscode-option>
+                </vscode-dropdown>
+                <vscode-button id="save-purpose-button" class="add-cancel-button">ОК</vscode-button>
+                <vscode-button id="cancel-purpose-button" class="add-cancel-button" appearance="secondary">Отмена</vscode-button>
+              </div>
             </div>
             <div>
-              <vscode-button appearance="primary" class="parameter-button">Добавить назначение</vscode-button>
+              <vscode-button id="add-purpose-button" appearance="primary" class="parameter-button">Добавить назначение</vscode-button>
             </div>
           </div>
           <div class="parameter-container">
@@ -74,11 +81,11 @@ export function getWebviewContent(webview: Webview, extensionUri: Uri, configura
           <div class="parameter-container">
             <p class="label">Основные роли</p>
             <p class="description">Список ролей, которые будут использоваться в том случае, когда список пользователей прикладного решения пустой. В этом случае не выполняется авторизация доступа при начале работы системы и права доступа определяются набором ролей (<vscode-link href="#">подробнее о правиле сочетания ролей</vscode-link>), указанных в свойстве. При этом считается, что пользователь обладает административными правами вне зависимости от значения права Администрирование у всех ролей, указанных в качестве основных. Если не указаны основные роли конфигурации и список пользователей пуст, то пользователь работает без ограничения прав доступа. Роли задаются в ветви дерева конфигурации <vscode-link href="#">Общие – Роли</vscode-link>.</p>
-            <div class="parameter-list">
+            <div id="roles-list" class="parameter-list">
               ${configuration.defaultRoles.map(dr => `<div class="parameter-list-item"><div class="parameter-list-item-text">${dr}</div></div>`).join('')}
             </div>
             <div>
-              <vscode-button appearance="primary" class="parameter-button">Добавить роль</vscode-button>
+              <vscode-button id="add-role-button" appearance="primary" class="parameter-button">Добавить роль</vscode-button>
             </div>
           </div>
           <div class="parameter-container">
