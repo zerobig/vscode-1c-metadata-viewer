@@ -133,9 +133,9 @@ export function getWebviewContent(webview: Webview, extensionUri: Uri, configura
             <p class="label">Режим управления блокировкой данных</p>
             <p class="description">Вариант управления <vscode-link href="#">блокировкой данных в транзакции</vscode-link>.</p>
             <vscode-dropdown position="below">
-              <vscode-option${(() => { if (configuration.dataLockControlMode === '') { return ' selected'; }})()}>Автоматический</vscode-option>
+              <vscode-option${(() => { if (configuration.dataLockControlMode === 'Automatic') { return ' selected'; }})()}>Автоматический</vscode-option>
               <vscode-option${(() => { if (configuration.dataLockControlMode === 'Managed') { return ' selected'; }})()}>Управляемый</vscode-option>
-              <vscode-option${(() => { if (configuration.dataLockControlMode === '') { return ' selected'; }})()}>Автоматический и управляемый</vscode-option>
+              <vscode-option${(() => { if (configuration.dataLockControlMode === 'AutomaticAndManaged') { return ' selected'; }})()}>Автоматический и управляемый</vscode-option>
             </vscode-dropdown>
           </div>
           <div class="parameter-container">
@@ -150,7 +150,7 @@ export function getWebviewContent(webview: Webview, extensionUri: Uri, configura
             <p class="label">Режим использования модальности</p>
             <p class="description">Указывает, можно в прикладном решении использовать методы, приводящие к открытию модальных окон или нельзя.</p>
             <vscode-dropdown position="below">
-              <vscode-option${(() => { if (configuration.modalityUseMode === '') { return ' selected'; }})()}>Использовать</vscode-option>
+              <vscode-option${(() => { if (configuration.modalityUseMode === 'DontUse') { return ' selected'; }})()}>Использовать</vscode-option>
               <vscode-option${(() => { if (configuration.modalityUseMode === 'UseWithWarnings') { return ' selected'; }})()}>Использовать с предупреждениями</vscode-option>
               <vscode-option${(() => { if (configuration.modalityUseMode === 'Use') { return ' selected'; }})()}>Не использовать</vscode-option>
             </vscode-dropdown>
@@ -159,7 +159,7 @@ export function getWebviewContent(webview: Webview, extensionUri: Uri, configura
             <p class="label">Режим использования синхронных вызовов расширений платформы и внешних компонент</p>
             <p class="description">Свойство управляет возможностью использовать синхронные вызовы для работы с расширениями работы с файлами, криптографией и внешними компонентами. Если свойство установлено в значение Использовать, то на стороне клиента доступны синхронные методы работы с расширениями и внешними компонентами. В том случае, если свойство установлено в значение Не использовать, синхронные методы становятся недоступны в синтакс-помощнике, контекстной подсказке при редактировании модулей и расширенная проверка конфигурации выдает ошибки при обнаружении синхронных вызовов на стороне клиента. Вместо синхронных вызовов стоит использовать асинхронные аналоги.</p>
             <vscode-dropdown position="below">
-              <vscode-option${(() => { if (configuration.synchronousPlatformExtensionAndAddInCallUseMode === '') { return ' selected'; }})()}>Использовать</vscode-option>
+              <vscode-option${(() => { if (configuration.synchronousPlatformExtensionAndAddInCallUseMode === 'DontUse') { return ' selected'; }})()}>Использовать</vscode-option>
               <vscode-option${(() => { if (configuration.synchronousPlatformExtensionAndAddInCallUseMode === 'UseWithWarnings') { return ' selected'; }})()}>Использовать с предупреждениями</vscode-option>
               <vscode-option${(() => { if (configuration.synchronousPlatformExtensionAndAddInCallUseMode === 'Use') { return ' selected'; }})()}>Не использовать</vscode-option>
             </vscode-dropdown>
@@ -168,17 +168,17 @@ export function getWebviewContent(webview: Webview, extensionUri: Uri, configura
             <p class="label">Режим совместимости интерфейса</p>
             <p class="description">Свойство управляет режимом интерфейса клиентского приложения</p>
             <vscode-dropdown position="below">
-              <vscode-option${(() => { if (configuration.interfaceCompatibilityMode === '') { return ' selected'; }})()}>Такси</vscode-option>
+              <vscode-option${(() => { if (configuration.interfaceCompatibilityMode === 'Taxi') { return ' selected'; }})()}>Такси</vscode-option>
               <vscode-option${(() => { if (configuration.interfaceCompatibilityMode === 'TaxiEnableVersion8_2') { return ' selected'; }})()}>Такси. Разрешить Версия 8.2</vscode-option>
-              <vscode-option${(() => { if (configuration.interfaceCompatibilityMode === '') { return ' selected'; }})()}>Версия 8.2. Разрешить Такси</vscode-option>
-              <vscode-option${(() => { if (configuration.interfaceCompatibilityMode === '') { return ' selected'; }})()}>Версия 8.2</vscode-option>
+              <vscode-option${(() => { if (configuration.interfaceCompatibilityMode === 'Version8_2EnableTaxi') { return ' selected'; }})()}>Версия 8.2. Разрешить Такси</vscode-option>
+              <vscode-option${(() => { if (configuration.interfaceCompatibilityMode === 'Version8_2') { return ' selected'; }})()}>Версия 8.2</vscode-option>
             </vscode-dropdown>
           </div>
           <div class="parameter-container">
             <p class="label">Режим совместимости</p>
             <p class="description">Свойство управляет поведением механизмов, которое в новой версии системы изменено по сравнению с предыдущими версиями. <vscode-link href="#">Особенности работы системы в режиме совместимости с какой-либо версией</vscode-link></p>
             <vscode-dropdown position="below">
-              <vscode-option${(() => { if (configuration.compatibilityMode === '') { return ' selected'; }})()}>Не использовать</vscode-option>
+              <vscode-option${(() => { if (configuration.compatibilityMode === 'DontUse') { return ' selected'; }})()}>Не использовать</vscode-option>
               <vscode-option${(() => { if (configuration.compatibilityMode === 'Version8_3_20') { return ' selected'; }})()}>Версия 8.3.20</vscode-option>
               <vscode-option${(() => { if (configuration.compatibilityMode === 'Version8_3_19') { return ' selected'; }})()}>Версия 8.3.19</vscode-option>
               <vscode-option${(() => { if (configuration.compatibilityMode === 'Version8_3_18') { return ' selected'; }})()}>Версия 8.3.18</vscode-option>
