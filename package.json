@@ -21,7 +21,8 @@
 		"1C:Enterprise"
 	],
 	"activationEvents": [
-		"onView:metadataView"
+		"onView:metadataView",
+		"onCommand:metadataViewer.findMetadata"
 	],
 	"main": "./out/extension.js",
 	"contributes": {
@@ -97,6 +98,10 @@
 			{
 				"command": "metadataViewer.openMetadataProperties",
 				"title": "%1c-metadata-viewer.openMetadataProperties.title%"
+			},
+			{
+				"command": "metadataViewer.findMetadata",
+				"title": "%1c-metadata-viewer.findMetadata.title%"
 			}
 		],
 		"menus": {

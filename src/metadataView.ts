@@ -114,6 +114,7 @@ export class MetadataView {
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
     vscode.commands.registerCommand('metadataViewer.openHandler', (item) => this.openHandler(item));
     vscode.commands.registerCommand('metadataViewer.openMetadataProperties', (item) => this.openMetadataProperties(context, item));
+    vscode.commands.registerCommand('metadataViewer.findMetadata', () => this.findMetadata());
 	}
 
   private openTemplate(context: vscode.ExtensionContext, template: string): void {
@@ -289,6 +290,10 @@ export class MetadataView {
           );
         });
     }
+  }
+
+  private findMetadata() {
+    console.log('Test command');
   }
 
   private expand(element: TreeItem) {
