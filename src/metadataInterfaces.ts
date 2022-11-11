@@ -4,52 +4,47 @@ export interface MetadataFile {
 }
 
 interface ConfigDumpInfo {
-	ConfigVersions: ConfigVersion[];
+	ConfigVersions: ConfigVersion;
 }
 
 interface ConfigVersion {
 	Metadata: VersionMetadata[];
 }
 
-export interface VersionMetadata {
-	$: ObjectParams;
+export interface VersionMetadata extends ObjectParams {
 	Metadata?: ObjectMetadata[];
 }
 
 export interface ObjectParams {
-	name: string;
-	id: string;
-	configVersion: string;
+	$_name: string;
+	$_id: string;
+	$_configVersion: string;
 }
 
 export interface ObjectMetadata {
-	$: AttributeParams;
-}
-
-interface AttributeParams {
-	name: string;
-	id: string;
+	$_name: string;
+	$_id: string;
 }
 
 ///////////////////////////////////////////////////////////////////////////////
 
 interface MetaDataObject {
-	EventSubscription: EventSubscriptionMetadata[];
-	ScheduledJob: ScheduledJobMetadata[];
+	EventSubscription: EventSubscriptionMetadata;
+	ScheduledJob: ScheduledJobMetadata;
 }
 
 interface EventSubscriptionMetadata {
-	Properties: EventSubscriptionMetadataProperties[];
+	Properties: EventSubscriptionMetadataProperties;
 }
 
 interface ScheduledJobMetadata {
-	Properties: ScheduledJobMetadataProperties[];
+	Properties: ScheduledJobMetadataProperties;
 }
 
 interface EventSubscriptionMetadataProperties {
-	Handler: string[];
+	Handler: string;
 }
 
 interface ScheduledJobMetadataProperties {
-	MethodName: string[];
+	MethodName: string;
 }

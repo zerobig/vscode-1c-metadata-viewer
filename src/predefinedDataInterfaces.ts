@@ -7,9 +7,9 @@ export interface PredefinedData {
 }
 
 export interface PredefinedDataItem {
-	ChildItems: PredefinedData[];
-	Code: string[];
-	Description: string[];
-	IsFolder: string[];
-	Name: string[];
+	ChildItems: PredefinedData;
+	Code: string;
+	Description: string;
+	IsFolder: boolean;
+	Name: string;
 }

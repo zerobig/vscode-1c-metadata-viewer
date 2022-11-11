@@ -11,77 +11,73 @@ export interface TemplateDocument {
 }
 
 interface TemplateColumns {
-	id: string[];
-	size: string[];
+	id: string;
+	size: number;
 	columnsItem: ColumnsItem[];
 }
 
 interface ColumnsItem {
-	index: string[];
-	column: ColumnsItemFormat[]
+	index: number;
+	column: ColumnsItemFormat
 }
 
 interface ColumnsItemFormat {
-	formatIndex: string[];
+	formatIndex: number;
 }
 
 interface TemplateFormat {
-	width: string[];
-	horizontalAlignment: string[];
-	bySelectedColumns: string[];
-	border: string[];
-	leftBorder: string[];
-	topBorder: string[];
-	bottomBorder: string[];
-	rightBorder: string[];
-	textPlacement: string[];
-	font: string[];
+	width: string;
+	horizontalAlignment: string;
+	bySelectedColumns: string;
+	border: number;
+	leftBorder: number;
+	topBorder: number;
+	bottomBorder: number;
+	rightBorder: number;
+	textPlacement: string;
+	font: number;
 }
 
 interface TemplateFont {
-	$: TemplateFontMetadata;
-}
-
-interface TemplateFontMetadata {
-	faceName: string;
-	height: string;
-	bold: string;
-	italic: string;
-	underline: string;
-	strikeout: string;
-	kind: string;
-	scale: string;
+	$_faceName: string;
+	$_height: number;
+	$_bold: string;
+	$_italic: string;
+	$_underline: string;
+	$_strikeout: string;
+	$_kind: string;
+	$_scale: string;
 }
 
 export interface TemplateMergeCells {
-	r: number[];
-	c: number[];
-	w: number[];
-	h: number[];
+	r: number;
+	c: number;
+	w: number;
+	h: number;
 }
 
 export interface TemplateRow {
 	index: number;
-	row: TemplateColumn[];
+	row: TemplateColumn;
 }
 
 export interface TemplateColumn {
-	columnsID: string[];
+	columnsID: string;
 	formatIndex: number;
 	c: TemplateCell[];
 }
 
 interface TemplateCell {
-	i: string[];
-	c: TemplateCellData[];
+	i: number;
+	c: TemplateCellData;
 }
 
 interface TemplateCellData {
-	f: TemplateFormat[];
-	parameter: string[];
-	tl: TemplateTextData[];
+	f: number;
+	parameter: string;
+	tl: TemplateTextData;
 }
 
 interface TemplateTextData {
-	[key: string]: TemplateTextData[]
+	[key: string]: TemplateTextData
 }
