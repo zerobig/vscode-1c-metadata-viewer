@@ -140,7 +140,7 @@ export class MetadataView {
               return false;
             },
           });
-          let result = parser.parse(Buffer.from(configXml));
+          const result = parser.parse(Buffer.from(configXml));
 
           const typedResult = result as TemplateFile;
           if (!typedResult.document) {
@@ -173,7 +173,7 @@ export class MetadataView {
                 return false;
               },
             });
-            let result = parser.parse(Buffer.from(configXml));
+            const result = parser.parse(Buffer.from(configXml));
   
             const typedResult = result as PredefinedDataFile;
             PredefinedDataPanel.show(context.extensionUri, GetMetadataName(metadataName), typedResult.PredefinedData.Item);
@@ -197,7 +197,7 @@ export class MetadataView {
             const parser = new XMLParser({
               ignoreAttributes : false,
             });
-            let result = parser.parse(Buffer.from(configXml));
+            const result = parser.parse(Buffer.from(configXml));
   
             const typedResult = result as MetadataFile;
             const handlerFileName = posix.join(
@@ -325,7 +325,7 @@ export class MetadataView {
               return false;
             }
           });
-          let result = parser.parse(Buffer.from(configXml));
+          const result = parser.parse(Buffer.from(configXml));
 
           const typedResult = result as MetadataFile;
           CreateTreeElements(element, typedResult);
@@ -372,7 +372,7 @@ export class MetadataView {
               return false;
             }
           });
-          let result = parser.parse(Buffer.from(configXml));
+          const result = parser.parse(Buffer.from(configXml));
   
           let synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
           if (!synonym) {
@@ -911,7 +911,7 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 	return null;
 }
 
-function GetSubsystemChildren(versionMetadata: VersionMetadata[], name: string, level: number = 2): TreeItem[] | undefined {
+function GetSubsystemChildren(versionMetadata: VersionMetadata[], name: string, level = 2): TreeItem[] | undefined {
   const filtered = versionMetadata
     .filter(f => f.$_name.startsWith(name) && f.$_name.split('.').length === 2 * level);
 
