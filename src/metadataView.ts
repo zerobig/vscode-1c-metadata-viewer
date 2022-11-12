@@ -92,6 +92,8 @@ export class MetadataView {
   rootPath?: vscode.Uri;
   panel: vscode.WebviewPanel | undefined = undefined;
 
+  configurations: Configuration[] = [];
+
 	constructor(context: vscode.ExtensionContext) {
     this.rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
       ? vscode.workspace.workspaceFolders[0].uri : undefined;
@@ -105,7 +107,7 @@ export class MetadataView {
 
 		vscode.workspace.workspaceFolders?.map(folder => {
 			const folderUri = folder.uri;
-			LoadAndParseConfigurationXml(folderUri);
+			this.LoadAndParseConfigurationXml(folderUri);
       view.reveal(tree[0]);
 		});
 
@@ -244,74 +246,62 @@ export class MetadataView {
   }
 
   private openMetadataProperties(context: vscode.ExtensionContext, item: TreeItem): void {
-    if (this.rootPath) {
-      vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(item.path!, 'Configuration.xml') }))
-        .then(configXml => {
-          const arrayPaths = [
-            'MetaDataObject.Configuration.Properties.UsePurposes.v8:Value',
-            'MetaDataObject.Configuration.Properties.DefaultRoles.xr:Item',
-          ];
-
-          const parser = new XMLParser({
-            ignoreAttributes : false,
-            isArray: (name, jpath, isLeafNode, isAttribute) => { 
-              if(arrayPaths.indexOf(jpath) !== -1) return true;
-
-              return false;
-            }
-          });
-          let result = parser.parse(Buffer.from(configXml));
-                      
-          const configurationProperties = result.MetaDataObject.Configuration.Properties;
-          const newConfiguration: Configuration = {
-            id: '',
-            name: configurationProperties.Name,
-            synonym: GetContent(configurationProperties.Synonym),
-            comment: configurationProperties.Comment,
-            defaultRunMode: configurationProperties.DefaultRunMode,
-            usePurposes: configurationProperties.UsePurposes['v8:Value'].map((p: { [key: string]: string }) =>
-              p['#text'] === 'PlatformApplication' ? 'Приложение для платформы' : 'Приложение для мобильной платформы'),
-            scriptVariant: configurationProperties.ScriptVariant,
-            defaultRoles: configurationProperties.DefaultRoles['xr:Item'].map((r: { [key: string]: string }) =>
-              r['#text'].replace('Role.', 'Роль.')),
-            briefInformation: GetContent(configurationProperties.BriefInformation),
-            detailedInformation: GetContent(configurationProperties.DetailedInformation),
-            copyright: GetContent(configurationProperties.Copyright),
-            vendorInformationAddress: GetContent(configurationProperties.VendorInformationAddress),
-            configurationInformationAddress: GetContent(configurationProperties.ConfigurationInformationAddress),
-            vendor: configurationProperties.Vendor.replaceAll('"', '&quot;'),
-            version: configurationProperties.Version,
-            updateCatalogAddress: configurationProperties.UpdateCatalogAddress,
-            dataLockControlMode: configurationProperties.DataLockControlMode,
-            objectAutonumerationMode: configurationProperties.ObjectAutonumerationMode,
-            modalityUseMode: configurationProperties.ModalityUseMode,
-            synchronousPlatformExtensionAndAddInCallUseMode: configurationProperties.SynchronousPlatformExtensionAndAddInCallUseMode,
-            interfaceCompatibilityMode: configurationProperties.InterfaceCompatibilityMode,
-            compatibilityMode: configurationProperties.CompatibilityMode,
-          };
-
-          if (!this.panel) {
-            this.panel = vscode.window.createWebviewPanel("configurationDetailView", newConfiguration.name, vscode.ViewColumn.One, {
-              enableScripts: true,
-            });
-          }
-      
-          this.panel.title = newConfiguration.name;
-          this.panel.webview.html = getWebviewContent(this.panel.webview, context.extensionUri, newConfiguration);
-
-          this.panel?.onDidDispose(
-            () => {
-              this.panel = undefined;
-            },
-            null,
-            context.subscriptions
-          );
+    const configuration = this.configurations.find(c => c.path === item.path);
+    if (configuration) {
+      if (!this.panel) {
+        this.panel = vscode.window.createWebviewPanel("configurationDetailView", configuration.name, vscode.ViewColumn.One, {
+          enableScripts: true,
         });
+      }
+  
+      this.panel.title = configuration.name;
+      this.panel.webview.html = getWebviewContent(this.panel.webview, context.extensionUri, configuration);
+
+      this.panel?.onDidDispose(
+        () => {
+          this.panel = undefined;
+        },
+        null,
+        context.subscriptions
+      );
     }
   }
 
-  private findMetadata() {
-    console.log('Test command');
+  private async findMetadata() {
+    let configuration: Configuration | undefined;
+    if (this.configurations.length === 1) {
+      configuration = this.configurations[0];
+    } else {
+      const value = await vscode.window.showQuickPick(this.configurations
+        .map(c => { return { label: c.displayName }; }));
+      configuration = this.configurations.find(c => c.displayName === value?.label);
+    }
+
+    if (configuration) {
+      const metadataType = await vscode.window.showQuickPick([
+        {
+          label: 'Общие',
+          buttons: [{ iconPath: this.rootPath!.with({ path: getIconPath('common') }) }],
+          description: 'Подсистемы, общие модули, и т.д.',
+          detail: '111'
+        },
+        { label: 'Константы' },
+        { label: 'Справочники' },
+        { label: 'Документы' },
+        { label: 'Отчеты' },
+        { label: 'Обработки' },
+      ]);
+      if (metadataType) {
+        if (metadataType.label === 'Общие') {
+          const metadataSubType = await vscode.window.showQuickPick(['Подсистемы']);
+          if (metadataSubType) {
+
+          }
+        } else {
+
+        }
+      }
+    }
   }
 
   private expand(element: TreeItem) {
@@ -342,59 +332,100 @@ export class MetadataView {
         });
     }
   }
+
+  private LoadAndParseConfigurationXml(uri: vscode.Uri) {
+    console.time('glob');
+    const files = glob.sync([ '**/ConfigDumpInfo.xml', '**/Configuration.xml' ], {
+      dot: true,
+      cwd: uri.fsPath,
+      absolute: true,
+      deep: vscode.workspace.getConfiguration().get('metadataViewer.searchDepth'),
+    });
+    console.timeEnd('glob');
+  
+    const configurations = files.reduce<{ [key: string]: string[] }>((previous, current) => {
+      const key = current.split('/').slice(0, -1).join('/');
+      if (!previous[key]) {
+        previous[key] = [];
+      }
+      previous[key].push(current);
+      return previous;
+    }, {});
+  
+    const filtered = Object
+      .keys(configurations)
+      .filter(f => configurations[f].length === 2);
+  
+    filtered.forEach(fc => {
+      vscode.workspace.fs.readFile(uri.with({ path: posix.join(fc, 'Configuration.xml') }))
+        .then(configXml => {
+          const arrayPaths = [
+            'MetaDataObject.Configuration.Properties.UsePurposes.v8:Value',
+            'MetaDataObject.Configuration.Properties.DefaultRoles.xr:Item',
+          ];
+
+          const parser = new XMLParser({
+            ignoreAttributes: false,
+            isArray: (name, jpath, isLeafNode, isAttribute) => { 
+              if(arrayPaths.indexOf(jpath) !== -1) return true;
+
+              return false;
+            }
+          });
+          let result = parser.parse(Buffer.from(configXml));
+  
+          let synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
+          if (!synonym) {
+            synonym = result.MetaDataObject.Configuration.Properties.Name;
+          }
+  
+          console.log(`Конфигурация ${synonym} найдена`);
+  
+          const displayName = `${synonym} (${fc})`;
+          const configurationProperties = result.MetaDataObject.Configuration.Properties;
+          this.configurations.push({
+            displayName: displayName,
+            path: fc,
+            id: '',
+            name: configurationProperties.Name,
+            synonym: GetContent(configurationProperties.Synonym),
+            comment: configurationProperties.Comment,
+            defaultRunMode: configurationProperties.DefaultRunMode,
+            usePurposes: configurationProperties.UsePurposes['v8:Value'].map((p: { [key: string]: string }) =>
+              p['#text'] === 'PlatformApplication' ? 'Приложение для платформы' : 'Приложение для мобильной платформы'),
+            scriptVariant: configurationProperties.ScriptVariant,
+            defaultRoles: configurationProperties.DefaultRoles['xr:Item'].map((r: { [key: string]: string }) =>
+              r['#text'].replace('Role.', 'Роль.')),
+            briefInformation: GetContent(configurationProperties.BriefInformation),
+            detailedInformation: GetContent(configurationProperties.DetailedInformation),
+            copyright: GetContent(configurationProperties.Copyright),
+            vendorInformationAddress: GetContent(configurationProperties.VendorInformationAddress),
+            configurationInformationAddress: GetContent(configurationProperties.ConfigurationInformationAddress),
+            vendor: configurationProperties.Vendor.replaceAll('"', '&quot;'),
+            version: configurationProperties.Version,
+            updateCatalogAddress: configurationProperties.UpdateCatalogAddress,
+            dataLockControlMode: configurationProperties.DataLockControlMode,
+            objectAutonumerationMode: configurationProperties.ObjectAutonumerationMode,
+            modalityUseMode: configurationProperties.ModalityUseMode,
+            synchronousPlatformExtensionAndAddInCallUseMode: configurationProperties.SynchronousPlatformExtensionAndAddInCallUseMode,
+            interfaceCompatibilityMode: configurationProperties.InterfaceCompatibilityMode,
+            compatibilityMode: configurationProperties.CompatibilityMode,
+          });
+
+          const treeItem = new TreeItem(fc, displayName, CreateMetadata(fc));
+          treeItem.contextValue = 'main';
+          treeItem.path = fc;
+          treeItem.isConfiguration = true;
+  
+          tree[0].children?.push(treeItem);
+        }, );
+    });
+  }
 }
 
 const tree: TreeItem[] = [
 	GetTreeItem('configurations', 'Конфигурации', { children: [] })
 ];
-
-function LoadAndParseConfigurationXml(uri: vscode.Uri) {
-  console.time('glob');
-  const files = glob.sync([ '**/ConfigDumpInfo.xml', '**/Configuration.xml' ], {
-    dot: true,
-    cwd: uri.fsPath,
-    absolute: true,
-    deep: vscode.workspace.getConfiguration().get('metadataViewer.searchDepth'),
-  });
-  console.timeEnd('glob');
-
-  const configurations = files.reduce<{ [key: string]: string[] }>((previous, current) => {
-    const key = current.split('/').slice(0, -1).join('/');
-    if (!previous[key]) {
-      previous[key] = [];
-    }
-    previous[key].push(current);
-    return previous;
-  }, {});
-
-  const filtered = Object
-    .keys(configurations)
-    .filter(f => configurations[f].length === 2);
-
-  filtered.forEach(fc => {
-    vscode.workspace.fs.readFile(uri.with({ path: posix.join(fc, 'Configuration.xml') }))
-      .then(configXml => {
-        const parser = new XMLParser({
-          ignoreAttributes: false,
-        });
-        let result = parser.parse(Buffer.from(configXml));
-
-        let synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
-        if (!synonym) {
-          synonym = result.MetaDataObject.Configuration.Properties.Name;
-        }
-
-        console.log(`Конфигурация ${synonym} найдена`);
-
-        const treeItem = new TreeItem(fc, `${synonym} (${fc})`, CreateMetadata(fc));
-        treeItem.contextValue = 'main';
-        treeItem.path = fc;
-        treeItem.isConfiguration = true;
-
-        tree[0].children?.push(treeItem);
-      });
-  });
-}
 
 function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 	const versionMetadata = metadataFile.ConfigDumpInfo.ConfigVersions.Metadata;

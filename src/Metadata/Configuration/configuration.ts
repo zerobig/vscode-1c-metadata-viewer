@@ -1,4 +1,6 @@
 export type Configuration = {
+	displayName: string;
+	path: string;
 	id: string;
 	name: string;
 	synonym: string;
