@@ -47,7 +47,12 @@ export function activate(context: vscode.ExtensionContext) {
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openXml', (node: TreeItem) => {
-		const filePath = node.path + '.xml';
+		let filePath = '';
+		if (node.isConfiguration) {
+			filePath = node.path + '/Configuration.xml';
+		} else {
+			filePath = node.path + '.xml';
+		}
 		OpenFile(filePath);
 	});
 
