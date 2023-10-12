@@ -409,7 +409,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
         {
           icon: 'form',
           context: 'form',
-          path: `${element.id}/${CreatePath(objectName)}/Forms/${current.$_name.split('.').pop()}/Ext/Form`,
+          path: `${element.id}/${CreatePath(objectName)}/Forms/${current.$_name.split('.').pop()}`,
         }));
 		} else if (current.$_name.includes('.Template.') && !current.$_name.endsWith('.Template')) {
 			if (!previous.template[objectName]) {
