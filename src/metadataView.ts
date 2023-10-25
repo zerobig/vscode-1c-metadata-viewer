@@ -27,9 +27,11 @@ interface MetadataObjects {
 	eventSubscription: TreeItem[],
 	scheduledJob: TreeItem[],
   commonForm: TreeItem[],
+  commonPicture: TreeItem[],
   webService: TreeItem[],
   httpService: TreeItem[],
   wsReference: TreeItem[],
+  style: TreeItem[],
 	constant: TreeItem[],
 	catalog: TreeItem[],
 	document: TreeItem[],
@@ -56,7 +58,7 @@ type IconType = 'common' | 'subsystem' | 'commonModule' | 'sessionParameter' | '
 	'template' | 'dimension' | 'resource' | 'column' | 'task' | 'businessProcess' | 'externalDataSource' |
 	'accountingRegister' | 'calculationRegister' | 'filterCriteria' | 'eventSubscription' | 'scheduledJob' |
   'accountingFlag' | 'extDimensionAccountingFlag' | 'http' | 'ws' | 'wsLink' | 'operation' | 'parameter' |
-  'urlTemplate';
+  'urlTemplate' | 'picture' | 'style';
 
 interface TreeItemParams {
 	icon?: IconType,
@@ -484,6 +486,9 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
             icon: 'form', context: 'form', path: treeItemPath }));
 
         break;
+      case current.$_name.startsWith('CommonPicture.'):
+        previous.commonPicture.push(GetTreeItem(treeItemId, current.$_name, { icon: 'picture' }));
+        break;
       case current.$_name.startsWith('WebService.'):
         previous.webService.push(GetTreeItem(treeItemId, current.$_name, {
           icon: 'ws', context: 'module', path: treeItemPath,
@@ -498,6 +503,9 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
         break;
       case current.$_name.startsWith('WSReference.'):
         previous.wsReference.push(GetTreeItem(treeItemId, current.$_name, { icon: 'wsLink' }));
+        break;
+      case current.$_name.startsWith('Style.'):
+        previous.style.push(GetTreeItem(treeItemId, current.$_name, { icon: 'style' }));
         break;
       case current.$_name.startsWith('Constant.'):
         previous.constant.push(GetTreeItem(
@@ -630,9 +638,11 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
     eventSubscription: [],
     scheduledJob: [],
     commonForm: [],
+    commonPicture: [],
     webService: [],
     httpService: [],
     wsReference: [],
+    style: [],
     constant: [],
 		catalog: [],
 		document: [],
@@ -661,9 +671,11 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 	SearchTree(element, element.id + '/eventSubscriptions')!.children = reduceResult.eventSubscription;
 	SearchTree(element, element.id + '/scheduledJobs')!.children = reduceResult.scheduledJob;
 	SearchTree(element, element.id + '/commonForms')!.children = reduceResult.commonForm;
+	SearchTree(element, element.id + '/commonPictures')!.children = reduceResult.commonPicture;
 	SearchTree(element, element.id + '/webServices')!.children = reduceResult.webService;
 	SearchTree(element, element.id + '/httpServices')!.children = reduceResult.httpService;
 	SearchTree(element, element.id + '/wsReferences')!.children = reduceResult.wsReference;
+	SearchTree(element, element.id + '/styles')!.children = reduceResult.style;
 	SearchTree(element, element.id + '/constants')!.children = reduceResult.constant;
 	SearchTree(element, element.id + '/catalogs')!.children = reduceResult.catalog;
 
@@ -908,8 +920,10 @@ function CreatePath(name: string): string {
     .replace('EventSubscription.', 'EventSubscriptions/')
     .replace('ScheduledJob.', 'ScheduledJobs/')
     .replace('CommonForm.', 'CommonForms/')
+    .replace('CommonPicture.', 'CommonPictures/')
 		.replace('WebService.', 'WebServices/')
 		.replace('HTTPService.', 'HTTPServices/')
+		.replace('Style.', 'Styles/')
 		.replace('Constant.', 'Constants/')
 		.replace('Catalog.', 'Catalogs/')
 		.replace('Document.', 'Documents/')
@@ -973,14 +987,14 @@ function CreateMetadata(idPrefix: string) {
       GetTreeItem(idPrefix + '/commandGroups', 'Группы команд', { children: [] }),
       GetTreeItem(idPrefix + '/commonForms', 'Общие формы', { icon: 'form', children: [] }),
       GetTreeItem(idPrefix + '/commonTemplates', 'Общие макеты', { children: [] }),
-      GetTreeItem(idPrefix + '/commonPictures', 'Общие картинки', { children: [] }),
+      GetTreeItem(idPrefix + '/commonPictures', 'Общие картинки', { icon: 'picture', children: [] }),
       GetTreeItem(idPrefix + '/xdtoPackages', 'XDTO-пакеты', { children: [] }),
       GetTreeItem(idPrefix + '/webServices', 'Web-сервисы', { icon: 'ws', children: [] }),
       GetTreeItem(idPrefix + '/httpServices', 'HTTP-сервисы', { icon: 'http', children: [] }),
       GetTreeItem(idPrefix + '/wsReferences', 'WS-ссылки', { icon: 'wsLink', children: [] }),
       //GetTreeItem(idPrefix + '/', 'Сервисы интеграции', { children: [] }),
       GetTreeItem(idPrefix + '/styleItems', 'Элементы стиля', { children: [] }),
-      //GetTreeItem(idPrefix + '/', 'Стили', { children: [] }),
+      GetTreeItem(idPrefix + '/styles', 'Стили', { icon: 'style', children: [] }),
       GetTreeItem(idPrefix + '/languages', 'Языки', { children: [] }),
     ]}),
     GetTreeItem(idPrefix + '/constants', 'Константы', { icon: 'constant', children: [] }),
