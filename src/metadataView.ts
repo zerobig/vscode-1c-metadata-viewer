@@ -26,6 +26,7 @@ interface MetadataObjects {
 	exchangePlan: TreeItem[],
 	eventSubscription: TreeItem[],
 	scheduledJob: TreeItem[],
+  commonForm: TreeItem[],
   webService: TreeItem[],
   httpService: TreeItem[],
   wsReference: TreeItem[],
@@ -477,6 +478,12 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
           treeItemId, current.$_name, {
             icon: 'scheduledJob', context: 'handler', path: treeItemPath }));
         break;
+      case current.$_name.startsWith('CommonForm.'):
+        previous.commonForm.push(GetTreeItem(
+          treeItemId, current.$_name, {
+            icon: 'form', context: 'form', path: treeItemPath }));
+
+        break;
       case current.$_name.startsWith('WebService.'):
         previous.webService.push(GetTreeItem(treeItemId, current.$_name, {
           icon: 'ws', context: 'module', path: treeItemPath,
@@ -622,6 +629,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 		exchangePlan: [],
     eventSubscription: [],
     scheduledJob: [],
+    commonForm: [],
     webService: [],
     httpService: [],
     wsReference: [],
@@ -652,6 +660,7 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 	SearchTree(element, element.id + '/exchangePlans')!.children = reduceResult.exchangePlan;
 	SearchTree(element, element.id + '/eventSubscriptions')!.children = reduceResult.eventSubscription;
 	SearchTree(element, element.id + '/scheduledJobs')!.children = reduceResult.scheduledJob;
+	SearchTree(element, element.id + '/commonForms')!.children = reduceResult.commonForm;
 	SearchTree(element, element.id + '/webServices')!.children = reduceResult.webService;
 	SearchTree(element, element.id + '/httpServices')!.children = reduceResult.httpService;
 	SearchTree(element, element.id + '/wsReferences')!.children = reduceResult.wsReference;
@@ -898,6 +907,7 @@ function CreatePath(name: string): string {
 		.replace('ExchangePlan.', 'ExchangePlans/')
     .replace('EventSubscription.', 'EventSubscriptions/')
     .replace('ScheduledJob.', 'ScheduledJobs/')
+    .replace('CommonForm.', 'CommonForms/')
 		.replace('WebService.', 'WebServices/')
 		.replace('HTTPService.', 'HTTPServices/')
 		.replace('Constant.', 'Constants/')
@@ -961,7 +971,7 @@ function CreateMetadata(idPrefix: string) {
       GetTreeItem(idPrefix + '/settingsStorages', 'Хранилища настроек', { children: [] }),
       GetTreeItem(idPrefix + '/commonCommands', 'Общие команды', { children: [] }),
       GetTreeItem(idPrefix + '/commandGroups', 'Группы команд', { children: [] }),
-      GetTreeItem(idPrefix + '/commonForms', 'Общие формы', { children: [] }),
+      GetTreeItem(idPrefix + '/commonForms', 'Общие формы', { icon: 'form', children: [] }),
       GetTreeItem(idPrefix + '/commonTemplates', 'Общие макеты', { children: [] }),
       GetTreeItem(idPrefix + '/commonPictures', 'Общие картинки', { children: [] }),
       GetTreeItem(idPrefix + '/xdtoPackages', 'XDTO-пакеты', { children: [] }),
