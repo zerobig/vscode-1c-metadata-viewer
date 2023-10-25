@@ -1016,5 +1016,8 @@ function GetContent(object: { [key: string]: { [key: string]: string } }) {
     return '';
   }
 
+  if (Array.isArray(object['v8:item'])) {
+    return object['v8:item'][0]['v8:content'].split('"').join('&quot;');
+  }
   return object['v8:item']['v8:content'].split('"').join('&quot;');
 }
