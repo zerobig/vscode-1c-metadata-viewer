@@ -219,7 +219,7 @@ export class MetadataView {
               const functionName = item.path!.includes('/EventSubscriptions/') ? 
                 typedResult.MetaDataObject.EventSubscription.Properties.Handler.split('.').slice(-1).pop() :
                 typedResult.MetaDataObject.ScheduledJob.Properties.MethodName.split('.').slice(-1).pop();
-              const regExpString = `^(процедура|функция|procedure|function)\\s*${functionName}\\([a-zа-яё\\s,]+\\)\\s*Экспорт`;
+              const regExpString = `^(процедура|функция|procedure|function)\\s*${functionName}\\([a-zа-яё\\s,]*\\)\\s*Экспорт`;
 
               const text = doc.getText().split('\n');
               // TODO: Без малого секунду ищет на 1500 строках и две секунды на 9000 строках.
