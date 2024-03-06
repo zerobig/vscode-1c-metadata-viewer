@@ -76,6 +76,9 @@
                 <xsl:when test="name() = 'Popup'">
                     <!-- TODO: -->
                 </xsl:when>
+                <xsl:when test="name() = 'RadioButtonField'">
+                    <!-- TODO: -->
+                </xsl:when>
                 <xsl:when test="name() = 'SearchStringAddition'">
                     <!-- TODO: -->
                 </xsl:when>
