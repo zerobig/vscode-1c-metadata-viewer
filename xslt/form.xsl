@@ -22,6 +22,9 @@
                     <div class="window-header">
                     </div>
                     <div class="window-content">
+                        <div>
+                            <xsl:apply-templates select="/Form/AutoCommandBar/ChildItems" />
+                        </div>
                         <xsl:apply-templates select="/Form/ChildItems" />
                     </div>
                 </div>
@@ -66,6 +69,12 @@
                 </xsl:when>
                 <xsl:when test="name() = 'Pages'">
                     <xsl:apply-templates select="." />
+                </xsl:when>
+                <xsl:when test="name() = 'PictureField'">
+                    <!-- TODO: -->
+                </xsl:when>
+                <xsl:when test="name() = 'Popup'">
+                    <!-- TODO: -->
                 </xsl:when>
                 <xsl:when test="name() = 'SearchStringAddition'">
                     <!-- TODO: -->
