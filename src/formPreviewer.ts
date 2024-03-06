@@ -125,6 +125,9 @@ export class FormPreviewer {
           }
           label {
             white-space: pre-wrap;
+            min-height: 25px;
+            display: flex;
+            align-items: center;
           }
           .input {
             height: 25px;
