@@ -2,7 +2,7 @@
 	"name": "vscode-1c-metadata-viewer",
 	"displayName": "1C Metadata Viewer",
 	"description": "Explore 1C:Enterprise 8 configuration in the usual way",
-	"version": "0.0.12",
+	"version": "0.1.0",
 	"publisher": "zerobig",
 	"license": "MIT",
 	"engines": {
@@ -65,6 +65,10 @@
 			{
 				"command": "metadataViewer.openForm",
 				"title": "%1c-metadata-viewer.openForm.title%"
+			},
+			{
+				"command": "metadataViewer.previewForm",
+				"title": "%1c-metadata-viewer.previewForm.title%"
 			},
 			{
 				"command": "metadataViewer.openModule",
@@ -142,6 +146,11 @@
 					"when": "viewItem == form"
 				},
 				{
+					"command": "metadataViewer.previewForm",
+					"group": "bsl",
+					"when": "viewItem == form"
+				},
+				{
 					"command": "metadataViewer.openModule",
 					"group": "bsl",
 					"when": "viewItem == module"
@@ -199,7 +208,8 @@
 		"vscode:prepublish": "npm run compile",
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
-		"lint": "eslint . --ext .ts,.tsx"
+		"lint": "eslint . --ext .ts,.tsx",
+		"precompile": "node node_modules/xslt3/xslt3.js -xsl:xslt/form.xsl -export:xslt/form.sef.json -t"
 	},
 	"devDependencies": {
 		"@types/node": "^16.11.7",
@@ -208,11 +218,13 @@
 		"@typescript-eslint/eslint-plugin": "^5.30.0",
 		"@typescript-eslint/parser": "^5.30.0",
 		"eslint": "^8.13.0",
-		"typescript": "^4.8.4"
+		"typescript": "^4.8.4",
+		"xslt3": "^2.6.0"
 	},
 	"dependencies": {
 		"@vscode/webview-ui-toolkit": "^1.1.0",
 		"fast-glob": "^3.2.12",
-		"fast-xml-parser": "^4.0.11"
+		"fast-xml-parser": "^4.0.11",
+		"saxon-js": "^2.6.0"
 	}
 }

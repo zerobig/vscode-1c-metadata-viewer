@@ -3,6 +3,7 @@
 import * as vscode from 'vscode';
 import { MetadataView, TreeItem } from './metadataView';
 import * as fs from 'fs';
+import { FormPreviewer } from './formPreviewer';
 
 export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('metadataViewer.openAppModule', (node: TreeItem) => {
@@ -29,6 +30,10 @@ export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('metadataViewer.openForm', (node: TreeItem) => {
 		const filePath = node.path + '/Ext/Form/Module.bsl';
 		OpenFile(filePath);
+	});
+	vscode.commands.registerCommand('metadataViewer.previewForm', (node: TreeItem) => {
+		const filePath = node.path + '/Ext/Form.xml';
+		PreviewForm(filePath, context.extensionUri, node.label);
 	});
 	vscode.commands.registerCommand('metadataViewer.openModule', (node: TreeItem) => {
 		const filePath = node.path + '/Ext/Module.bsl';
@@ -80,4 +85,9 @@ function OpenFile(filePath: string) {
 				}
 			});	
 	}
+}
+
+function PreviewForm(filePath: string, extensionUri: vscode.Uri, nodeDescription?: string | vscode.TreeItemLabel) {
+	const previewer = new FormPreviewer(filePath);
+	previewer.openPreview(extensionUri, nodeDescription);
 }
