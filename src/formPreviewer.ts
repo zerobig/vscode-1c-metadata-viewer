@@ -20,11 +20,7 @@ export class FormPreviewer {
     const openPath = vscode.Uri.file(this.filePath);
     if (fs.existsSync(this.filePath)) {
       vscode.workspace.fs.readFile(openPath).then((configXml) => {
-        const parser = new XMLParser({
-          ignoreAttributes: false,
-          attributeNamePrefix: "$_",
-        });
-        let result = parser.parse(Buffer.from(configXml));
+        const picturesUri = vscode.Uri.joinPath(extensionUri, "resources", "pictures");
 
         if (this.webpanel) {
           // TODO:
@@ -32,12 +28,16 @@ export class FormPreviewer {
           const previewPanel = vscode.window.createWebviewPanel(
             FormPreviewer.viewType,
             `Предпросмотр формы (${title})`,
-            vscode.ViewColumn.One
+            vscode.ViewColumn.One,
+            {
+              localResourceRoots: [picturesUri],
+              enableScripts: true,
+            }
           );
           this.webpanel = previewPanel;
         }
 
-        this.generateHtml(extensionUri, Buffer.from(configXml).toString());
+        this.generateHtml(extensionUri, picturesUri, Buffer.from(configXml).toString());
       });
     } else {
       vscode.window.showInformationMessage(
@@ -46,15 +46,16 @@ export class FormPreviewer {
     }
   }
 
-  private generateHtml(extensionUri: vscode.Uri, xml: string) {
+  private generateHtml(extensionUri: vscode.Uri, picturesUri: vscode.Uri, xml: string) {
     if (this.webpanel) {
-      this.generateHTMLTemplate(this.webpanel.webview, extensionUri, xml);
+      this.generateHTMLTemplate(this.webpanel.webview, extensionUri, picturesUri, xml);
     }
   }
 
   private generateHTMLTemplate(
     webview: vscode.Webview,
     extensionUri: vscode.Uri,
+    picturesUri: vscode.Uri,
     xml: string
   ) {
     const sefUri = vscode.Uri.joinPath(extensionUri, "xslt", "form.sef.json");
@@ -209,6 +210,8 @@ export class FormPreviewer {
       );
 
       html = html.replace('&lt;br /&gt;', '<br />');
+      html = html.replace('<img src="StdPicture.',
+        `<img src="${picturesUri.with({scheme: "vscode-resource"})}/StdPicture.`);
 
       webview.html = html;
     });

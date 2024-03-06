@@ -173,7 +173,38 @@
             <xsl:otherwise>
                 <xsl:if test="not(LocationInCommandBar = 'InAdditionalSubmenu')">
                     <button>
-                        <xsl:value-of select="@name" />
+                        <xsl:choose>
+                            <xsl:when test="Representation = 'Picture'">
+                                <img>
+                                    <xsl:variable name="root" select="/"/>
+                                    <xsl:attribute name="src">
+                                        <xsl:for-each select="tokenize(CommandName, '\.')">
+                                            <xsl:if test="position() = last()">
+                                                <xsl:variable name="commandName" select="."/>
+                                                <xsl:value-of select="concat($root/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, '.svg')" />
+                                            </xsl:if>
+                                        </xsl:for-each>
+                                    </xsl:attribute>
+                                </img>
+                            </xsl:when>
+                            <xsl:when test="Representation = 'Text' and Title">
+                                <xsl:value-of select="Title/v8:item/v8:content/text()" />
+                            </xsl:when>
+                            <xsl:when test="Representation = 'Text' and not(Title)">
+                                <xsl:variable name="root" select="/"/>
+                                <xsl:for-each select="tokenize(CommandName, '\.')">
+                                    <xsl:if test="position() = last()">
+                                        <xsl:variable name="commandName" select="."/>
+                                        <xsl:value-of select="$root/Form/Commands/Command[@name=$commandName]/Title/v8:item/v8:content/text()" />
+                                    </xsl:if>
+                                </xsl:for-each>
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <!-- TextAndPicture -->
+                                <!-- TODO: -->
+                                <xsl:value-of select="@name" />
+                            </xsl:otherwise>
+                        </xsl:choose>
                     </button>
                 </xsl:if>
             </xsl:otherwise>
