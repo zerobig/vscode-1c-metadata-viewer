@@ -6,10 +6,12 @@ import * as saxonJS from 'saxon-js';
 export class FormPreviewer {
   public static readonly viewType = "metadataViewer.formPreview";
 
+  private rootFilePath: string;
   private filePath: string;
   private webpanel: vscode.WebviewPanel | undefined = undefined;
 
-  constructor(filePath: string) {
+  constructor(rootFilePath: string, filePath: string) {
+    this.rootFilePath = rootFilePath;
     this.filePath = filePath;
   }
 
@@ -20,6 +22,32 @@ export class FormPreviewer {
     const openPath = vscode.Uri.file(this.filePath);
     if (fs.existsSync(this.filePath)) {
       vscode.workspace.fs.readFile(openPath).then((configXml) => {
+
+        if (!fs.existsSync(this.rootFilePath)) {
+          // TODO:
+          return;
+        }
+        const rootXml = fs.readFileSync(this.rootFilePath);
+
+        const arrayPaths = ['Form.Attributes.Attribute'];
+        const parser = new XMLParser({
+          ignoreAttributes: false,
+          attributeNamePrefix: "$_",
+          isArray: (name, jpath, isLeafNode, isAttribute) => { 
+            if(arrayPaths.indexOf(jpath) !== -1) return true;
+
+            return false;
+          },
+        });
+        const rootParsed = parser.parse(Buffer.from(rootXml));
+        const childObjects = rootParsed
+          .MetaDataObject[Object.keys(rootParsed.MetaDataObject)[0]]
+          .ChildObjects;
+
+        const xmlParsed = parser.parse(Buffer.from(configXml));
+        const mainAttribute = xmlParsed['Form']['Attributes']['Attribute']
+          .filter((attr: any) => attr['MainAttribute'])[0];
+
         const picturesUri = vscode.Uri.joinPath(extensionUri, "resources", "pictures");
 
         if (this.webpanel) {
@@ -37,7 +65,12 @@ export class FormPreviewer {
           this.webpanel = previewPanel;
         }
 
-        this.generateHtml(extensionUri, picturesUri, Buffer.from(configXml).toString());
+        this.generateHtml(
+          extensionUri,
+          picturesUri,
+          childObjects,
+          mainAttribute,
+          Buffer.from(configXml).toString());
       });
     } else {
       vscode.window.showInformationMessage(
@@ -46,9 +79,21 @@ export class FormPreviewer {
     }
   }
 
-  private generateHtml(extensionUri: vscode.Uri, picturesUri: vscode.Uri, xml: string) {
+  private generateHtml(
+    extensionUri: vscode.Uri,
+    picturesUri: vscode.Uri,
+    childObjects: { Attribute: []; TabularSection: [] },
+    mainAttribute: { $_name: string; },
+    xml: string
+  ) {
     if (this.webpanel) {
-      this.generateHTMLTemplate(this.webpanel.webview, extensionUri, picturesUri, xml);
+      this.generateHTMLTemplate(
+        this.webpanel.webview,
+        extensionUri,
+        picturesUri,
+        childObjects,
+        mainAttribute,
+        xml);
     }
   }
 
@@ -56,6 +101,8 @@ export class FormPreviewer {
     webview: vscode.Webview,
     extensionUri: vscode.Uri,
     picturesUri: vscode.Uri,
+    childObjects: { Attribute: []; TabularSection: [] },
+    mainAttribute: { $_name: string; },
     xml: string
   ) {
     const sefUri = vscode.Uri.joinPath(extensionUri, "xslt", "form.sef.json");
@@ -209,9 +256,36 @@ export class FormPreviewer {
         `
       );
 
+      // Секция костылей
       html = html.replace('&lt;br /&gt;', '<br />');
+      // Пути к картинкам
       html = html.replace('<img src="StdPicture.',
         `<img src="${picturesUri.with({scheme: "vscode-resource"})}/StdPicture.`);
+      // Атрибуты
+      //   Типовые
+      //     Справочники
+      html = html.replace(`${mainAttribute.$_name}.Code`, 'Код');
+      html = html.replace(`${mainAttribute.$_name}.Description`, 'Наименование');
+      html = html.replace(`${mainAttribute.$_name}.Parent`, 'Входит в группу');
+      //     Документы
+      html = html.replace(`${mainAttribute.$_name}.Number`, 'Номер');
+      html = html.replace(`${mainAttribute.$_name}.Date`, 'Дата');
+      //   Прочие
+      childObjects.Attribute?.forEach((attr) => {
+        html = html.replace(`${mainAttribute.$_name}.${attr['Properties']['Name']}`,
+          attr['Properties']['Synonym']['v8:item']['v8:content']);
+      });
+      // Табличные части
+      childObjects.TabularSection?.forEach((tab: any) => {
+        // Атрибуты табличных частей
+        //   Типовые
+        html = html.replace(`${mainAttribute.$_name}.${tab['Properties']['Name']}.LineNumber`, 'N');
+        tab['ChildObjects']['Attribute'].forEach((attr: any) => {
+          //   Прочие
+          html = html.replace(`${mainAttribute.$_name}.${tab['Properties']['Name']}.${attr['Properties']['Name']}`,
+            `${attr['Properties']['Synonym']['v8:item']['v8:content']}`);
+        });
+      });
 
       webview.html = html;
     });

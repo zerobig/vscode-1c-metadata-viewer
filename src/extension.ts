@@ -33,7 +33,8 @@ export function activate(context: vscode.ExtensionContext) {
 	});
 	vscode.commands.registerCommand('metadataViewer.previewForm', (node: TreeItem) => {
 		const filePath = node.path + '/Ext/Form.xml';
-		PreviewForm(filePath, context.extensionUri, node.label);
+		const rootFilePath = node.path?.split('/').slice(0, -2)?.join('/') + '.xml';
+		PreviewForm(rootFilePath, filePath, context.extensionUri, node.label);
 	});
 	vscode.commands.registerCommand('metadataViewer.openModule', (node: TreeItem) => {
 		const filePath = node.path + '/Ext/Module.bsl';
@@ -87,7 +88,11 @@ function OpenFile(filePath: string) {
 	}
 }
 
-function PreviewForm(filePath: string, extensionUri: vscode.Uri, nodeDescription?: string | vscode.TreeItemLabel) {
-	const previewer = new FormPreviewer(filePath);
+function PreviewForm(rootFilePath: string,
+	filePath: string,
+	extensionUri: vscode.Uri,
+	nodeDescription?: string | vscode.TreeItemLabel
+) {
+	const previewer = new FormPreviewer(rootFilePath, filePath);
 	previewer.openPreview(extensionUri, nodeDescription);
 }

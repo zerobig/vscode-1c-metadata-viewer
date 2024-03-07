@@ -247,7 +247,7 @@
                                     <xsl:value-of select="concat(Title/v8:item/v8:content/text(), ': ')" />
                                 </xsl:when>
                                 <xsl:when test="starts-with($dataPath, 'Объект.')">
-                                    <xsl:value-of select="$dataPath" />
+                                    <xsl:value-of select="concat($dataPath, ': ')" />
                                 </xsl:when>
                                 <xsl:otherwise>
                                     <xsl:value-of select="concat(/Form/Attributes/Attribute[@name=$dataPath]/Title/v8:item/v8:content/text(), ': ')" />
