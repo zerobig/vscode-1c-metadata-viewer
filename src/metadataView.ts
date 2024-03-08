@@ -99,18 +99,20 @@ export class MetadataView {
     this.rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
       ? vscode.workspace.workspaceFolders[0].uri : undefined;
 
-		const view = vscode.window.createTreeView('metadataView', { treeDataProvider: NodeWithIdTreeDataProvider(), showCollapseAll: true });
+    const dataProvider = new NodeWithIdTreeDataProvider();
+    const view = vscode.window.createTreeView('metadataView', { treeDataProvider: dataProvider, showCollapseAll: true });
 		context.subscriptions.push(view);
 
     view.onDidExpandElement(e => {
       this.expand(e.element);
     });
 
-		vscode.workspace.workspaceFolders?.map(folder => {
-			const folderUri = folder.uri;
-			LoadAndParseConfigurationXml(folderUri);
-      view.reveal(tree[0]);
+		vscode.workspace.workspaceFolders?.forEach(folder => {
+			LoadAndParseConfigurationXml(folder.uri);
+      //view.reveal(tree[0]);
 		});
+
+    dataProvider.update();
 
     vscode.commands.registerCommand('metadataViewer.showTemplate', (template) => this.openTemplate(context, template));
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
@@ -118,6 +120,7 @@ export class MetadataView {
     vscode.commands.registerCommand('metadataViewer.openMetadataProperties', (item) => this.openMetadataProperties(context, item));
 	}
 
+  // Открытие макета
   private openTemplate(context: vscode.ExtensionContext, template: string): void {
     if (this.rootPath) {
       const fileName = posix.join(template, 'Ext/Template.xml');
@@ -140,7 +143,7 @@ export class MetadataView {
               return false;
             },
           });
-          let result = parser.parse(Buffer.from(configXml));
+          const result = parser.parse(Buffer.from(configXml));
 
           const typedResult = result as TemplateFile;
           if (!typedResult.document) {
@@ -152,6 +155,7 @@ export class MetadataView {
     }
   }
 
+  // Открытие предопределенных данных
   private openPredefinedData(context: vscode.ExtensionContext, item: TreeItem): void {
     if (this.rootPath) {
       const fileName = posix.join(item.path!, 'Ext/Predefined.xml');
@@ -173,7 +177,7 @@ export class MetadataView {
                 return false;
               },
             });
-            let result = parser.parse(Buffer.from(configXml));
+            const result = parser.parse(Buffer.from(configXml));
   
             const typedResult = result as PredefinedDataFile;
             PredefinedDataPanel.show(context.extensionUri, GetMetadataName(metadataName), typedResult.PredefinedData.Item);
@@ -182,6 +186,7 @@ export class MetadataView {
     }
   }
 
+  // Переход к процедуре офработчика команды
   private openHandler(item: TreeItem): void {
     if (this.rootPath) {
       const fileName = CreatePath(item.path!) + '.xml';
@@ -197,7 +202,7 @@ export class MetadataView {
             const parser = new XMLParser({
               ignoreAttributes : false,
             });
-            let result = parser.parse(Buffer.from(configXml));
+            const result = parser.parse(Buffer.from(configXml));
   
             const typedResult = result as MetadataFile;
             const handlerFileName = posix.join(
@@ -245,6 +250,7 @@ export class MetadataView {
     }
   }
 
+  // Открытие свойств конфигурации
   private openMetadataProperties(context: vscode.ExtensionContext, item: TreeItem): void {
     if (this.rootPath) {
       vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(item.path!, 'Configuration.xml') }))
@@ -262,7 +268,7 @@ export class MetadataView {
               return false;
             }
           });
-          let result = parser.parse(Buffer.from(configXml));
+          const result = parser.parse(Buffer.from(configXml));
                       
           const configurationProperties = result.MetaDataObject.Configuration.Properties;
           const newConfiguration: Configuration = {
@@ -333,7 +339,7 @@ export class MetadataView {
               return false;
             }
           });
-          let result = parser.parse(Buffer.from(configXml));
+          const result = parser.parse(Buffer.from(configXml));
 
           const typedResult = result as MetadataFile;
           CreateTreeElements(element, typedResult);
@@ -375,7 +381,7 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri) {
         const parser = new XMLParser({
           ignoreAttributes: false,
         });
-        let result = parser.parse(Buffer.from(configXml));
+        const result = parser.parse(Buffer.from(configXml));
 
         let synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
         if (!synonym) {
@@ -896,7 +902,10 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 	return null;
 }
 
-function GetSubsystemChildren(versionMetadata: VersionMetadata[], name: string, level: number = 2): TreeItem[] | undefined {
+function GetSubsystemChildren(versionMetadata: VersionMetadata[],
+  name: string,
+  level = 2
+): TreeItem[] | undefined {
   const filtered = versionMetadata
     .filter(f => f.$_name.startsWith(name) && f.$_name.split('.').length === 2 * level);
 
@@ -944,21 +953,29 @@ function CreatePath(name: string): string {
 		.replace('.Template.', '/Templates/');
 }
 
-function NodeWithIdTreeDataProvider(): vscode.TreeDataProvider<TreeItem> {
-	return {
-		getChildren: (element?: TreeItem | undefined): vscode.ProviderResult<TreeItem[]> => {
-			if (element === undefined) {
-				return tree;
-			}
-			return element.children;
-		},
-		getTreeItem: (element: TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> => {
-			return element;
-		},
-    getParent(element: TreeItem): TreeItem | undefined{
-      return SearchTree(tree[0], element.parentId) ?? undefined;
-    },
-	};
+export class NodeWithIdTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
+	private _onDidChangeTreeData: vscode.EventEmitter<any> = new vscode.EventEmitter<any>();
+	readonly onDidChangeTreeData: vscode.Event<any> = this._onDidChangeTreeData.event;
+
+  getChildren(element?: TreeItem | undefined): vscode.ProviderResult<TreeItem[]> {
+    if (element === undefined) {
+      return tree;
+    }
+    return element.children;
+  }
+
+  getTreeItem(element: TreeItem): vscode.TreeItem | Thenable<vscode.TreeItem> {
+    return element;
+  }
+
+  getParent(element: TreeItem): TreeItem | undefined {
+    return SearchTree(tree[0], element.parentId) ?? undefined;
+  }
+
+  update() {
+    if (!tree) return;
+    this._onDidChangeTreeData.fire(undefined);
+  }
 }
 
 function getIconPath(icon: string): string {
