@@ -293,6 +293,32 @@ export class FormPreviewer {
         });
       });
 
+      html = html.replace('<script></script>', `
+      <script>
+        window.addEventListener("load", main);
+
+        function main() {
+          const verticalGroups = document.getElementsByClassName('group-vertical');
+          [...verticalGroups].forEach((verticalGroup) => {
+            let maxWidth = 0;
+            const labels = verticalGroup.getElementsByTagName('label');
+            [...labels].forEach((label) => {
+              if (label.parentElement.classList.contains('element')) {
+                maxWidth = Math.max(maxWidth, label.offsetWidth);
+              }
+            });
+            if (maxWidth > 0) {
+              [...labels].forEach((label) => {
+                if (label.parentElement.classList.contains('element')) {
+                  label.style.width = maxWidth + 'px';
+                }
+              });
+            }
+          });
+        }
+      </script>
+      `);
+
       webview.html = html;
     });
   }
