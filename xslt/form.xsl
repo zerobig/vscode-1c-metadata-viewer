@@ -415,23 +415,29 @@
     <xsl:template match="Pages">
         <div class="tabbed">
             <xsl:for-each select="ChildItems/Page">
-                <xsl:call-template name="PageInput">
-                    <xsl:with-param name="node" select="." />
-                    <xsl:with-param name="position" select="position()" />
-                </xsl:call-template>
-            </xsl:for-each>
-            <ul class="tabs">
-                <xsl:for-each select="ChildItems/Page">
-                    <xsl:call-template name="PageLabel">
+                <xsl:if test="count(ChildItems) > 0">
+                    <xsl:call-template name="PageInput">
                         <xsl:with-param name="node" select="." />
                         <xsl:with-param name="position" select="position()" />
                     </xsl:call-template>
+                </xsl:if>
+            </xsl:for-each>
+            <ul class="tabs">
+                <xsl:for-each select="ChildItems/Page">
+                    <xsl:if test="count(ChildItems) > 0">
+                        <xsl:call-template name="PageLabel">
+                            <xsl:with-param name="node" select="." />
+                            <xsl:with-param name="position" select="position()" />
+                        </xsl:call-template>
+                    </xsl:if>
                 </xsl:for-each>
             </ul>
             <xsl:for-each select="ChildItems/Page">
-                <xsl:call-template name="PageContent">
-                    <xsl:with-param name="node" select="." />
-                </xsl:call-template>
+                <xsl:if test="count(ChildItems) > 0">
+                    <xsl:call-template name="PageContent">
+                        <xsl:with-param name="node" select="." />
+                    </xsl:call-template>
+                </xsl:if>
             </xsl:for-each>
         </div>
     </xsl:template>
