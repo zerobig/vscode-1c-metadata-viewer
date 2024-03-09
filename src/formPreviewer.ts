@@ -168,6 +168,9 @@ export class FormPreviewer {
           .group-vertical {
             flex-direction: column;
           }
+          .group-horizontalifpossible {
+            flex-direction: row;
+          }
           .element {
             display: inline-flex;
           }
