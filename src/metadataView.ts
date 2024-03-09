@@ -108,11 +108,8 @@ export class MetadataView {
     });
 
 		vscode.workspace.workspaceFolders?.forEach(folder => {
-			LoadAndParseConfigurationXml(folder.uri);
-      //view.reveal(tree[0]);
+			LoadAndParseConfigurationXml(folder.uri, dataProvider);
 		});
-
-    dataProvider.update();
 
     vscode.commands.registerCommand('metadataViewer.showTemplate', (template) => this.openTemplate(context, template));
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
@@ -352,7 +349,7 @@ const tree: TreeItem[] = [
 	GetTreeItem('configurations', 'Конфигурации', { children: [] })
 ];
 
-function LoadAndParseConfigurationXml(uri: vscode.Uri) {
+function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdTreeDataProvider) {
   console.time('glob');
   const files = glob.sync([ '**/ConfigDumpInfo.xml', '**/Configuration.xml' ], {
     dot: true,
@@ -396,6 +393,8 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri) {
         treeItem.isConfiguration = true;
 
         tree[0].children?.push(treeItem);
+
+        dataProvider.update();
       });
   });
 }
