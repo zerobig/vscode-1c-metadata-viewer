@@ -25,7 +25,14 @@
                         <div>
                             <xsl:apply-templates select="/Form/AutoCommandBar/ChildItems" />
                         </div>
-                        <xsl:apply-templates select="/Form/ChildItems" />
+                        <div>
+                            <xsl:if test="/Form/Group">
+                                <xsl:attribute name="class">
+                                    <xsl:value-of select="concat('group-content group-', translate(/Form/Group, $uppercase, $lowercase))" />
+                                </xsl:attribute>
+                            </xsl:if>
+                            <xsl:apply-templates select="/Form/ChildItems" />
+                        </div>
                     </div>
                 </div>
                 <script></script>
