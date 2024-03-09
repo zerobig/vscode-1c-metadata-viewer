@@ -37,7 +37,9 @@
         <xsl:for-each select="*">
             <xsl:choose>
                 <xsl:when test="name() = 'Button'">
-                    <xsl:apply-templates select="." />
+                    <xsl:if test="not(Visible = 'false')">
+                        <xsl:apply-templates select="." />
+                    </xsl:if>
                 </xsl:when>
                 <xsl:when test="name() = 'ButtonGroup'">
                     <!-- TODO: -->
@@ -148,6 +150,7 @@
 
     <xsl:template match="Button">
         <xsl:choose>
+            <!-- Гиперссылка -->
             <xsl:when test="Type = 'Hyperlink'">
                 <div class="element">
                     <a href="#">
@@ -174,22 +177,34 @@
                 <xsl:if test="not(LocationInCommandBar = 'InAdditionalSubmenu')">
                     <button>
                         <xsl:choose>
+                            <!-- Кнопка с картинкой -->
                             <xsl:when test="Representation = 'Picture'">
                                 <img>
-                                    <xsl:variable name="root" select="/"/>
+                                    <xsl:variable name="root" select="/" />
                                     <xsl:attribute name="src">
-                                        <xsl:for-each select="tokenize(CommandName, '\.')">
-                                            <xsl:if test="position() = last()">
-                                                <xsl:variable name="commandName" select="."/>
-                                                <xsl:value-of select="concat($root/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, '.svg')" />
-                                            </xsl:if>
-                                        </xsl:for-each>
+                                        <xsl:choose>
+                                            <!-- Картинка задана на кнопке -->
+                                            <xsl:when test="Picture">
+                                                <xsl:value-of select="concat(Picture/xr:Ref, '.svg')" />
+                                            </xsl:when>
+                                            <!-- Картинка определена в команде -->
+                                            <xsl:otherwise>
+                                                <xsl:for-each select="tokenize(CommandName, '\.')">
+                                                    <xsl:if test="position() = last()">
+                                                        <xsl:variable name="commandName" select="."/>
+                                                        <xsl:value-of select="concat($root/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, '.svg')" />
+                                                    </xsl:if>
+                                                </xsl:for-each>
+                                            </xsl:otherwise>
+                                        </xsl:choose>
                                     </xsl:attribute>
                                 </img>
                             </xsl:when>
+                            <!-- Только текст и текст задан на кнопке -->
                             <xsl:when test="Representation = 'Text' and Title">
                                 <xsl:value-of select="Title/v8:item/v8:content/text()" />
                             </xsl:when>
+                            <!-- Только текст и текст определен в команде -->
                             <xsl:when test="Representation = 'Text' and not(Title)">
                                 <xsl:variable name="root" select="/"/>
                                 <xsl:for-each select="tokenize(CommandName, '\.')">
