@@ -256,6 +256,11 @@
             <xsl:otherwise>
                 <!-- Обычное поле формы -->
                 <div class="element">
+                    <xsl:if test="TitleLocation = 'Top'">
+                        <xsl:attribute name="class">
+                            <xsl:value-of select="'label-top'" />
+                        </xsl:attribute>
+                    </xsl:if>
                     <xsl:if test="HorizontalStretch = 'true'">
                         <xsl:attribute name="style">
                             <xsl:value-of select="'width: 100%'" />

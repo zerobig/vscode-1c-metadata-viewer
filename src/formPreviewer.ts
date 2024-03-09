@@ -171,6 +171,9 @@ export class FormPreviewer {
           .element {
             display: inline-flex;
           }
+          .element.label-top {
+            display: block;
+          }
           label {
             white-space: pre-wrap;
             min-height: 25px;
