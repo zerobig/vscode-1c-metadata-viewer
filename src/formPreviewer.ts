@@ -2,6 +2,7 @@ import * as fs from "fs";
 import * as vscode from "vscode";
 import { XMLParser } from "fast-xml-parser";
 import * as saxonJS from 'saxon-js';
+import * as AdmZip from 'adm-zip';
 
 export class FormPreviewer {
   public static readonly viewType = "metadataViewer.formPreview";
@@ -270,14 +271,43 @@ export class FormPreviewer {
       );
 
       // Секция костылей
-      html = html.replace('&lt;br /&gt;', '<br />');
+      html = html.replaceAll('&lt;br /&gt;', '<br />');
       // Пути к картинкам
       //   Стандартные
-      html = html.replace('<img src="StdPicture.',
+      html = html.replaceAll('<img src="StdPicture.',
         `<img src="${picturesUri.with({scheme: "vscode-resource"})}/StdPicture.`);
       //   Общие
-      html = html.replace('<img src="CommonPicture.',
+      html = html.replaceAll('<img src="CommonPicture.',
         `<img src="${this.confPath}/CommonPictures/`);
+      //   Отдельно обрабатываем случаи когда общие картинки сохранены в формате zip
+      const regex = new RegExp(`${this.confPath}/CommonPictures/(%|[A-Za-z]|[0-9])+/Ext/Picture/Picture.png`, "g");
+      const picArray = html.match(regex);
+      picArray.forEach((img: string) => {
+        if (!fs.existsSync(img)) {
+          const zipName = decodeURI(img.replace('.png', '.zip'));
+          if (fs.existsSync(zipName)) {
+            const zip = new AdmZip(zipName);
+            const zipEntries = zip.getEntries();
+            const picturePng = zipEntries.find((entry) => entry.name === 'Picture.png');
+            const pictureXml = zipEntries.find((entry) => entry.name === 'manifest.xml');
+            if (picturePng && pictureXml) {
+              const buffer = zip.readFile(picturePng);
+              const textXml = zip.readAsText(pictureXml);
+              if (buffer) {
+                const parser = new XMLParser({
+                  ignoreAttributes: false,
+                });
+                const pictureParsed = parser.parse(textXml);
+                const pictureVariant = pictureParsed['Picture']['PictureVariant']
+                  .find((variant: any) => variant['@_name'] == 'Picture.png' && variant['@_interfaceVariant'] == 'version8_2')
+
+                html = html.replace(img + '">',
+                  `data:image/png;base64,${Buffer.from(buffer).toString('base64')}" style="width: ${pictureVariant['@_glyphWidth']}px; height: ${pictureVariant['@_glyphHeight']}px;">`);
+              }
+            }
+          }
+        }
+      });
       // Атрибуты
       //   Типовые
       //     Справочники
@@ -289,17 +319,17 @@ export class FormPreviewer {
       html = html.replace(`${mainAttribute.$_name}.Date`, 'Дата');
       //   Прочие
       childObjects.Attribute?.forEach((attr) => {
-        html = html.replace(`${mainAttribute.$_name}.${attr['Properties']['Name']}`,
+        html = html.replaceAll(`${mainAttribute.$_name}.${attr['Properties']['Name']}`,
           attr['Properties']['Synonym']['v8:item']['v8:content']);
       });
       // Табличные части
       childObjects.TabularSection?.forEach((tab: any) => {
         // Атрибуты табличных частей
         //   Типовые
-        html = html.replace(`${mainAttribute.$_name}.${tab['Properties']['Name']}.LineNumber`, 'N');
+        html = html.replaceAll(`${mainAttribute.$_name}.${tab['Properties']['Name']}.LineNumber`, 'N');
         tab['ChildObjects']['Attribute'].forEach((attr: any) => {
           //   Прочие
-          html = html.replace(`${mainAttribute.$_name}.${tab['Properties']['Name']}.${attr['Properties']['Name']}`,
+          html = html.replaceAll(`${mainAttribute.$_name}.${tab['Properties']['Name']}.${attr['Properties']['Name']}`,
             `${attr['Properties']['Synonym']['v8:item']['v8:content']}`);
         });
       });

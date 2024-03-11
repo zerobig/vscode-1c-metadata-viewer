@@ -172,6 +172,37 @@
             <!-- Гиперссылка -->
             <xsl:when test="Type = 'Hyperlink'">
                 <div class="element">
+                    <xsl:variable name="commandName" select="tokenize(CommandName, '\.')[last()]" />
+                    <xsl:if test="Picture or /Form/Commands/Command[@name=$commandName]/Picture/xr:Ref">
+                        <img>
+                            <xsl:attribute name="src">
+                                <xsl:choose>
+                                    <!-- Картинка задана на кнопке -->
+                                    <xsl:when test="Picture">
+                                        <xsl:choose>
+                                            <xsl:when test="contains(Picture/xr:Ref, 'StdPicture.')">
+                                                <xsl:value-of select="concat(Picture/xr:Ref, '.svg')" />
+                                            </xsl:when>
+                                            <xsl:otherwise>
+                                                <xsl:value-of select="concat(Picture/xr:Ref, '/Ext/Picture/Picture.png')" />
+                                            </xsl:otherwise>
+                                        </xsl:choose>
+                                    </xsl:when>
+                                    <!-- Картинка определена в команде -->
+                                    <xsl:otherwise>
+                                        <xsl:choose>
+                                            <xsl:when test="contains(/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, 'StdPicture.')">
+                                                <xsl:value-of select="concat(/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, '.svg')" />
+                                            </xsl:when>
+                                            <xsl:otherwise>
+                                                <xsl:value-of select="concat(/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, '/Ext/Picture/Picture.png')" />
+                                            </xsl:otherwise>
+                                        </xsl:choose>
+                                    </xsl:otherwise>
+                                </xsl:choose>
+                            </xsl:attribute>
+                        </img>
+                    </xsl:if>
                     <a href="#">
                         <xsl:choose>
                             <xsl:when test="Title">
