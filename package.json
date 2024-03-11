@@ -209,7 +209,7 @@
 		"compile": "tsc -p ./",
 		"watch": "tsc -watch -p ./",
 		"lint": "eslint . --ext .ts,.tsx",
-		"precompile": "node node_modules/xslt3/xslt3.js -xsl:xslt/form.xsl -export:xslt/form.sef.json -t"
+		"precompile": "node node_modules/xslt3/xslt3.js -nogo -xsl:xslt/form.xsl -export:xslt/form.sef.json -t"
 	},
 	"devDependencies": {
 		"@types/node": "^16.11.7",
