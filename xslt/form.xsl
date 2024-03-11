@@ -194,14 +194,28 @@
                                         <xsl:choose>
                                             <!-- Картинка задана на кнопке -->
                                             <xsl:when test="Picture">
-                                                <xsl:value-of select="concat(Picture/xr:Ref, '.svg')" />
+                                                <xsl:choose>
+                                                    <xsl:when test="contains(Picture/xr:Ref, 'StdPicture.')">
+                                                        <xsl:value-of select="concat(Picture/xr:Ref, '.svg')" />
+                                                    </xsl:when>
+                                                    <xsl:otherwise>
+                                                        <xsl:value-of select="concat(Picture/xr:Ref, '/Ext/Picture/Picture.png')" />
+                                                    </xsl:otherwise>
+                                                </xsl:choose>
                                             </xsl:when>
                                             <!-- Картинка определена в команде -->
                                             <xsl:otherwise>
                                                 <xsl:for-each select="tokenize(CommandName, '\.')">
                                                     <xsl:if test="position() = last()">
                                                         <xsl:variable name="commandName" select="."/>
-                                                        <xsl:value-of select="concat($root/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, '.svg')" />
+                                                        <xsl:choose>
+                                                            <xsl:when test="contains($root/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, 'StdPicture.')">
+                                                                <xsl:value-of select="concat($root/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, '.svg')" />
+                                                            </xsl:when>
+                                                            <xsl:otherwise>
+                                                                <xsl:value-of select="concat($root/Form/Commands/Command[@name=$commandName]/Picture/xr:Ref, '/Ext/Picture/Picture.png')" />
+                                                            </xsl:otherwise>
+                                                        </xsl:choose>
                                                     </xsl:if>
                                                 </xsl:for-each>
                                             </xsl:otherwise>

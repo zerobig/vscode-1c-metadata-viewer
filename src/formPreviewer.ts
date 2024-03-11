@@ -6,11 +6,13 @@ import * as saxonJS from 'saxon-js';
 export class FormPreviewer {
   public static readonly viewType = "metadataViewer.formPreview";
 
+  private confPath: string;
   private rootFilePath: string;
   private filePath: string;
   private webpanel: vscode.WebviewPanel | undefined = undefined;
 
-  constructor(rootFilePath: string, filePath: string) {
+  constructor(confPath: string, rootFilePath: string, filePath: string) {
+    this.confPath = confPath;
     this.rootFilePath = rootFilePath;
     this.filePath = filePath;
   }
@@ -268,8 +270,12 @@ export class FormPreviewer {
       // Секция костылей
       html = html.replace('&lt;br /&gt;', '<br />');
       // Пути к картинкам
+      //   Стандартные
       html = html.replace('<img src="StdPicture.',
         `<img src="${picturesUri.with({scheme: "vscode-resource"})}/StdPicture.`);
+      //   Общие
+      html = html.replace('<img src="CommonPicture.',
+        `<img src="${this.confPath}/CommonPictures/`);
       // Атрибуты
       //   Типовые
       //     Справочники
