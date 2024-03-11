@@ -81,6 +81,9 @@
                 <xsl:when test="name() = 'Pages'">
                     <xsl:apply-templates select="." />
                 </xsl:when>
+                <xsl:when test="name() = 'PictureDecoration'">
+                    <!-- TODO: -->
+                </xsl:when>
                 <xsl:when test="name() = 'PictureField'">
                     <!-- TODO: -->
                 </xsl:when>
