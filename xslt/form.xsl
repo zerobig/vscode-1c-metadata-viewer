@@ -61,14 +61,16 @@
                     <xsl:apply-templates select="." />
                 </xsl:when>
                 <xsl:when test="name() = 'InputField'">
-                    <xsl:choose>
-                        <xsl:when test="InputField/ListChoiceMode = 'true'">
-                            <xsl:apply-templates select="./ChoiceList" />
-                        </xsl:when>
-                        <xsl:otherwise>
-                            <xsl:apply-templates select="." />
-                        </xsl:otherwise>
-                    </xsl:choose>
+                    <xsl:if test="not(Visible = 'false')">
+                        <xsl:choose>
+                            <xsl:when test="InputField/ListChoiceMode = 'true'">
+                                <xsl:apply-templates select="./ChoiceList" />
+                            </xsl:when>
+                            <xsl:otherwise>
+                                <xsl:apply-templates select="." />
+                            </xsl:otherwise>
+                        </xsl:choose>
+                    </xsl:if>
                 </xsl:when>
                 <xsl:when test="name() = 'LabelDecoration'">
                     <xsl:apply-templates select="." />
