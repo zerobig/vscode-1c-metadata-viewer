@@ -299,7 +299,7 @@ export class FormPreviewer {
                 });
                 const pictureParsed = parser.parse(textXml);
                 const pictureVariant = pictureParsed['Picture']['PictureVariant']
-                  .find((variant: any) => variant['@_name'] == 'Picture.png' && variant['@_interfaceVariant'] == 'version8_2')
+                  .find((variant: any) => variant['@_name'] == 'Picture.png' && variant['@_interfaceVariant'] == 'version8_2');
 
                 html = html.replace(img + '">',
                   `data:image/png;base64,${Buffer.from(buffer).toString('base64')}" style="width: ${pictureVariant['@_glyphWidth']}px; height: ${pictureVariant['@_glyphHeight']}px;">`);
