@@ -152,11 +152,9 @@ export class FormPreviewer {
           }
 
           .group {
-            margin: 5px 0;
             border: dotted 0px #1e1e1e;
             position: relative;
             display: grid;
-            row-gap: 2px;
           }
           .group-caption {
             display: none;
@@ -171,6 +169,7 @@ export class FormPreviewer {
           }
           .group-content {
             display: flex;
+            row-gap: 4px;
           }
           .group-vertical {
             flex-direction: column;
@@ -202,7 +201,7 @@ export class FormPreviewer {
             height: 26px;
             border: solid 1px #a0a0a0;
             border-radius: 3px;
-            margin: 5px;
+            margin: 1px 5px;
           }
 
           .tabbed {
