@@ -127,6 +127,8 @@ export class FormPreviewer {
         "sync"
       );
 
+      const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
+
       let html = "principalResult" in result ? result.principalResult : "";
       html = html.replace(
         "<style></style>",
@@ -219,6 +221,7 @@ export class FormPreviewer {
             padding: 5px 10px;
             border: 1px solid #a0a0a0;
             border-bottom: none;
+            background: ${isDark ? '#2d2d2d' : '#efefef'};
           }
           .tab-content {
             display: none;
@@ -229,7 +232,7 @@ export class FormPreviewer {
           .tabbed [type="radio"]:nth-of-type(3):checked ~ .tabs .tab:nth-of-type(3) label,
           .tabbed [type="radio"]:nth-of-type(4):checked ~ .tabs .tab:nth-of-type(4) label,
           .tabbed [type="radio"]:nth-of-type(5):checked ~ .tabs .tab:nth-of-type(5) label {
-            background: #37373d;
+            background: ${isDark ? '#1e1e1e' : '#fff'};
           }
           .tabbed [type="radio"]:nth-of-type(1):checked ~ .tab-content:nth-of-type(1),
           .tabbed [type="radio"]:nth-of-type(2):checked ~ .tab-content:nth-of-type(2),
@@ -253,7 +256,7 @@ export class FormPreviewer {
           thead tr th {
             position: sticky;
             top: 0;
-            background: #37373d;
+            background: ${isDark ? '#2d2d2d' : '#efefef'};
           }
           tbody {
           }
