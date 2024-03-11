@@ -26,11 +26,18 @@
                             <xsl:apply-templates select="/Form/AutoCommandBar/ChildItems" />
                         </div>
                         <div>
-                            <xsl:if test="/Form/Group">
-                                <xsl:attribute name="class">
-                                    <xsl:value-of select="concat('group-content group-', translate(/Form/Group, $uppercase, $lowercase))" />
-                                </xsl:attribute>
-                            </xsl:if>
+                            <xsl:choose>
+                                <xsl:when test="/Form/Group">
+                                    <xsl:attribute name="class">
+                                        <xsl:value-of select="concat('group-content group-', translate(/Form/Group, $uppercase, $lowercase))" />
+                                    </xsl:attribute>
+                                </xsl:when>
+                                <xsl:otherwise>
+                                    <xsl:attribute name="class">
+                                        <xsl:value-of select="'group-content group-vertical'" />
+                                    </xsl:attribute>
+                                </xsl:otherwise>
+                            </xsl:choose>
                             <xsl:apply-templates select="/Form/ChildItems" />
                         </div>
                     </div>
