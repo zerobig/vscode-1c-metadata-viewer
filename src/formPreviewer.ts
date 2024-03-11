@@ -29,7 +29,10 @@ export class FormPreviewer {
         }
         const rootXml = fs.readFileSync(this.rootFilePath);
 
-        const arrayPaths = ['Form.Attributes.Attribute'];
+        const arrayPaths = [
+          'Form.Attributes.Attribute',
+          'MetaDataObject.Document.ChildObjects.TabularSection.ChildObjects.Attribute',
+        ];
         const parser = new XMLParser({
           ignoreAttributes: false,
           attributeNamePrefix: "$_",
