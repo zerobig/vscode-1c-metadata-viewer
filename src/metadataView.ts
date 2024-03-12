@@ -351,7 +351,11 @@ const tree: TreeItem[] = [
 
 function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdTreeDataProvider) {
   console.time('glob');
-  const files = glob.sync([ '**/ConfigDumpInfo.xml', '**/Configuration.xml' ], {
+  const files = glob.sync([
+    '**/ConfigDumpInfo.xml',
+    '**/Configuration.xml',
+    '**/Configuration/Configuration.mdo'
+  ], {
     dot: true,
     cwd: uri.fsPath,
     absolute: true,
@@ -359,30 +363,49 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdT
   });
   console.timeEnd('glob');
 
-  const configurations = files.reduce<{ [key: string]: string[] }>((previous, current) => {
-    const key = current.split('/').slice(0, -1).join('/');
+  const configurations = files.reduce<{ [key: string]: { type: 'xml' | 'edt', files: string[] } }>((previous, current) => {
+    const key = current.indexOf('Configuration.mdo') === -1 ?
+      current.split('/').slice(0, -1).join('/') :
+      current.split('/').slice(0, -2).join('/');
+
     if (!previous[key]) {
-      previous[key] = [];
+      previous[key] = {
+        type: current.indexOf('Configuration.mdo') === -1 ? 'xml' : 'edt',
+        files: []
+      };
     }
-    previous[key].push(current);
+    previous[key].files.push(current);
     return previous;
   }, {});
 
   const filtered = Object
     .keys(configurations)
-    .filter(f => configurations[f].length === 2);
+    .filter(f => configurations[f].type === 'edt' || (configurations[f].type === 'xml' && configurations[f].files.length === 2));
 
   filtered.forEach(fc => {
-    vscode.workspace.fs.readFile(uri.with({ path: posix.join(fc, 'Configuration.xml') }))
+    let xmlPath = uri.with({ path: posix.join(fc, 'Configuration.xml') });
+    if (!fs.existsSync(xmlPath.toString())) {
+      xmlPath = uri.with({ path: posix.join(fc, '/Configuration/Configuration.mdo') });
+    }
+
+    vscode.workspace.fs.readFile(xmlPath)
       .then(configXml => {
         const parser = new XMLParser({
           ignoreAttributes: false,
         });
         const result = parser.parse(Buffer.from(configXml));
 
-        let synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
-        if (!synonym) {
-          synonym = result.MetaDataObject.Configuration.Properties.Name;
+        let synonym = '';
+        if (xmlPath.toString().indexOf('/Configuration/Configuration.mdo') === -1) {
+          synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
+          if (!synonym) {
+            synonym = result.MetaDataObject.Configuration.Properties.Name;
+          }
+        } else {
+          synonym = result['mdclass:Configuration']?.synonym?.value;
+          if (!synonym) {
+            synonym = result['mdclass:Configuration']?.name;
+          }
         }
 
         console.log(`Конфигурация ${synonym} найдена`);
