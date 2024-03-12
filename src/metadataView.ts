@@ -894,7 +894,7 @@ function FillCommonItems(idPrefix: string, versionMetadata: VersionMetadata, obj
 	];
 }
 
-function GetTreeItem(id: string, name: string, params: TreeItemParams ): TreeItem {
+export function GetTreeItem(id: string, name: string, params: TreeItemParams ): TreeItem {
 	const treeItem = new TreeItem(id, name.split('.').pop() ?? '', params?.children);
 
 	if (params.icon) {
@@ -943,7 +943,7 @@ function GetSubsystemChildren(versionMetadata: VersionMetadata[],
 }
 
 // TODO: Ужасная функция!!!1 Первая очередь на рефакторинг!
-function CreatePath(name: string): string {
+export function CreatePath(name: string): string {
 	return name
 		.replace('Subsystem.', 'Subsystems/')
 		.replace('CommonModule.', 'CommonModules/')
