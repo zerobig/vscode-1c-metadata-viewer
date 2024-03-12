@@ -1,4 +1,7 @@
 out
 node_modules
 yarn.lock
+# xslt3 artifact
 form.sef.json
+# Liquid Studio artifact
+Output.xml
