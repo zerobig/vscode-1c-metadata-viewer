@@ -17,7 +17,7 @@ jobs:
       - name: Build package
         run: npx vsce package
       - name: Upload vsix to release
-        uses: AButler/upload-release-assets@v1.0
+        uses: AButler/upload-release-assets@v3.0
         with:
             files: '*.vsix'
             repo-token: ${{ secrets.GITHUB_TOKEN }}
