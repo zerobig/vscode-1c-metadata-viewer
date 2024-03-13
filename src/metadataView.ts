@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as glob from 'fast-glob';
 import * as vscode from 'vscode';
 import { posix } from 'path';
-import * as path from 'path';
 import { MetadataFile, VersionMetadata } from './metadataInterfaces';
 import { TemplatePanel } from './templatePanel';
 import { TemplateFile } from './templatInterfaces';
@@ -11,6 +10,8 @@ import { PredefinedDataPanel } from './predefinedDataPanel';
 import { getWebviewContent } from './Metadata/Configuration/getWebviewContent';
 import { Configuration } from './Metadata/Configuration/configuration';
 import { XMLParser } from 'fast-xml-parser';
+import { CreatePath, GetTreeItem, TreeItem } from './ConfigurationFormats/utils';
+import { Edt } from './ConfigurationFormats/edt';
 
 interface MetadataDictionaries {
 	form: { [key: string]: TreeItem[] },
@@ -49,46 +50,6 @@ interface MetadataObjects {
   businessProcess: TreeItem[],
   task: TreeItem[],
   externalDataSource: TreeItem[],
-}
-
-type IconType = 'common' | 'subsystem' | 'commonModule' | 'sessionParameter' | 'role' | 'attribute' |
-	'exchangePlan' | 'constant' | 'catalog' | 'document' | 'documentJournal' | 'enum' | 'report' |
-	'dataProcessor' | 'chartsOfCharacteristicType' | 'chartsOfAccount' | 'chartsOfCalculationType' |
-	'informationRegister' | 'accumulationRegister' | 'tabularSection' | 'form' | 'command' |
-	'template' | 'dimension' | 'resource' | 'column' | 'task' | 'businessProcess' | 'externalDataSource' |
-	'accountingRegister' | 'calculationRegister' | 'filterCriteria' | 'eventSubscription' | 'scheduledJob' |
-  'accountingFlag' | 'extDimensionAccountingFlag' | 'http' | 'ws' | 'wsLink' | 'operation' | 'parameter' |
-  'urlTemplate' | 'picture' | 'style';
-
-interface TreeItemParams {
-	icon?: IconType,
-	context?: string,
-	command?: string,
-	commandTitle?: string,
-  commandArguments?: any[],
-  path?: string,
-	children?: TreeItem[],
-}
-
-export class TreeItem extends vscode.TreeItem {
-	id: string;
-	children: TreeItem[] | undefined;
-	path?: string;
-  parentId = '';
-  isConfiguration = false;
-  
-	constructor(id: string, label: string, children?: TreeItem[]) {
-		super(
-			label,
-			children === undefined ?
-				vscode.TreeItemCollapsibleState.None :
-				id === 'configurations' ?
-          vscode.TreeItemCollapsibleState.Expanded :
-          vscode.TreeItemCollapsibleState.Collapsed);
-		this.id = id;
-    children?.forEach(ch => ch.parentId = id);
-		this.children = children;
-	}
 }
 
 export class MetadataView {
@@ -321,26 +282,32 @@ export class MetadataView {
     }
 
     if (this.rootPath) {
-      vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(element.id, 'ConfigDumpInfo.xml') }))
-        .then(configXml => {
-          const arrayPaths = [
-            'ConfigDumpInfo.ConfigVersions.Metadata.Metadata',
-          ];
+      if (element.configType === 'xml') {
+        vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(element.id, 'ConfigDumpInfo.xml') }))
+          .then(configXml => {
+            const arrayPaths = [
+              'ConfigDumpInfo.ConfigVersions.Metadata.Metadata',
+            ];
 
-          const parser = new XMLParser({
-            ignoreAttributes: false,
-            attributeNamePrefix: '$_',
-            isArray: (name, jpath, isLeafNode, isAttribute) => { 
-              if(arrayPaths.indexOf(jpath) !== -1) return true;
+            const parser = new XMLParser({
+              ignoreAttributes: false,
+              attributeNamePrefix: '$_',
+              isArray: (name, jpath, isLeafNode, isAttribute) => { 
+                if(arrayPaths.indexOf(jpath) !== -1) return true;
 
-              return false;
-            }
+                return false;
+              }
+            });
+            const result = parser.parse(Buffer.from(configXml));
+
+            const typedResult = result as MetadataFile;
+            CreateTreeElements(element, typedResult);
           });
-          const result = parser.parse(Buffer.from(configXml));
-
-          const typedResult = result as MetadataFile;
-          CreateTreeElements(element, typedResult);
-        });
+      } else {
+        const edt = new Edt(this.rootPath.with({ path: posix.join(
+          element.id, 'Configuration', 'Configuration.mdo') }));
+        edt.createTreeElements(element);
+      }
     }
   }
 }
@@ -383,20 +350,23 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdT
     .filter(f => configurations[f].type === 'edt' || (configurations[f].type === 'xml' && configurations[f].files.length === 2));
 
   filtered.forEach(fc => {
-    let xmlPath = uri.with({ path: posix.join(fc, 'Configuration.xml') });
+    let xmlPath = posix.join(fc, 'Configuration.xml');
     if (!fs.existsSync(xmlPath.toString())) {
-      xmlPath = uri.with({ path: posix.join(fc, '/Configuration/Configuration.mdo') });
+      xmlPath = posix.join(fc, 'Configuration', 'Configuration.mdo');
     }
 
-    vscode.workspace.fs.readFile(xmlPath)
+    vscode.workspace.fs.readFile(uri.with({ path: xmlPath }))
       .then(configXml => {
         const parser = new XMLParser({
           ignoreAttributes: false,
         });
         const result = parser.parse(Buffer.from(configXml));
 
+        const configType = xmlPath.toString().indexOf('/Configuration/Configuration.mdo') === -1 ?
+          'xml' : 'edt';
+
         let synonym = '';
-        if (xmlPath.toString().indexOf('/Configuration/Configuration.mdo') === -1) {
+        if (configType === 'xml') {
           synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
           if (!synonym) {
             synonym = result.MetaDataObject.Configuration.Properties.Name;
@@ -414,6 +384,7 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdT
         treeItem.contextValue = 'main';
         treeItem.path = fc;
         treeItem.isConfiguration = true;
+        treeItem.configType = configType;
 
         tree[0].children?.push(treeItem);
 
@@ -894,23 +865,6 @@ function FillCommonItems(idPrefix: string, versionMetadata: VersionMetadata, obj
 	];
 }
 
-export function GetTreeItem(id: string, name: string, params: TreeItemParams ): TreeItem {
-	const treeItem = new TreeItem(id, name.split('.').pop() ?? '', params?.children);
-
-	if (params.icon) {
-		treeItem.iconPath = getIconPath(params.icon);
-	}
-	if (params.context) {
-		treeItem.contextValue = params.context;
-	}
-	treeItem.path = params.path;
-	if (params.command && params.commandTitle) {
-		treeItem.command = { command: params.command, title: params.commandTitle, arguments: params.commandArguments };
-	}
-
-	return treeItem;
-}
-
 function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 	if(element.id === matchingId) {
 		return element;
@@ -942,39 +896,6 @@ function GetSubsystemChildren(versionMetadata: VersionMetadata[],
   return undefined;
 }
 
-// TODO: Ужасная функция!!!1 Первая очередь на рефакторинг!
-export function CreatePath(name: string): string {
-	return name
-		.replace('Subsystem.', 'Subsystems/')
-		.replace('CommonModule.', 'CommonModules/')
-		.replace('ExchangePlan.', 'ExchangePlans/')
-    .replace('EventSubscription.', 'EventSubscriptions/')
-    .replace('ScheduledJob.', 'ScheduledJobs/')
-    .replace('CommonForm.', 'CommonForms/')
-    .replace('CommonPicture.', 'CommonPictures/')
-		.replace('WebService.', 'WebServices/')
-		.replace('HTTPService.', 'HTTPServices/')
-		.replace('Style.', 'Styles/')
-		.replace('Constant.', 'Constants/')
-		.replace('Catalog.', 'Catalogs/')
-		.replace('Document.', 'Documents/')
-		.replace('DocumentJournal.', 'DocumentJournals/')
-		.replace('Enum.', 'Enums/')
-		.replace('Report.', 'Reports/')
-		.replace('DataProcessor.', 'DataProcessors/')
-		.replace('ChartOfCharacteristicTypes.', 'ChartsOfCharacteristicTypes/')
-		.replace('ChartOfAccounts.', 'ChartsOfAccounts/')
-		.replace('ChartOfCalculationTypes.', 'ChartsOfCalculationTypes/')
-		.replace('InformationRegister.', 'InformationRegisters/')
-		.replace('AccumulationRegister.', 'AccumulationRegisters/')
-		.replace('AccountingRegister.', 'AccountingRegisters/')
-		.replace('CalculationRegister.', 'CalculationRegisters/')
-		.replace('BusinessProcess.', 'BusinessProcesses/')
-		.replace('Task.', 'Tasks/')
-		.replace('ExternalDataSource.', 'ExternalDataSources/')
-		.replace('.Template.', '/Templates/');
-}
-
 export class NodeWithIdTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<any> = new vscode.EventEmitter<any>();
 	readonly onDidChangeTreeData: vscode.Event<any> = this._onDidChangeTreeData.event;
@@ -998,11 +919,6 @@ export class NodeWithIdTreeDataProvider implements vscode.TreeDataProvider<TreeI
     if (!tree) return;
     this._onDidChangeTreeData.fire(undefined);
   }
-}
-
-function getIconPath(icon: string): string {
-	const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
-	return path.join(__filename, '..', '..', 'resources', isDark ? 'dark' : 'light', icon + '.svg');
 }
 
 function CreateMetadata(idPrefix: string) {

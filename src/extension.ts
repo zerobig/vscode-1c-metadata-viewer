@@ -1,9 +1,10 @@
 'use strict';
 
 import * as vscode from 'vscode';
-import { MetadataView, TreeItem } from './metadataView';
+import { MetadataView } from './metadataView';
 import * as fs from 'fs';
 import { FormPreviewer } from './formPreviewer';
+import { TreeItem } from './ConfigurationFormats/utils';
 
 export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('metadataViewer.openAppModule', (node: TreeItem) => {
