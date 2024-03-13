@@ -21,11 +21,21 @@ export function activate(context: vscode.ExtensionContext) {
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openObjectModule', (node: TreeItem) => {
-		const filePath = node.path + '/Ext/ObjectModule.bsl';
+		let filePath = '';
+		if (node.configType === 'xml') {
+			filePath = node.path + '/Ext/ObjectModule.bsl';
+		} else {
+			filePath = node.path + '/ObjectModule.bsl';
+		}
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openManagerModule', (node: TreeItem) => {
-		const filePath = node.path + '/Ext/ManagerModule.bsl';
+		let filePath = '';
+		if (node.configType === 'xml') {
+			filePath = node.path + '/Ext/ManagerModule.bsl';
+		} else {
+			filePath = node.path + '/ManagerModule.bsl';
+		}
 		OpenFile(filePath);
 	});
 	vscode.commands.registerCommand('metadataViewer.openForm', (node: TreeItem) => {

@@ -4,6 +4,10 @@ export interface Metadata extends ObjectParams {
 	forms?: [];
 	commands?: [];
 	templates?: [];
+	columns?: [];
+	enumValues?: [];
+	dimensions?: [];
+	resources?: [];
 }
 
 export interface ObjectParams {

@@ -18,6 +18,7 @@ interface TreeItemParams {
   commandArguments?: any[],
   path?: string,
 	children?: TreeItem[],
+	configType?: 'edt' | 'xml',
 }
 
 export class TreeItem extends vscode.TreeItem {
@@ -26,7 +27,7 @@ export class TreeItem extends vscode.TreeItem {
 	path?: string;
   parentId = '';
   isConfiguration = false;
-	configType = 'xml';
+	configType: 'edt' | 'xml' = 'xml';
   
 	constructor(id: string, label: string, children?: TreeItem[]) {
 		super(
@@ -100,6 +101,7 @@ export function GetTreeItem(id: string, name: string, params: TreeItemParams ): 
 	if (params.command && params.commandTitle) {
 		treeItem.command = { command: params.command, title: params.commandTitle, arguments: params.commandArguments };
 	}
+	treeItem.configType = params.configType ?? 'xml';
 
 	return treeItem;
 }
