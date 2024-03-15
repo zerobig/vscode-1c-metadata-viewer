@@ -173,7 +173,7 @@
 				{
 					"command": "metadataViewer.openXml",
 					"group": "xml",
-					"when": "viewItem"
+					"when": "viewItem && viewItem != command"
 				},
 				{
 					"command": "metadataViewer.openPredefinedData",
