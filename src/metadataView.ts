@@ -2,7 +2,6 @@ import * as fs from 'fs';
 import * as glob from 'fast-glob';
 import * as vscode from 'vscode';
 import { posix } from 'path';
-import * as path from 'path';
 import { MetadataFile, VersionMetadata } from './metadataInterfaces';
 import { TemplatePanel } from './templatePanel';
 import { TemplateFile } from './templatInterfaces';
@@ -11,6 +10,8 @@ import { PredefinedDataPanel } from './predefinedDataPanel';
 import { getWebviewContent } from './Metadata/Configuration/getWebviewContent';
 import { Configuration } from './Metadata/Configuration/configuration';
 import { XMLParser } from 'fast-xml-parser';
+import { CreatePath, GetTreeItem, TreeItem } from './ConfigurationFormats/utils';
+import { Edt } from './ConfigurationFormats/edt';
 
 interface MetadataDictionaries {
 	form: { [key: string]: TreeItem[] },
@@ -51,46 +52,6 @@ interface MetadataObjects {
   externalDataSource: TreeItem[],
 }
 
-type IconType = 'common' | 'subsystem' | 'commonModule' | 'sessionParameter' | 'role' | 'attribute' |
-	'exchangePlan' | 'constant' | 'catalog' | 'document' | 'documentJournal' | 'enum' | 'report' |
-	'dataProcessor' | 'chartsOfCharacteristicType' | 'chartsOfAccount' | 'chartsOfCalculationType' |
-	'informationRegister' | 'accumulationRegister' | 'tabularSection' | 'form' | 'command' |
-	'template' | 'dimension' | 'resource' | 'column' | 'task' | 'businessProcess' | 'externalDataSource' |
-	'accountingRegister' | 'calculationRegister' | 'filterCriteria' | 'eventSubscription' | 'scheduledJob' |
-  'accountingFlag' | 'extDimensionAccountingFlag' | 'http' | 'ws' | 'wsLink' | 'operation' | 'parameter' |
-  'urlTemplate' | 'picture' | 'style';
-
-interface TreeItemParams {
-	icon?: IconType,
-	context?: string,
-	command?: string,
-	commandTitle?: string,
-  commandArguments?: any[],
-  path?: string,
-	children?: TreeItem[],
-}
-
-export class TreeItem extends vscode.TreeItem {
-	id: string;
-	children: TreeItem[] | undefined;
-	path?: string;
-  parentId = '';
-  isConfiguration = false;
-  
-	constructor(id: string, label: string, children?: TreeItem[]) {
-		super(
-			label,
-			children === undefined ?
-				vscode.TreeItemCollapsibleState.None :
-				id === 'configurations' ?
-          vscode.TreeItemCollapsibleState.Expanded :
-          vscode.TreeItemCollapsibleState.Collapsed);
-		this.id = id;
-    children?.forEach(ch => ch.parentId = id);
-		this.children = children;
-	}
-}
-
 export class MetadataView {
   rootPath?: vscode.Uri;
   panel: vscode.WebviewPanel | undefined = undefined;
@@ -111,16 +72,21 @@ export class MetadataView {
 			LoadAndParseConfigurationXml(folder.uri, dataProvider);
 		});
 
-    vscode.commands.registerCommand('metadataViewer.showTemplate', (template) => this.openTemplate(context, template));
+    vscode.commands.registerCommand('metadataViewer.showTemplate', (template, configType) => this.openTemplate(context, template, configType));
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
     vscode.commands.registerCommand('metadataViewer.openHandler', (item) => this.openHandler(item));
     vscode.commands.registerCommand('metadataViewer.openMetadataProperties', (item) => this.openMetadataProperties(context, item));
 	}
 
   // Открытие макета
-  private openTemplate(context: vscode.ExtensionContext, template: string): void {
+  private openTemplate(context: vscode.ExtensionContext, template: string, configType: string): void {
     if (this.rootPath) {
-      const fileName = posix.join(template, 'Ext/Template.xml');
+      let fileName = '';
+      if (configType === 'xml') {
+        fileName = posix.join(template, 'Ext/Template.xml');
+      } else {
+        fileName = posix.join(template, 'Template.mxlx');
+      }
       if (!fs.existsSync(fileName)) {
         return;
       }
@@ -321,26 +287,32 @@ export class MetadataView {
     }
 
     if (this.rootPath) {
-      vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(element.id, 'ConfigDumpInfo.xml') }))
-        .then(configXml => {
-          const arrayPaths = [
-            'ConfigDumpInfo.ConfigVersions.Metadata.Metadata',
-          ];
+      if (element.configType === 'xml') {
+        vscode.workspace.fs.readFile(this.rootPath.with({ path: posix.join(element.id, 'ConfigDumpInfo.xml') }))
+          .then(configXml => {
+            const arrayPaths = [
+              'ConfigDumpInfo.ConfigVersions.Metadata.Metadata',
+            ];
 
-          const parser = new XMLParser({
-            ignoreAttributes: false,
-            attributeNamePrefix: '$_',
-            isArray: (name, jpath, isLeafNode, isAttribute) => { 
-              if(arrayPaths.indexOf(jpath) !== -1) return true;
+            const parser = new XMLParser({
+              ignoreAttributes: false,
+              attributeNamePrefix: '$_',
+              isArray: (name, jpath, isLeafNode, isAttribute) => { 
+                if(arrayPaths.indexOf(jpath) !== -1) return true;
 
-              return false;
-            }
+                return false;
+              }
+            });
+            const result = parser.parse(Buffer.from(configXml));
+
+            const typedResult = result as MetadataFile;
+            CreateTreeElements(element, typedResult);
           });
-          const result = parser.parse(Buffer.from(configXml));
-
-          const typedResult = result as MetadataFile;
-          CreateTreeElements(element, typedResult);
-        });
+      } else {
+        const edt = new Edt(this.rootPath.with({ path: posix.join(
+          element.id, 'Configuration', 'Configuration.mdo') }));
+        edt.createTreeElements(element);
+      }
     }
   }
 }
@@ -351,7 +323,11 @@ const tree: TreeItem[] = [
 
 function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdTreeDataProvider) {
   console.time('glob');
-  const files = glob.sync([ '**/ConfigDumpInfo.xml', '**/Configuration.xml' ], {
+  const files = glob.sync([
+    '**/ConfigDumpInfo.xml',
+    '**/Configuration.xml',
+    '**/Configuration/Configuration.mdo'
+  ], {
     dot: true,
     cwd: uri.fsPath,
     absolute: true,
@@ -359,30 +335,52 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdT
   });
   console.timeEnd('glob');
 
-  const configurations = files.reduce<{ [key: string]: string[] }>((previous, current) => {
-    const key = current.split('/').slice(0, -1).join('/');
+  const configurations = files.reduce<{ [key: string]: { type: 'xml' | 'edt', files: string[] } }>((previous, current) => {
+    const key = current.indexOf('Configuration.mdo') === -1 ?
+      current.split('/').slice(0, -1).join('/') :
+      current.split('/').slice(0, -2).join('/');
+
     if (!previous[key]) {
-      previous[key] = [];
+      previous[key] = {
+        type: current.indexOf('Configuration.mdo') === -1 ? 'xml' : 'edt',
+        files: []
+      };
     }
-    previous[key].push(current);
+    previous[key].files.push(current);
     return previous;
   }, {});
 
   const filtered = Object
     .keys(configurations)
-    .filter(f => configurations[f].length === 2);
+    .filter(f => configurations[f].type === 'edt' || (configurations[f].type === 'xml' && configurations[f].files.length === 2));
 
   filtered.forEach(fc => {
-    vscode.workspace.fs.readFile(uri.with({ path: posix.join(fc, 'Configuration.xml') }))
+    let xmlPath = posix.join(fc, 'Configuration.xml');
+    if (!fs.existsSync(xmlPath.toString())) {
+      xmlPath = posix.join(fc, 'Configuration', 'Configuration.mdo');
+    }
+
+    vscode.workspace.fs.readFile(uri.with({ path: xmlPath }))
       .then(configXml => {
         const parser = new XMLParser({
           ignoreAttributes: false,
         });
         const result = parser.parse(Buffer.from(configXml));
 
-        let synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
-        if (!synonym) {
-          synonym = result.MetaDataObject.Configuration.Properties.Name;
+        const configType = xmlPath.toString().indexOf('/Configuration/Configuration.mdo') === -1 ?
+          'xml' : 'edt';
+
+        let synonym = '';
+        if (configType === 'xml') {
+          synonym = GetContent(result.MetaDataObject.Configuration.Properties.Synonym);
+          if (!synonym) {
+            synonym = result.MetaDataObject.Configuration.Properties.Name;
+          }
+        } else {
+          synonym = result['mdclass:Configuration']?.synonym?.value;
+          if (!synonym) {
+            synonym = result['mdclass:Configuration']?.name;
+          }
         }
 
         console.log(`Конфигурация ${synonym} найдена`);
@@ -391,6 +389,7 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdT
         treeItem.contextValue = 'main';
         treeItem.path = fc;
         treeItem.isConfiguration = true;
+        treeItem.configType = configType;
 
         tree[0].children?.push(treeItem);
 
@@ -871,23 +870,6 @@ function FillCommonItems(idPrefix: string, versionMetadata: VersionMetadata, obj
 	];
 }
 
-function GetTreeItem(id: string, name: string, params: TreeItemParams ): TreeItem {
-	const treeItem = new TreeItem(id, name.split('.').pop() ?? '', params?.children);
-
-	if (params.icon) {
-		treeItem.iconPath = getIconPath(params.icon);
-	}
-	if (params.context) {
-		treeItem.contextValue = params.context;
-	}
-	treeItem.path = params.path;
-	if (params.command && params.commandTitle) {
-		treeItem.command = { command: params.command, title: params.commandTitle, arguments: params.commandArguments };
-	}
-
-	return treeItem;
-}
-
 function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 	if(element.id === matchingId) {
 		return element;
@@ -919,39 +901,6 @@ function GetSubsystemChildren(versionMetadata: VersionMetadata[],
   return undefined;
 }
 
-// TODO: Ужасная функция!!!1 Первая очередь на рефакторинг!
-function CreatePath(name: string): string {
-	return name
-		.replace('Subsystem.', 'Subsystems/')
-		.replace('CommonModule.', 'CommonModules/')
-		.replace('ExchangePlan.', 'ExchangePlans/')
-    .replace('EventSubscription.', 'EventSubscriptions/')
-    .replace('ScheduledJob.', 'ScheduledJobs/')
-    .replace('CommonForm.', 'CommonForms/')
-    .replace('CommonPicture.', 'CommonPictures/')
-		.replace('WebService.', 'WebServices/')
-		.replace('HTTPService.', 'HTTPServices/')
-		.replace('Style.', 'Styles/')
-		.replace('Constant.', 'Constants/')
-		.replace('Catalog.', 'Catalogs/')
-		.replace('Document.', 'Documents/')
-		.replace('DocumentJournal.', 'DocumentJournals/')
-		.replace('Enum.', 'Enums/')
-		.replace('Report.', 'Reports/')
-		.replace('DataProcessor.', 'DataProcessors/')
-		.replace('ChartOfCharacteristicTypes.', 'ChartsOfCharacteristicTypes/')
-		.replace('ChartOfAccounts.', 'ChartsOfAccounts/')
-		.replace('ChartOfCalculationTypes.', 'ChartsOfCalculationTypes/')
-		.replace('InformationRegister.', 'InformationRegisters/')
-		.replace('AccumulationRegister.', 'AccumulationRegisters/')
-		.replace('AccountingRegister.', 'AccountingRegisters/')
-		.replace('CalculationRegister.', 'CalculationRegisters/')
-		.replace('BusinessProcess.', 'BusinessProcesses/')
-		.replace('Task.', 'Tasks/')
-		.replace('ExternalDataSource.', 'ExternalDataSources/')
-		.replace('.Template.', '/Templates/');
-}
-
 export class NodeWithIdTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
 	private _onDidChangeTreeData: vscode.EventEmitter<any> = new vscode.EventEmitter<any>();
 	readonly onDidChangeTreeData: vscode.Event<any> = this._onDidChangeTreeData.event;
@@ -975,11 +924,6 @@ export class NodeWithIdTreeDataProvider implements vscode.TreeDataProvider<TreeI
     if (!tree) return;
     this._onDidChangeTreeData.fire(undefined);
   }
-}
-
-function getIconPath(icon: string): string {
-	const isDark = vscode.window.activeColorTheme.kind === vscode.ColorThemeKind.Dark;
-	return path.join(__filename, '..', '..', 'resources', isDark ? 'dark' : 'light', icon + '.svg');
 }
 
 function CreateMetadata(idPrefix: string) {
