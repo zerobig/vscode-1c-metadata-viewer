@@ -282,57 +282,61 @@ export class FormPreviewer {
       //   Отдельно обрабатываем случаи когда общие картинки сохранены в формате zip
       const regex = new RegExp(`${this.confPath}/CommonPictures/(%|[A-Za-z]|[0-9])+/Ext/Picture/Picture.png`, "g");
       const picArray = html.match(regex);
-      picArray.forEach((img: string) => {
-        if (!fs.existsSync(img)) {
-          const zipName = decodeURI(img.replace('.png', '.zip'));
-          if (fs.existsSync(zipName)) {
-            const zip = new AdmZip(zipName);
-            const zipEntries = zip.getEntries();
-            const picturePng = zipEntries.find((entry) => entry.name === 'Picture.png');
-            const pictureXml = zipEntries.find((entry) => entry.name === 'manifest.xml');
-            if (picturePng && pictureXml) {
-              const buffer = zip.readFile(picturePng);
-              const textXml = zip.readAsText(pictureXml);
-              if (buffer) {
-                const parser = new XMLParser({
-                  ignoreAttributes: false,
-                });
-                const pictureParsed = parser.parse(textXml);
-                const pictureVariant = pictureParsed['Picture']['PictureVariant']
-                  .find((variant: any) => variant['@_name'] == 'Picture.png' && variant['@_interfaceVariant'] == 'version8_2');
+      if (picArray) {
+        picArray.forEach((img: string) => {
+          if (!fs.existsSync(img)) {
+            const zipName = decodeURI(img.replace('.png', '.zip'));
+            if (fs.existsSync(zipName)) {
+              const zip = new AdmZip(zipName);
+              const zipEntries = zip.getEntries();
+              const picturePng = zipEntries.find((entry) => entry.name === 'Picture.png');
+              const pictureXml = zipEntries.find((entry) => entry.name === 'manifest.xml');
+              if (picturePng && pictureXml) {
+                const buffer = zip.readFile(picturePng);
+                const textXml = zip.readAsText(pictureXml);
+                if (buffer) {
+                  const parser = new XMLParser({
+                    ignoreAttributes: false,
+                  });
+                  const pictureParsed = parser.parse(textXml);
+                  const pictureVariant = pictureParsed['Picture']['PictureVariant']
+                    .find((variant: any) => variant['@_name'] == 'Picture.png' && variant['@_interfaceVariant'] == 'version8_2');
 
-                html = html.replace(img + '">',
-                  `data:image/png;base64,${Buffer.from(buffer).toString('base64')}" style="width: ${pictureVariant['@_glyphWidth']}px; height: ${pictureVariant['@_glyphHeight']}px;">`);
+                  html = html.replace(img + '">',
+                    `data:image/png;base64,${Buffer.from(buffer).toString('base64')}" style="width: ${pictureVariant['@_glyphWidth']}px; height: ${pictureVariant['@_glyphHeight']}px;">`);
+                }
               }
             }
           }
-        }
-      });
-      // Атрибуты
-      //   Типовые
-      //     Справочники
-      html = html.replace(`${mainAttribute.$_name}.Code`, 'Код');
-      html = html.replace(`${mainAttribute.$_name}.Description`, 'Наименование');
-      html = html.replace(`${mainAttribute.$_name}.Parent`, 'Входит в группу');
-      //     Документы
-      html = html.replace(`${mainAttribute.$_name}.Number`, 'Номер');
-      html = html.replace(`${mainAttribute.$_name}.Date`, 'Дата');
-      //   Прочие
-      childObjects.Attribute?.forEach((attr) => {
-        html = html.replaceAll(`${mainAttribute.$_name}.${attr['Properties']['Name']}`,
-          attr['Properties']['Synonym']['v8:item']['v8:content']);
-      });
-      // Табличные части
-      childObjects.TabularSection?.forEach((tab: any) => {
-        // Атрибуты табличных частей
-        //   Типовые
-        html = html.replaceAll(`${mainAttribute.$_name}.${tab['Properties']['Name']}.LineNumber`, 'N');
-        tab['ChildObjects']['Attribute'].forEach((attr: any) => {
-          //   Прочие
-          html = html.replaceAll(`${mainAttribute.$_name}.${tab['Properties']['Name']}.${attr['Properties']['Name']}`,
-            `${attr['Properties']['Synonym']['v8:item']['v8:content']}`);
         });
-      });
+      }
+      if (mainAttribute) {
+        // Атрибуты
+        //   Типовые
+        //     Справочники
+        html = html.replace(`${mainAttribute.$_name}.Code`, 'Код');
+        html = html.replace(`${mainAttribute.$_name}.Description`, 'Наименование');
+        html = html.replace(`${mainAttribute.$_name}.Parent`, 'Входит в группу');
+        //     Документы
+        html = html.replace(`${mainAttribute.$_name}.Number`, 'Номер');
+        html = html.replace(`${mainAttribute.$_name}.Date`, 'Дата');
+        //   Прочие
+        childObjects.Attribute?.forEach((attr) => {
+          html = html.replaceAll(`${mainAttribute.$_name}.${attr['Properties']['Name']}`,
+            attr['Properties']['Synonym']['v8:item']['v8:content']);
+        });
+        // Табличные части
+        childObjects.TabularSection?.forEach((tab: any) => {
+          // Атрибуты табличных частей
+          //   Типовые
+          html = html.replaceAll(`${mainAttribute.$_name}.${tab['Properties']['Name']}.LineNumber`, 'N');
+          tab['ChildObjects']['Attribute'].forEach((attr: any) => {
+            //   Прочие
+            html = html.replaceAll(`${mainAttribute.$_name}.${tab['Properties']['Name']}.${attr['Properties']['Name']}`,
+              `${attr['Properties']['Synonym']['v8:item']['v8:content']}`);
+          });
+        });
+      }
 
       html = html.replace('<script></script>', `
       <script>
