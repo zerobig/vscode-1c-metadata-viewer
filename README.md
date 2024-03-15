@@ -73,7 +73,7 @@
 
 ## Что ещё планируется (roadmap)
 
-- [ ] Работа с форматом выгрузки EDT - [#3](https://github.com/zerobig/vscode-1c-metadata-viewer/issues/3)
+- [x] Работа с форматом выгрузки EDT - [#3](https://github.com/zerobig/vscode-1c-metadata-viewer/issues/3)
 - [ ] Возможность чтения метаданных без файла ConfigDumpInfo.xml
 - Предпросмотр форм:
   - [ ] Поле radio button
