@@ -83,13 +83,15 @@ export class TemplatePanel {
                       let lastColumns = '';
 
                       // Нет основной группы колонок => неоткуда брать формат колонок для окончания таблицы => пропускаем.
-                      if (mainColumns.length !== 0) {
-                        for(let i = (columns.columnsItem ?? []).length + totalAdditionalColumns; i < columns.size; i++) {
-                          const formatIndex = Number(mainColumns[0].columnsItem
-                            .filter(column => column.index === i)[0].column.formatIndex) - 1;
-                          const columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width : '80';
+                      if (mainColumns.length !== 0 && mainColumns[0].columnsItem) {
+                        for(let i = columns.columnsItem.length + totalAdditionalColumns; i < columns.size; i++) {
+                          const columnByIndex = mainColumns[0].columnsItem.filter(column => column.index === i);
+                          if (columnByIndex && columnByIndex.length > 0) {
+                            const formatIndex = Number(columnByIndex[0].column.formatIndex) - 1;
+                            const columnWidth = document.format[formatIndex].width ? document.format[formatIndex].width : '80';
 
-                          lastColumns += `<th style="max-width:${columnWidth}px; width: ${columnWidth}px;">${i + 1}</th>`;
+                            lastColumns += `<th style="max-width:${columnWidth}px; width: ${columnWidth}px;">${i + 1}</th>`;
+                          }
                         }
                       }
 
@@ -164,7 +166,7 @@ function _getColumn(templatecolumn: TemplateColumn, indexRow: number, document: 
         return;
       }
 
-      merge = document.merge.filter(m => m.r == indexRow && m.c == indexColumn);
+      merge = document.merge?.filter(m => m.r == indexRow && m.c == indexColumn);
 
       const hasMergeColumns = HasMergeColumns(merge);
       const hasMergeRows = HasMergeRows(merge);
@@ -248,10 +250,10 @@ function _getColumn(templatecolumn: TemplateColumn, indexRow: number, document: 
 }
 
 function FindRowMerge(indexRow: number, merge: TemplateMergeCells[]) {
-  return merge
+  return merge && merge.length ? merge
     .filter(m => 
       m.h && m.w &&
-      (m.r < indexRow && m.r + m.h >= indexRow));
+      (m.r < indexRow && m.r + m.h >= indexRow)) : [];
 }
 
 function HasMergeColumns(merge: TemplateMergeCells[]) {
