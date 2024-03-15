@@ -72,16 +72,21 @@ export class MetadataView {
 			LoadAndParseConfigurationXml(folder.uri, dataProvider);
 		});
 
-    vscode.commands.registerCommand('metadataViewer.showTemplate', (template) => this.openTemplate(context, template));
+    vscode.commands.registerCommand('metadataViewer.showTemplate', (template, configType) => this.openTemplate(context, template, configType));
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
     vscode.commands.registerCommand('metadataViewer.openHandler', (item) => this.openHandler(item));
     vscode.commands.registerCommand('metadataViewer.openMetadataProperties', (item) => this.openMetadataProperties(context, item));
 	}
 
   // Открытие макета
-  private openTemplate(context: vscode.ExtensionContext, template: string): void {
+  private openTemplate(context: vscode.ExtensionContext, template: string, configType: string): void {
     if (this.rootPath) {
-      const fileName = posix.join(template, 'Ext/Template.xml');
+      let fileName = '';
+      if (configType === 'xml') {
+        fileName = posix.join(template, 'Ext/Template.xml');
+      } else {
+        fileName = posix.join(template, 'Template.mxlx');
+      }
       if (!fs.existsSync(fileName)) {
         return;
       }

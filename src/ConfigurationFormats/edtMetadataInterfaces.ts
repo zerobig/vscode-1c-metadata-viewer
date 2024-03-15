@@ -8,9 +8,12 @@ export interface Metadata extends ObjectParams {
 	enumValues?: [];
 	dimensions?: [];
 	resources?: [];
+	accountingFlags?: [];
+	extDimensionAccountingFlags?: [];
+	addressingAttributes?: [];
 }
 
 export interface ObjectParams {
-	$_name: string;
+	name: string;
 	$_uuid: string;
 }

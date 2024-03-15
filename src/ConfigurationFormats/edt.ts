@@ -77,13 +77,14 @@ export class Edt {
 						const objects = configuration[objectsName];
 
 						if (objects && objects.length) {
-							const subTree: TreeItem[] = [];
+							const treeItem = this.searchTree(root, root.id + '/' + objectsName);
+							const subTree: TreeItem[] = [...treeItem?.children ?? []];
 
 							objects.forEach((obj: any) => {
 								this.createElement(subTree, root.id, obj);
 							});
 
-							this.searchTree(root, root.id + '/' + objectsName)!.children = subTree;
+							treeItem!.children = subTree;
 						}
 					});
 				}
@@ -110,6 +111,8 @@ export class Edt {
 			.then(configXml => {
 				const arrayPaths = [
 					'mdclass:Subsystem.subsystems',
+					'mdclass:ExchangePlan.forms',
+					'mdclass:ExchangePlan.commands',
 					'mdclass:Catalog.attributes',
 					'mdclass:Catalog.tabularSections',
 					'mdclass:Catalog.tabularSections.attributes',
@@ -148,19 +151,32 @@ export class Edt {
 					'mdclass:ChartOfCharacteristicTypes.forms',
 					'mdclass:ChartOfCharacteristicTypes.commands',
 					'mdclass:ChartOfCharacteristicTypes.templates',
-					//ChartOfAccounts
-					//ChartOfCalculationTypes
+					'mdclass:ChartOfAccounts.accountingFlag',
+					'mdclass:ChartOfAccounts.extDimensionAccountingFlag',
+					'mdclass:ChartOfAccounts.forms',
+					'mdclass:ChartOfAccounts.commands',
+					'mdclass:ChartOfCalculationTypes.forms',
+					'mdclass:ChartOfCalculationTypes.commands',
 					'mdclass:InformationRegister.resources',
 					'mdclass:InformationRegister.dimensions',
 					'mdclass:InformationRegister.attributes',
 					'mdclass:InformationRegister.forms',
 					'mdclass:InformationRegister.commands',
 					'mdclass:InformationRegister.templates',
-					//AccumulationRegister
-					//AccountingRegister
-					//CalculationRegister
-					//BusinessProcess
-					//Task
+					'mdclass:AccumulationRegister.resources',
+					'mdclass:AccumulationRegister.forms',
+					'mdclass:AccumulationRegister.commands',
+					'mdclass:AccountingRegister.resources',
+					'mdclass:AccountingRegister.forms',
+					'mdclass:AccountingRegister.commands',
+					'mdclass:CalculationRegister.recalculations',
+					'mdclass:CalculationRegister.forms',
+					'mdclass:CalculationRegister.commands',
+					'mdclass:BusinessProcess.forms',
+					'mdclass:BusinessProcess.commands',
+					'mdclass:Task.addressingAttributes',
+					'mdclass:Task.forms',
+					'mdclass:Task.commands',
 					//ExternalDataSource
 				];
 				const parser = new XMLParser({
@@ -215,7 +231,7 @@ export class Edt {
 					case 'ExchangePlan':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'exchangePlan', context: 'object_and_manager', path: treeItemPath,
-							children: this.fillObjectItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'ExchangePlans', elementObject),
 							configType: 'edt'
 						}));
 
@@ -285,7 +301,7 @@ export class Edt {
 					case 'Catalog':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'catalog', context: 'object_and_manager_and_predefined', path: treeItemPath,
-							children: this.fillObjectItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'Catalogs', elementObject),
 							configType: 'edt'
 						}));
 
@@ -293,9 +309,13 @@ export class Edt {
 					case 'Document':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'document', context: 'object_and_manager', path: treeItemPath,
-							children: this.fillObjectItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'Documents', elementObject),
 							configType: 'edt'
 						}));
+
+						break;
+					case 'Sequence':
+						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, { configType: 'edt' }));
 
 						break;
 					case 'DocumentJournal':
@@ -317,7 +337,7 @@ export class Edt {
 					case 'Report':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'report', context: 'object_and_manager', path: treeItemPath,
-							children: this.fillObjectItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'Reports', elementObject),
 							configType: 'edt'
 						}));
 
@@ -325,7 +345,7 @@ export class Edt {
 					case 'DataProcessor':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'dataProcessor', context: 'object_and_manager', path: treeItemPath,
-							children: this.fillObjectItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'DataProcessors', elementObject),
 							configType: 'edt'
 						}));
 
@@ -333,7 +353,7 @@ export class Edt {
 					case 'ChartOfCharacteristicTypes':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'chartsOfCharacteristicType', context: 'object_and_manager_and_predefined', path: treeItemPath,
-							children: this.fillObjectItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'ChartsOfCharacteristicTypes', elementObject),
 							configType: 'edt'
 						}));
 
@@ -349,7 +369,7 @@ export class Edt {
 					case 'ChartOfCalculationTypes':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'chartsOfCalculationType', context: 'object_and_manager_and_predefined', path: treeItemPath,
-							children: this.fillObjectItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'ChartsOfCalculationTypes', elementObject),
 							configType: 'edt'
 						}));
 
@@ -357,7 +377,7 @@ export class Edt {
 					case 'InformationRegister':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'informationRegister', context: 'recordset_and_manager', path: treeItemPath,
-							children: this.fillRegisterItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillRegisterItemsByMetadata(treeItemIdSlash, 'InformationRegisters', elementObject),
 							configType: 'edt'
 						}));
 
@@ -365,7 +385,7 @@ export class Edt {
 					case 'AccumulationRegister':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'accumulationRegister', context: 'recordset_and_manager', path: treeItemPath,
-							children: this.fillRegisterItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillRegisterItemsByMetadata(treeItemIdSlash, 'AccumulationRegisters', elementObject),
 							configType: 'edt'
 						}));
 
@@ -373,7 +393,7 @@ export class Edt {
 					case 'AccountingRegister':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'accountingRegister', context: 'recordset_and_manager', path: treeItemPath,
-							children: this.fillRegisterItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillRegisterItemsByMetadata(treeItemIdSlash, 'AccountingRegisters', elementObject),
 							configType: 'edt'
 						}));
 
@@ -389,7 +409,7 @@ export class Edt {
 					case 'BusinessProcess':
 						subTree.push(GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'businessProcess', context: 'object_and_manager', path: treeItemPath,
-							children: this.fillObjectItemsByMetadata(treeItemIdSlash, elementObject),
+							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'BusinessProcesses', elementObject),
 							configType: 'edt'
 						}));
 
@@ -411,13 +431,13 @@ export class Edt {
 
 						break;
 				}
-			});
+			}, err => console.log(err));
 	}
 
 	searchTree(element: TreeItem, matchingId: string): TreeItem | null {
 		if(element.id === matchingId) {
 			return element;
-		} else if (element.children != null) {
+		} else if (element.children != null && element.children.length > 0) {
 			let result = null;
 			for(let i = 0; result == null && i < element.children.length; i++) {
 				result = this.searchTree(element.children[i], matchingId);
@@ -431,7 +451,7 @@ export class Edt {
 		return undefined;
 	}
 
-	fillObjectItemsByMetadata(idPrefix: string, metadata: Metadata) {
+	fillObjectItemsByMetadata(idPrefix: string, metadataType: string, metadata: Metadata) {
 		const attributes = metadata.attributes?.
 			map((attr: any) => GetTreeItem(idPrefix + attr.$_uuid, attr.name, { icon: 'attribute' }));
 		const tabularSection = metadata.tabularSections?.
@@ -444,7 +464,7 @@ export class Edt {
 			GetTreeItem('', 'Табличные части', { icon: 'tabularSection', children: tabularSection }),
 		]
 
-		return [ ...items, ...this.fillCommonItems(idPrefix, metadata) ];
+		return [ ...items, ...this.fillCommonItems(idPrefix, metadataType, metadata) ];
 	}
 
 	fillWebServiceItemsByMetadata() {
@@ -455,33 +475,40 @@ export class Edt {
 		return undefined;
 	}
 
-	fillCommonItems(idPrefix: string, metadata: Metadata) {
+	fillCommonItems(idPrefix: string, metadataType: string, metadata: Metadata) {
 		return [
 			GetTreeItem('', 'Формы', {
 				icon: 'form',
 				children: metadata.forms?.map((form: any) => GetTreeItem(idPrefix + form.$_uuid, form.name, {
 					icon: 'form',
 					context: 'form',
-					path: '// TODO:'
+					path: `${idPrefix}${metadataType}/${metadata.name}/Forms/${form.name}`,
+					configType: 'edt',
 				}))
 			}),
 			GetTreeItem('', 'Команды', {
 				icon: 'command',
-				children: metadata.commands?.map((form: any) => GetTreeItem(idPrefix + form.$_uuid, form.name, {
+				children: metadata.commands?.map((command: any) => GetTreeItem(idPrefix + command.$_uuid, command.name, {
 					icon: 'command',
 					context: 'command',
-					path: '// TODO:'
+					path: `${idPrefix}${metadataType}/${metadata.name}/Commands/${command.name}`,
+					configType: 'edt',
 				}))
 			}),
 			GetTreeItem('', 'Макеты', {
 				icon: 'template',
-				children: metadata.templates?.map((template: any) => GetTreeItem(idPrefix + template.$_uuid, template.name, {
-					icon: 'template',
-          command: 'metadataViewer.showTemplate',
-          commandTitle: 'Show template',
-          commandArguments: [ '// TODO:' ],
-					path: '// TODO:'
-				}))
+				children: metadata.templates?.map((template: any) => {
+					const path = `${idPrefix}${metadataType}/${metadata.name}/Templates/${template.name}`;
+
+					return GetTreeItem(idPrefix + template.$_uuid, template.name, {
+						icon: 'template',
+						command: 'metadataViewer.showTemplate',
+						commandTitle: 'Show template',
+						commandArguments: [ path ],
+						path: path,
+						configType: 'edt',
+					})
+				})
 			}),
 		];
 	}
@@ -495,7 +522,7 @@ export class Edt {
 			}),
 		];
 
-		return [ ...items, ...this.fillCommonItems(idPrefix, metadata) ];
+		return [ ...items, ...this.fillCommonItems(idPrefix, 'DocumentJournals', metadata) ];
 	}
 
 	fillEnumItemsByMetadata(idPrefix: string, metadata: Metadata) {
@@ -507,22 +534,29 @@ export class Edt {
 			}),
 		];
 
-		return [ ...items, ...this.fillCommonItems(idPrefix, metadata) ];
+		return [ ...items, ...this.fillCommonItems(idPrefix, 'Enums', metadata) ];
 	}
 
 	fillChartOfAccountsItemsByMetadata(idPrefix: string, metadata: Metadata) {
-		// TODO:		
 		const items = [
-			GetTreeItem('', 'Признаки учета', { icon: 'accountingFlag'/*, children: accountingFlags.length === 0 ? undefined : accountingFlags*/ }),
-			GetTreeItem('', 'Признаки учета субконто', {
-				icon: 'extDimensionAccountingFlag'/*, children: extDimensionAccountingFlag.length === 0 ? undefined : extDimensionAccountingFlag*/ }),
+			GetTreeItem('', 'Признаки учета', { icon: 'accountingFlag', children: metadata.accountingFlags?.
+				map((accountingFlag: any) => GetTreeItem(idPrefix + accountingFlag.$_uuid, accountingFlag.name, {
+					icon: 'accountingFlag'
+				}))
+			}),
+			GetTreeItem('', 'Признаки учета субконто', { icon: 'extDimensionAccountingFlag',
+				children: metadata.extDimensionAccountingFlags?.
+					map((extDimensionAccountingFlag: any) => GetTreeItem(idPrefix + extDimensionAccountingFlag.$_uuid, extDimensionAccountingFlag.name, {
+						icon: 'extDimensionAccountingFlag'
+					}))
+			}),
 		];
 	
-		return [ ...items, ...this.fillObjectItemsByMetadata(idPrefix, metadata) ]
+		return [ ...items, ...this.fillObjectItemsByMetadata(idPrefix, 'ChartsOfAccounts', metadata) ]
 			.sort((x, y) => { return x.label == "Реквизиты" ? -1 : y.label == "Реквизиты" ? 1 : 0; });
 	}
 
-	fillRegisterItemsByMetadata(idPrefix: string, metadata: Metadata) {
+	fillRegisterItemsByMetadata(idPrefix: string, metadataType: string, metadata: Metadata) {
 		const items = [
 			GetTreeItem('', 'Измерения', { icon: 'dimension', children: metadata.dimensions?.
 				map((dimension: any) => GetTreeItem(idPrefix + dimension.$_uuid, dimension.name, { icon: 'dimension' }))
@@ -535,7 +569,7 @@ export class Edt {
 			}),
 		];
 	
-		return [ ...items, ...this.fillCommonItems(idPrefix, metadata) ];
+		return [ ...items, ...this.fillCommonItems(idPrefix, metadataType, metadata) ];
 	}
 
 	fillCalculationRegisterItemsByMetadata(idPrefix: string, metadata: Metadata) {
@@ -543,16 +577,17 @@ export class Edt {
 			// TODO: Перерасчеты
 		];
 	
-		return [ ...items, ...this.fillRegisterItemsByMetadata(idPrefix, metadata) ];
+		return [ ...items, ...this.fillRegisterItemsByMetadata(idPrefix, 'CalculationRegisters', metadata) ];
 	}
 
 	fillTaskItemsByMetadata(idPrefix: string, metadata: Metadata) {
-		// TODO:		
 		const items = [
-			GetTreeItem('', 'Реквизиты адресации', { icon: 'attribute'/*, children: attributes.length === 0 ? undefined : attributes*/ }),
+			GetTreeItem('', 'Реквизиты адресации', { icon: 'attribute', children: metadata.addressingAttributes?.
+				map((attr: any) => GetTreeItem(idPrefix + attr.$_uuid, attr.name, { icon: 'attribute' }))
+			}),
 		];
 	
-		return [ ...items, ...this.fillObjectItemsByMetadata(idPrefix, metadata) ]
+		return [ ...items, ...this.fillObjectItemsByMetadata(idPrefix, 'Tasks', metadata) ]
 			.sort((x, y) => { return x.label == "Реквизиты" ? -1 : y.label == "Реквизиты" ? 1 : 0; });
 	}
 

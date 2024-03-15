@@ -71,6 +71,7 @@ export function CreatePath(name: string): string {
 		.replace('Constant.', 'Constants/')
 		.replace('Catalog.', 'Catalogs/')
 		.replace('Document.', 'Documents/')
+		.replace('Sequence.', 'Sequences/')
 		.replace('DocumentJournal.', 'DocumentJournals/')
 		.replace('Enum.', 'Enums/')
 		.replace('Report.', 'Reports/')
@@ -90,6 +91,7 @@ export function CreatePath(name: string): string {
 
 export function GetTreeItem(id: string, name: string, params: TreeItemParams ): TreeItem {
 	const treeItem = new TreeItem(id, name.split('.').pop() ?? '', params?.children);
+	treeItem.configType = params.configType ?? 'xml';
 
 	if (params.icon) {
 		treeItem.iconPath = getIconPath(params.icon);
@@ -99,9 +101,11 @@ export function GetTreeItem(id: string, name: string, params: TreeItemParams ): 
 	}
 	treeItem.path = params.path;
 	if (params.command && params.commandTitle) {
-		treeItem.command = { command: params.command, title: params.commandTitle, arguments: params.commandArguments };
+		treeItem.command = {
+			command: params.command,
+			title: params.commandTitle,
+			arguments: [...params.commandArguments ?? [], treeItem.configType] };
 	}
-	treeItem.configType = params.configType ?? 'xml';
 
 	return treeItem;
 }
