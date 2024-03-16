@@ -14,82 +14,82 @@ export class Edt {
 
 	createTreeElements(root: TreeItem) {
     vscode.workspace.fs.readFile(this.xmlPath)
-			.then(configXml => {
-				const arrayPaths = [
-					'mdclass:Configuration.subsystems',
-					'mdclass:Configuration.commonModules',
-					'mdclass:Configuration.sessionParameters',
-					'mdclass:Configuration.roles',
-					'mdclass:Configuration.commonAttributes',
-					'mdclass:Configuration.exchangePlans',
-					'mdclass:Configuration.filterCriteria',
-					'mdclass:Configuration.eventSubscriptions',
-					'mdclass:Configuration.scheduledJobs',
-					'mdclass:Configuration.functionalOptions',
-					'mdclass:Configuration.functionalOptionsParameters',
-					'mdclass:Configuration.definedTypes',
-					'mdclass:Configuration.settingsStorages',
-					'mdclass:Configuration.commonCommands',
-					'mdclass:Configuration.commandGroups',
-					'mdclass:Configuration.commonForms',
-					'mdclass:Configuration.commonTemplates',
-					'mdclass:Configuration.commonPictures',
-					'mdclass:Configuration.xdtoPackages',
-					'mdclass:Configuration.webServices',
-					'mdclass:Configuration.httpServices',
-					'mdclass:Configuration.wsReferences',
-					'mdclass:Configuration.styleItems',
-					'mdclass:Configuration.styles',
-					//'mdclass:Configuration.languages',
-					'mdclass:Configuration.constants',
-					'mdclass:Configuration.catalogs',
-					'mdclass:Configuration.documents',
-					'mdclass:Configuration.documentNumerators',
-					'mdclass:Configuration.sequences',
-					'mdclass:Configuration.documentJournals',
-					'mdclass:Configuration.enums',
-					'mdclass:Configuration.reports',
-					'mdclass:Configuration.dataProcessors',
-					'mdclass:Configuration.chartsOfCharacteristicTypes',
-					'mdclass:Configuration.chartsOfAccounts',
-					'mdclass:Configuration.chartsOfCalculationTypes',
-					'mdclass:Configuration.informationRegisters',
-					'mdclass:Configuration.accomulationRegisters',
-					'mdclass:Configuration.accountingRegisters',
-					'mdclass:Configuration.calculationRegisters',
-					'mdclass:Configuration.businessProcesses',
-					'mdclass:Configuration.tasks',
-					'mdclass:Configuration.externalDataSources',
-				];
-				const parser = new XMLParser({
-					ignoreAttributes: false,
-					attributeNamePrefix: '$_',
-					isArray: (name, jpath, isLeafNode, isAttribute) => {
-						if(arrayPaths.indexOf(jpath) !== -1) return true;
+		.then(configXml => {
+			const arrayPaths = [
+				'mdclass:Configuration.subsystems',
+				'mdclass:Configuration.commonModules',
+				'mdclass:Configuration.sessionParameters',
+				'mdclass:Configuration.roles',
+				'mdclass:Configuration.commonAttributes',
+				'mdclass:Configuration.exchangePlans',
+				'mdclass:Configuration.filterCriteria',
+				'mdclass:Configuration.eventSubscriptions',
+				'mdclass:Configuration.scheduledJobs',
+				'mdclass:Configuration.functionalOptions',
+				'mdclass:Configuration.functionalOptionsParameters',
+				'mdclass:Configuration.definedTypes',
+				'mdclass:Configuration.settingsStorages',
+				'mdclass:Configuration.commonCommands',
+				'mdclass:Configuration.commandGroups',
+				'mdclass:Configuration.commonForms',
+				'mdclass:Configuration.commonTemplates',
+				'mdclass:Configuration.commonPictures',
+				'mdclass:Configuration.xdtoPackages',
+				'mdclass:Configuration.webServices',
+				'mdclass:Configuration.httpServices',
+				'mdclass:Configuration.wsReferences',
+				'mdclass:Configuration.styleItems',
+				'mdclass:Configuration.styles',
+				//'mdclass:Configuration.languages',
+				'mdclass:Configuration.constants',
+				'mdclass:Configuration.catalogs',
+				'mdclass:Configuration.documents',
+				'mdclass:Configuration.documentNumerators',
+				'mdclass:Configuration.sequences',
+				'mdclass:Configuration.documentJournals',
+				'mdclass:Configuration.enums',
+				'mdclass:Configuration.reports',
+				'mdclass:Configuration.dataProcessors',
+				'mdclass:Configuration.chartsOfCharacteristicTypes',
+				'mdclass:Configuration.chartsOfAccounts',
+				'mdclass:Configuration.chartsOfCalculationTypes',
+				'mdclass:Configuration.informationRegisters',
+				'mdclass:Configuration.accomulationRegisters',
+				'mdclass:Configuration.accountingRegisters',
+				'mdclass:Configuration.calculationRegisters',
+				'mdclass:Configuration.businessProcesses',
+				'mdclass:Configuration.tasks',
+				'mdclass:Configuration.externalDataSources',
+			];
+			const parser = new XMLParser({
+				ignoreAttributes: false,
+				attributeNamePrefix: '$_',
+				isArray: (name, jpath, isLeafNode, isAttribute) => {
+					if(arrayPaths.indexOf(jpath) !== -1) return true;
 
-						return false;
-					}
-				});
-				const configuration = parser.parse(Buffer.from(configXml))['mdclass:Configuration'];
-
-				if (configuration) {
-					arrayPaths.forEach((path) => {
-						const objectsName = path.split('.')[1];
-						const objects = configuration[objectsName];
-
-						if (objects && objects.length) {
-							const treeItem = this.searchTree(root, root.id + '/' + objectsName);
-							const subTree: TreeItem[] = [...treeItem?.children ?? []];
-
-							objects.forEach((obj: any) => {
-								this.createElement(subTree, root.id, obj);
-							});
-
-							treeItem!.children = subTree;
-						}
-					});
+					return false;
 				}
 			});
+			const configuration = parser.parse(Buffer.from(configXml))['mdclass:Configuration'];
+
+			if (configuration) {
+				arrayPaths.forEach((path) => {
+					const objectsName = path.split('.')[1];
+					const objects = configuration[objectsName];
+
+					if (objects && objects.length) {
+						const treeItem = this.searchTree(root, root.id + '/' + objectsName);
+						const subTree: TreeItem[] = [...treeItem?.children ?? []];
+
+						objects.forEach((obj: any) => {
+							this.createElement(subTree, root.id, obj);
+						});
+
+						treeItem!.children = subTree;
+					}
+				});
+			}
+		});
 	}
 
 	createElement(subTree: TreeItem[], rootPath: string, objName: string) {
