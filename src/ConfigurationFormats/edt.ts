@@ -462,7 +462,7 @@ export class Edt {
 		const items = [
 			GetTreeItem('', 'Реквизиты', { icon: 'attribute', children: attributes?.length === 0 ? undefined : attributes }),
 			GetTreeItem('', 'Табличные части', { icon: 'tabularSection', children: tabularSection }),
-		]
+		];
 
 		return [ ...items, ...this.fillCommonItems(idPrefix, metadataType, metadata) ];
 	}
@@ -507,7 +507,7 @@ export class Edt {
 						commandArguments: [ path ],
 						path: path,
 						configType: 'edt',
-					})
+					});
 				})
 			}),
 		];
