@@ -72,6 +72,7 @@ export class Edt {
 			});
 			const configuration = parser.parse(Buffer.from(configXml))['mdclass:Configuration'];
 
+			console.time('edtDownload');
 			if (configuration) {
 				arrayPaths.forEach((path) => {
 					const objectsName = path.split('.')[1];
@@ -89,6 +90,7 @@ export class Edt {
 					}
 				});
 			}
+			console.timeEnd('edtDownload');
 		});
 	}
 
