@@ -453,11 +453,11 @@ export class Edt {
 
 	fillObjectItemsByMetadata(idPrefix: string, metadataType: string, metadata: Metadata) {
 		const attributes = metadata.attributes?.
-			map((attr: any) => GetTreeItem(idPrefix + attr.$_uuid, attr.name, { icon: 'attribute' }));
+			map((attr) => GetTreeItem(idPrefix + attr.$_uuid, attr.name, { icon: 'attribute' }));
 		const tabularSection = metadata.tabularSections?.
-			map((tabularSection: any) => GetTreeItem(idPrefix + tabularSection.$_uuid, tabularSection.name, { icon: 'tabularSection',
+			map((tabularSection) => GetTreeItem(idPrefix + tabularSection.$_uuid, tabularSection.name, { icon: 'tabularSection',
 				children: tabularSection.attributes?.
-					map((tsAttr: any) => GetTreeItem(idPrefix + tsAttr.$_uuid, tsAttr.name, { icon: 'attribute' }))}));
+					map((tsAttr) => GetTreeItem(idPrefix + tsAttr.$_uuid, tsAttr.name, { icon: 'attribute' }))}));
 
 		const items = [
 			GetTreeItem('', 'Реквизиты', { icon: 'attribute', children: attributes?.length === 0 ? undefined : attributes }),
@@ -479,7 +479,7 @@ export class Edt {
 		return [
 			GetTreeItem('', 'Формы', {
 				icon: 'form',
-				children: metadata.forms?.map((form: any) => GetTreeItem(idPrefix + form.$_uuid, form.name, {
+				children: metadata.forms?.map((form) => GetTreeItem(idPrefix + form.$_uuid, form.name, {
 					icon: 'form',
 					context: 'form',
 					path: `${idPrefix}${metadataType}/${metadata.name}/Forms/${form.name}`,
@@ -488,7 +488,7 @@ export class Edt {
 			}),
 			GetTreeItem('', 'Команды', {
 				icon: 'command',
-				children: metadata.commands?.map((command: any) => GetTreeItem(idPrefix + command.$_uuid, command.name, {
+				children: metadata.commands?.map((command) => GetTreeItem(idPrefix + command.$_uuid, command.name, {
 					icon: 'command',
 					context: 'command',
 					path: `${idPrefix}${metadataType}/${metadata.name}/Commands/${command.name}`,
@@ -497,7 +497,7 @@ export class Edt {
 			}),
 			GetTreeItem('', 'Макеты', {
 				icon: 'template',
-				children: metadata.templates?.map((template: any) => {
+				children: metadata.templates?.map((template) => {
 					const path = `${idPrefix}${metadataType}/${metadata.name}/Templates/${template.name}`;
 
 					return GetTreeItem(idPrefix + template.$_uuid, template.name, {
@@ -516,7 +516,7 @@ export class Edt {
 	fillDocumentJournalItemsByMetadata(idPrefix: string, metadata: Metadata) {
 		const items = [
 			GetTreeItem('', 'Графы', { icon: 'column', children: metadata.columns?.
-				map((column: any) => GetTreeItem(idPrefix + column.$_uuid, column.name, {
+				map((column) => GetTreeItem(idPrefix + column.$_uuid, column.name, {
 					icon: 'template'
 				}))
 			}),
@@ -528,7 +528,7 @@ export class Edt {
 	fillEnumItemsByMetadata(idPrefix: string, metadata: Metadata) {
 		const items = [
 			GetTreeItem('', 'Значения', { icon: 'attribute', children: metadata.enumValues?.
-				map((enumValue: any) => GetTreeItem(idPrefix + enumValue.$_uuid, enumValue.name, {
+				map((enumValue) => GetTreeItem(idPrefix + enumValue.$_uuid, enumValue.name, {
 					icon: 'attribute'
 				}))
 			}),
@@ -540,13 +540,13 @@ export class Edt {
 	fillChartOfAccountsItemsByMetadata(idPrefix: string, metadata: Metadata) {
 		const items = [
 			GetTreeItem('', 'Признаки учета', { icon: 'accountingFlag', children: metadata.accountingFlags?.
-				map((accountingFlag: any) => GetTreeItem(idPrefix + accountingFlag.$_uuid, accountingFlag.name, {
+				map((accountingFlag) => GetTreeItem(idPrefix + accountingFlag.$_uuid, accountingFlag.name, {
 					icon: 'accountingFlag'
 				}))
 			}),
 			GetTreeItem('', 'Признаки учета субконто', { icon: 'extDimensionAccountingFlag',
 				children: metadata.extDimensionAccountingFlags?.
-					map((extDimensionAccountingFlag: any) => GetTreeItem(idPrefix + extDimensionAccountingFlag.$_uuid, extDimensionAccountingFlag.name, {
+					map((extDimensionAccountingFlag) => GetTreeItem(idPrefix + extDimensionAccountingFlag.$_uuid, extDimensionAccountingFlag.name, {
 						icon: 'extDimensionAccountingFlag'
 					}))
 			}),
@@ -559,13 +559,13 @@ export class Edt {
 	fillRegisterItemsByMetadata(idPrefix: string, metadataType: string, metadata: Metadata) {
 		const items = [
 			GetTreeItem('', 'Измерения', { icon: 'dimension', children: metadata.dimensions?.
-				map((dimension: any) => GetTreeItem(idPrefix + dimension.$_uuid, dimension.name, { icon: 'dimension' }))
+				map((dimension) => GetTreeItem(idPrefix + dimension.$_uuid, dimension.name, { icon: 'dimension' }))
 			}),
 			GetTreeItem('', 'Ресурсы', { icon: 'resource', children: metadata.resources?.
-				map((resource: any) => GetTreeItem(idPrefix + resource.$_uuid, resource.name, { icon: 'resource' }))
+				map((resource) => GetTreeItem(idPrefix + resource.$_uuid, resource.name, { icon: 'resource' }))
 			}),
 			GetTreeItem('', 'Реквизиты', { icon: 'attribute', children: metadata.attributes?.
-				map((attr: any) => GetTreeItem(idPrefix + attr.$_uuid, attr.name, { icon: 'attribute' }))
+				map((attr) => GetTreeItem(idPrefix + attr.$_uuid, attr.name, { icon: 'attribute' }))
 			}),
 		];
 	
@@ -583,7 +583,7 @@ export class Edt {
 	fillTaskItemsByMetadata(idPrefix: string, metadata: Metadata) {
 		const items = [
 			GetTreeItem('', 'Реквизиты адресации', { icon: 'attribute', children: metadata.addressingAttributes?.
-				map((attr: any) => GetTreeItem(idPrefix + attr.$_uuid, attr.name, { icon: 'attribute' }))
+				map((attr) => GetTreeItem(idPrefix + attr.$_uuid, attr.name, { icon: 'attribute' }))
 			}),
 		];
 	
