@@ -118,7 +118,12 @@ export class Edt {
 				switch (objName.split('.')[0]) {
 					case 'Subsystem':
 						return GetTreeItem(treeItemId, elementName ?? objName, {
-							icon: 'subsystem', children: this.getSubsystemChildren(elementObject),
+							icon: 'subsystem',
+							children: this.getSubsystemChildren(
+								elementObject,
+								folderUri,
+								posix.join(rootPath, objectPath)
+							),
 							configType: 'edt'
 						});
 					case 'CommonModule':
@@ -166,13 +171,13 @@ export class Edt {
 					case 'WebService':
 						return GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'ws', context: 'module', path: treeItemPath,
-							children: this.fillWebServiceItemsByMetadata(),
+							children: this.fillWebServiceItemsByMetadata(treeItemIdSlash, elementObject),
 							configType: 'edt'
 						});
 					case 'HTTPService':
 						return GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'http', context: 'module', path: treeItemPath,
-							children: this.fillHttpServiceItemsByMetadata(),
+							children: this.fillHttpServiceItemsByMetadata(treeItemIdSlash, elementObject),
 							configType: 'edt'
 						});
 					case 'WSReference':
@@ -303,8 +308,38 @@ export class Edt {
 		return null;
 	}
 
-	getSubsystemChildren(obj: any): TreeItem[] | undefined {
-		return undefined;
+	getSubsystemChildren(obj: any, folderUri: vscode.Uri, path: string): TreeItem[] | undefined {
+		const subtreeItems: TreeItem[] = [];
+
+		if (obj.subsystems && obj.subsystems.length > 0) {
+			for (const subsystem of obj.subsystems) {
+				const subPath = posix.join(path, 'Subsystems', subsystem);
+				const fileName = folderUri.with({ path: posix.join(subPath, `${subsystem}.mdo`) });
+				fs.promises.readFile(fileName.fsPath)
+					.then(data => {
+						const parser = new XMLParser({
+							ignoreAttributes: false,
+							attributeNamePrefix: '$_',
+							isArray: (name, jpath, isLeafNode, isAttribute) => {
+								if(jpath === 'mdclass:Subsystem.subsystems') return true;
+		
+								return false;
+							}
+						});
+		
+						const element = parser.parse(data);
+						const elementObject = element[Object.keys(element)[1]];
+						const elementName = elementObject.name;
+		
+						subtreeItems.push(GetTreeItem(`${subPath}/${elementObject.$_uuid}`, elementName ?? subsystem, {
+							icon: 'subsystem', children: this.getSubsystemChildren(elementObject, folderUri, subPath),
+							configType: 'edt'
+						}));
+					});
+			}
+		}
+
+		return subtreeItems;
 	}
 
 	fillObjectItemsByMetadata(idPrefix: string, metadataType: string, metadata: Metadata) {
@@ -323,12 +358,18 @@ export class Edt {
 		return [ ...items, ...this.fillCommonItems(idPrefix, metadataType, metadata) ];
 	}
 
-	fillWebServiceItemsByMetadata() {
-		return undefined;
+	fillWebServiceItemsByMetadata(idPrefix: string, metadata: Metadata) {
+		return metadata.operations?.map((operation) => GetTreeItem(idPrefix + operation.$_uuid, operation.name, {
+			icon: 'operation', children: operation.parameters?.
+				map(parameter => GetTreeItem(idPrefix + parameter.$_uuid, parameter.name, { icon: 'parameter' }))
+		}));
 	}
 
-	fillHttpServiceItemsByMetadata() {
-		return undefined;
+	fillHttpServiceItemsByMetadata(idPrefix: string, metadata: Metadata) {
+		return metadata.urlTemplates?.map((urlTemplate) => GetTreeItem(idPrefix + urlTemplate.$_uuid, urlTemplate.name, {
+			icon: 'urlTemplate', children: urlTemplate.methods?.
+				map(method => GetTreeItem(idPrefix + method.$_uuid, method.name, { icon: 'parameter' }))
+		}));
 	}
 
 	fillCommonItems(idPrefix: string, metadataType: string, metadata: Metadata) {

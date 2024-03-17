@@ -11,6 +11,8 @@ export interface Metadata extends ObjectParams {
 	accountingFlags?: ObjectParams[];
 	extDimensionAccountingFlags?: ObjectParams[];
 	addressingAttributes?: ObjectParams[];
+	operations?: WebServiceOperation[];
+	urlTemplates?: UrlTemplate[];
 }
 
 export interface ObjectParams {
@@ -20,4 +22,12 @@ export interface ObjectParams {
 
 export interface TabularSections extends ObjectParams {
 	attributes?: ObjectParams[];
+}
+
+export interface WebServiceOperation extends ObjectParams {
+	parameters?: ObjectParams[];
+}
+
+export interface UrlTemplate extends ObjectParams {
+	methods?: ObjectParams[];
 }
