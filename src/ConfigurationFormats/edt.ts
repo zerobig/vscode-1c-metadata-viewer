@@ -205,8 +205,10 @@ export class Edt {
 							children: this.fillObjectItemsByMetadata(treeItemIdSlash, 'Documents', elementObject),
 							configType: 'edt'
 						});
+					case 'DocumentNumerator':
+						return GetTreeItem(treeItemId, elementName ?? objName, { icon: 'documentNumerator', configType: 'edt' });
 					case 'Sequence':
-						return GetTreeItem(treeItemId, elementName ?? objName, { configType: 'edt' });
+						return GetTreeItem(treeItemId, elementName ?? objName, { icon: 'sequence', configType: 'edt' });
 					case 'DocumentJournal':
 						return GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'documentJournal', context: 'manager', path: treeItemPath,
