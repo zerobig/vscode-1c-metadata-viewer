@@ -36,6 +36,8 @@ interface MetadataObjects {
 	constant: TreeItem[],
 	catalog: TreeItem[],
 	document: TreeItem[],
+  documentNumerator: TreeItem[],
+  sequence: TreeItem[],
 	documentJournal: TreeItem[],
 	enum: TreeItem[],
 	report: TreeItem[],
@@ -531,6 +533,14 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
             children: FillObjectItemsByMetadata(treeItemIdSlash, current, attributeReduceResult) }));
   
         break;
+      case current.$_name.startsWith('DocumentNumerator.'):
+        previous.documentNumerator.push(GetTreeItem( treeItemId, current.$_name, { icon: 'documentNumerator' }));
+  
+        break;
+      case current.$_name.startsWith('Sequence.'):
+        previous.sequence.push(GetTreeItem( treeItemId, current.$_name, { icon: 'sequence' }));
+  
+        break;
       case current.$_name.startsWith('DocumentJournal.'):
         previous.documentJournal.push(GetTreeItem(
           treeItemId, current.$_name, {
@@ -650,6 +660,8 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
     constant: [],
 		catalog: [],
 		document: [],
+    documentNumerator: [],
+    sequence: [],
 		documentJournal: [],
 		enum: [],
 		report: [],
@@ -686,6 +698,8 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 	const documents = SearchTree(element, element.id + '/documents');
 	documents!.children = [ ...documents!.children ?? [], ...reduceResult.document];
 
+	SearchTree(element, element.id + '/documentNumerators')!.children = reduceResult.documentNumerator;
+	SearchTree(element, element.id + '/sequences')!.children = reduceResult.sequence;
 	SearchTree(element, element.id + '/documentJournals')!.children = reduceResult.documentJournal;
 	SearchTree(element, element.id + '/enums')!.children = reduceResult.enum;
 	SearchTree(element, element.id + '/reports')!.children = reduceResult.report;
@@ -960,8 +974,8 @@ function CreateMetadata(idPrefix: string) {
     GetTreeItem(idPrefix + '/constants', 'Константы', { icon: 'constant', children: [] }),
     GetTreeItem(idPrefix + '/catalogs', 'Справочники', { icon: 'catalog', children: [] }),
     GetTreeItem(idPrefix + '/documents', 'Документы', { icon: 'document', children: [
-      GetTreeItem(idPrefix + '/documentNumerators', 'Нумераторы', { children: [] }),
-      GetTreeItem(idPrefix + '/sequences', 'Последовательности', { children: [] }),
+      GetTreeItem(idPrefix + '/documentNumerators', 'Нумераторы', { icon: 'documentNumerator', children: [] }),
+      GetTreeItem(idPrefix + '/sequences', 'Последовательности', { icon: 'sequence', children: [] }),
     ]}),
     GetTreeItem(idPrefix + '/documentJournals', 'Журналы документов', { icon: 'documentJournal', children: [] }),
     GetTreeItem(idPrefix + '/enums', 'Перечисления', { icon: 'enum', children: [] }),

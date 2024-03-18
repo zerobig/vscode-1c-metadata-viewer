@@ -8,7 +8,7 @@ type IconType = 'common' | 'subsystem' | 'commonModule' | 'sessionParameter' | '
 	'template' | 'dimension' | 'resource' | 'column' | 'task' | 'businessProcess' | 'externalDataSource' |
 	'accountingRegister' | 'calculationRegister' | 'filterCriteria' | 'eventSubscription' | 'scheduledJob' |
   'accountingFlag' | 'extDimensionAccountingFlag' | 'http' | 'ws' | 'wsLink' | 'operation' | 'parameter' |
-  'urlTemplate' | 'picture' | 'style';
+  'urlTemplate' | 'picture' | 'style' | 'sequence' | 'documentNumerator';
 
 interface TreeItemParams {
 	icon?: IconType,
