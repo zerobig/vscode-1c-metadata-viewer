@@ -2,7 +2,7 @@
 	"name": "vscode-1c-metadata-viewer",
 	"displayName": "1C Metadata Viewer",
 	"description": "Explore 1C:Enterprise 8 configuration in the usual way",
-	"version": "0.2.1",
+	"version": "0.2.2",
 	"publisher": "zerobig",
 	"license": "MIT",
 	"engines": {
@@ -101,6 +101,14 @@
 			{
 				"command": "metadataViewer.openMetadataProperties",
 				"title": "%1c-metadata-viewer.openMetadataProperties.title%"
+			},
+			{
+				"command": "metadataViewer.filterBySubsystem",
+				"title": "%1c-metadata-viewer.filterBySubsystem.title%"
+			},
+			{
+				"command": "metadataViewer.clearFilter",
+				"title": "%1c-metadata-viewer.clearFilter.title%"
 			}
 		],
 		"menus": {
@@ -173,7 +181,7 @@
 				{
 					"command": "metadataViewer.openXml",
 					"group": "xml",
-					"when": "viewItem && viewItem != command"
+					"when": "viewItem && viewItem != command && !(viewItem =~ /subsystem/)"
 				},
 				{
 					"command": "metadataViewer.openPredefinedData",
@@ -188,6 +196,14 @@
 					"command": "metadataViewer.openMetadataProperties",
 					"group": "metadata",
 					"when": "viewItem == main"
+				},
+				{
+					"command": "metadataViewer.filterBySubsystem",
+					"when": "viewItem =~ /subsystem/ && viewItem not in filteredConfigArray"
+				},
+				{
+					"command": "metadataViewer.clearFilter",
+					"when": "viewItem =~ /subsystem/ && viewItem in filteredConfigArray"
 				}
 			]
 		},

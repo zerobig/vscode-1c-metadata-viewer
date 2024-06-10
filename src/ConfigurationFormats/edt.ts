@@ -10,15 +10,18 @@ import {
 import { posix, resolve } from 'path';
 import { Metadata } from './edtMetadataInterfaces';
 import { ProgressLocation, window } from 'vscode';
+import { NodeWithIdTreeDataProvider } from '../metadataView';
 
 export class Edt {
 	private xmlPath: vscode.Uri;
+	private dataProvider: NodeWithIdTreeDataProvider;
 
-	constructor(xmlPath: vscode.Uri) {
+	constructor(xmlPath: vscode.Uri, dataProvider: NodeWithIdTreeDataProvider) {
 		this.xmlPath = xmlPath;
+		this.dataProvider = dataProvider;
 	}
 
-	createTreeElements(root: TreeItem) {
+	createTreeElements(root: TreeItem, subsystemFilter: string[]) {
 		window.withProgress({
 			location: ProgressLocation.Notification,
 			title: "Происходит загрузка конфигурации",
@@ -54,6 +57,10 @@ export class Edt {
 						const subTree: TreeItem[] = [...treeItem?.children ?? []];
 
 						for (const [indexOfObjects, obj] of objects.entries()) {
+							if (subsystemFilter.length && subsystemFilter.indexOf(obj) === -1) {
+								continue;
+							}
+
 							count++;
 
 							if (count % Math.round(total / 100) === 0) {
@@ -74,10 +81,59 @@ export class Edt {
 
 						treeItem!.children = subTree;
 					}
+
+					this.dataProvider.update();
 				}
 			}
 			console.timeEnd('edtDownload');
-		}); // WithProgress
+
+			if (subsystemFilter.length) {
+				// Нумераторы и последовательности в документах
+				if (root.children![3].children![1].children?.length === 0) {
+					root.children![3].children?.splice(1, 1);
+				}
+				if (root.children![3].children![0].children?.length === 0) {
+					root.children![3].children?.splice(0, 1);
+				}
+
+				// Очищаю пустые элементы
+				const indexesToDelete: number[] = [];
+				root.children?.forEach((ch, index) => {
+					if (!ch.children || ch.children.length === 0) {
+						indexesToDelete.push(index);
+					}
+				});
+				indexesToDelete.sort((a, b) => b - a);
+				indexesToDelete.forEach((d) => root.children?.splice(d, 1));
+
+				// Отдельно очищаю раздел "Общие"
+				indexesToDelete.splice(0);
+				root.children![0].children?.forEach((ch, index) => {
+					if (!ch.children || ch.children.length === 0) {
+						indexesToDelete.push(index);
+					}
+				});
+				indexesToDelete.sort((a, b) => b - a);
+				indexesToDelete.forEach((d) => root.children![0].children?.splice(d, 1));
+
+				// Ненужные вложенные подсистемы
+				this.removeSubSystems(root.children![0].children![0], subsystemFilter);
+				this.dataProvider.update();
+			}
+		}, ); // WithProgress
+	}
+
+	removeSubSystems(subsystemsTreeItem: TreeItem, subsystemFilter: string[]) {
+		const indexesToDelete: number[] = [];
+		subsystemsTreeItem.children?.forEach((ch, index) => {
+			if (subsystemFilter.indexOf(`Subsystem.${ch.label}`) === -1) {
+				indexesToDelete.push(index);
+			} else {
+				this.removeSubSystems(ch, subsystemFilter);
+			}
+		});
+		indexesToDelete.sort((a, b) => b - a);
+		indexesToDelete.forEach((d) => subsystemsTreeItem.children?.splice(d, 1));
 	}
 
 	async createElement(rootPath: string, objName: string) {
@@ -116,16 +172,23 @@ export class Edt {
 				const treeItemPath = `${treeItemIdSlash}${CreatePath(objectPath)}`;
 
 				switch (objName.split('.')[0]) {
-					case 'Subsystem':
+					case 'Subsystem': {
+						const { chilldren, content } = this.getSubsystemChildren(
+							elementObject,
+							folderUri,
+							posix.join(rootPath, objectPath)
+						);
+
 						return GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'subsystem',
-							children: this.getSubsystemChildren(
-								elementObject,
-								folderUri,
-								posix.join(rootPath, objectPath)
-							),
+							context: `subsystem_${rootPath}`,
+							children: chilldren,
+							command: 'metadataViewer.filterBySubsystem',
+							commandTitle: 'Filter by subsystem',
+							commandArguments: content,
 							configType: 'edt'
 						});
+					}
 					case 'CommonModule':
 						return GetTreeItem(treeItemId, elementName ?? objName, {
 							icon: 'commonModule', context: 'module', path: treeItemPath,
@@ -310,8 +373,19 @@ export class Edt {
 		return null;
 	}
 
-	getSubsystemChildren(obj: any, folderUri: vscode.Uri, path: string): TreeItem[] | undefined {
+	getSubsystemChildren(obj: any, folderUri: vscode.Uri, path: string): {chilldren: TreeItem[] | undefined, content: string[] } {
 		const subtreeItems: TreeItem[] = [];
+		// добавляю к фильтру сами подсистемы с иерархией
+		const subsystemContent: string[] = [
+			...path.slice(path.indexOf('Subsystem')).replace(/Subsystems\//g, 'Subsystem.').split('/')
+		];
+		const rootPath = path.slice(0, path.indexOf('Subsystem') - 1);
+
+		if (obj.content && obj.content.length > 0) {
+			for (const content of obj.content) {
+				subsystemContent.push(content);
+			}
+		}
 
 		if (obj.subsystems && obj.subsystems.length > 0) {
 			for (const subsystem of obj.subsystems) {
@@ -333,15 +407,22 @@ export class Edt {
 						const elementObject = element[Object.keys(element)[1]];
 						const elementName = elementObject.name;
 		
-						subtreeItems.push(GetTreeItem(`${subPath}/${elementObject.$_uuid}`, elementName ?? subsystem, {
-							icon: 'subsystem', children: this.getSubsystemChildren(elementObject, folderUri, subPath),
+						const { chilldren, content } = this.getSubsystemChildren(elementObject, folderUri, subPath);
+
+						subtreeItems.push(GetTreeItem(`${rootPath}/${elementObject.$_uuid}`, elementName ?? subsystem, {
+							icon: 'subsystem',
+							context: `subsystem_${rootPath}`,
+							children: chilldren,
+							command: 'metadataViewer.filterBySubsystem',
+							commandTitle: 'Filter by subsystem',
+							commandArguments: content,
 							configType: 'edt'
 						}));
 					});
 			}
 		}
 
-		return subtreeItems;
+		return { chilldren: subtreeItems, content: subsystemContent };
 	}
 
 	fillObjectItemsByMetadata(idPrefix: string, metadataType: string, metadata: Metadata) {

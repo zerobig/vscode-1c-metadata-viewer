@@ -86,7 +86,7 @@ export class TreeItem extends vscode.TreeItem {
 // TODO: Ужасная функция!!!1 Первая очередь на рефакторинг!
 export function CreatePath(name: string): string {
   return name
-    .replace("Subsystem.", "Subsystems/")
+    .replace(/Subsystem\./g, "Subsystems/")
     .replace("CommonModule.", "CommonModules/")
     .replace("SessionParameter.", "SessionParameters/")
     .replace("Role.", "Roles/")
@@ -154,7 +154,7 @@ export function GetTreeItem(
     treeItem.command = {
       command: params.command,
       title: params.commandTitle,
-      arguments: [...(params.commandArguments ?? []), treeItem.configType],
+      arguments: params.commandArguments ?? [],
     };
   }
 

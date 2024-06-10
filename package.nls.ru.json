@@ -14,5 +14,7 @@
 	"1c-metadata-viewer.openPredefinedData.title": "Открыть предопределенные данные",
 	"1c-metadata-viewer.searchDepth.title": "Количество уровней вложенности каталогов в которых осуществляется поиск конфигураций 1С:Предприятия",
 	"1c-metadata-viewer.openHandler.title": "Открыть обработчик",
-	"1c-metadata-viewer.openMetadataProperties.title": "Свойства"
+	"1c-metadata-viewer.openMetadataProperties.title": "Свойства",
+	"1c-metadata-viewer.filterBySubsystem.title": "Фильтровать по подсистеме",
+	"1c-metadata-viewer.clearFilter.title": "Очистить фильтр по подсистеме"
 }

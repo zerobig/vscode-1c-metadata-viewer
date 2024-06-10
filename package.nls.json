@@ -14,5 +14,7 @@
 	"1c-metadata-viewer.openPredefinedData.title": "Open predefined data",
 	"1c-metadata-viewer.searchDepth.title": "The number of nesting levels of directories in which 1C:Enterprise configurations are searched",
 	"1c-metadata-viewer.openHandler.title": "Open handler",
-	"1c-metadata-viewer.openMetadataProperties.title": "Properties"
+	"1c-metadata-viewer.openMetadataProperties.title": "Properties",
+	"1c-metadata-viewer.filterBySubsystem.title": "Filter by subsystem",
+	"1c-metadata-viewer.clearFilter.title": "Clear subsystem filter"
 }

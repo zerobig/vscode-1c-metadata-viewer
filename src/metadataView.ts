@@ -57,13 +57,16 @@ interface MetadataObjects {
 export class MetadataView {
   rootPath?: vscode.Uri;
   panel: vscode.WebviewPanel | undefined = undefined;
+  // Фильтр нужен по каждой конфигурации отдельно
+  subsystemFilter: { id: string; objects: string[] }[] = [];
+  dataProvider: NodeWithIdTreeDataProvider | null = null;
 
 	constructor(context: vscode.ExtensionContext) {
     this.rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))
       ? vscode.workspace.workspaceFolders[0].uri : undefined;
 
-    const dataProvider = new NodeWithIdTreeDataProvider();
-    const view = vscode.window.createTreeView('metadataView', { treeDataProvider: dataProvider, showCollapseAll: true });
+    this.dataProvider = new NodeWithIdTreeDataProvider();
+    const view = vscode.window.createTreeView('metadataView', { treeDataProvider: this.dataProvider, showCollapseAll: true });
 		context.subscriptions.push(view);
 
     view.onDidExpandElement(e => {
@@ -71,13 +74,17 @@ export class MetadataView {
     });
 
 		vscode.workspace.workspaceFolders?.forEach(folder => {
-			LoadAndParseConfigurationXml(folder.uri, dataProvider);
+      if (this.dataProvider) {
+        LoadAndParseConfigurationXml(folder.uri, this.dataProvider);
+      }
 		});
 
     vscode.commands.registerCommand('metadataViewer.showTemplate', (template, configType) => this.openTemplate(context, template, configType));
     vscode.commands.registerCommand('metadataViewer.openPredefinedData', (item) => this.openPredefinedData(context, item));
     vscode.commands.registerCommand('metadataViewer.openHandler', (item) => this.openHandler(item));
     vscode.commands.registerCommand('metadataViewer.openMetadataProperties', (item) => this.openMetadataProperties(context, item));
+    vscode.commands.registerCommand('metadataViewer.filterBySubsystem', (item) => this.filterBySubsystem(item, true));
+    vscode.commands.registerCommand('metadataViewer.clearFilter', (item) => this.filterBySubsystem(item, false));
 	}
 
   // Открытие макета
@@ -283,6 +290,39 @@ export class MetadataView {
     }
   }
 
+  private filterBySubsystem(item: TreeItem, setFilter: boolean): void {
+    if (tree.length && tree[0].children?.length) {
+      const pathArray = item.id.split('/');
+      pathArray.pop();
+      const config = tree[0].children.find((c) => pathArray.join('/') === c.id);
+
+      if (config) {
+        // Устанавливаю пустую конфигурацию чтобы не было конфликта идентификаторов
+        const configIndex = tree[0].children.indexOf(config);
+        tree[0].children[configIndex].children = CreateMetadata(config.id);
+        this.dataProvider?.update();
+
+        // Устанавливаю признак фильтрации
+        if (this.subsystemFilter.find((sf) => sf.id === config.id)) {
+          this.subsystemFilter = this.subsystemFilter.map((sf) => {
+            if (sf.id === config.id) {
+              return { id: config.id, objects: setFilter ? item.command?.arguments ?? [] : [] };
+            }
+
+            return sf;
+          });
+        } else {
+          this.subsystemFilter.push({ id: config.id, objects: item.command?.arguments ?? [] });
+        }
+        // Заполняю дерево конфигурации с фильтром
+        this.expand(tree[0].children[configIndex]);
+
+        vscode.commands.executeCommand('setContext', 'filteredConfigArray',
+          this.subsystemFilter.filter((sf) => sf.objects.length !== 0).map((sf) => `subsystem_${sf.id}`));
+      }
+    }
+  }
+
   private expand(element: TreeItem) {
     if (!element.isConfiguration) {
       return;
@@ -308,12 +348,51 @@ export class MetadataView {
             const result = parser.parse(Buffer.from(configXml));
 
             const typedResult = result as MetadataFile;
-            CreateTreeElements(element, typedResult);
+            const currentFilter = this.subsystemFilter.find((sf) => sf.id === element.id)?.objects ?? [];
+            CreateTreeElements(this.rootPath!,
+              element,
+              typedResult,
+              currentFilter);
+
+            if (currentFilter.length) {
+              // Нумераторы и последовательности в документах
+              if (element.children![3].children![1].children?.length === 0) {
+                element.children![3].children?.splice(1, 1);
+              }
+              if (element.children![3].children![0].children?.length === 0) {
+                element.children![3].children?.splice(0, 1);
+              }
+      
+              // Очищаю пустые элементы
+              const indexesToDelete: number[] = [];
+              element.children?.forEach((ch, index) => {
+                if (!ch.children || ch.children.length === 0) {
+                  indexesToDelete.push(index);
+                }
+              });
+              indexesToDelete.sort((a, b) => b - a);
+              indexesToDelete.forEach((d) => element.children?.splice(d, 1));
+      
+              // Отдельно очищаю раздел "Общие"
+              indexesToDelete.splice(0);
+              element.children![0].children?.forEach((ch, index) => {
+                if (!ch.children || ch.children.length === 0) {
+                  indexesToDelete.push(index);
+                }
+              });
+              indexesToDelete.sort((a, b) => b - a);
+              indexesToDelete.forEach((d) => element.children![0].children?.splice(d, 1));
+      
+              // Ненужные вложенные подсистемы
+              removeSubSystems(element.children![0].children![0], currentFilter);
+            }
+
+            this.dataProvider?.update();
           });
       } else {
         const edt = new Edt(this.rootPath.with({ path: posix.join(
-          element.id, 'Configuration', 'Configuration.mdo') }));
-        edt.createTreeElements(element);
+          element.id, 'Configuration', 'Configuration.mdo') }), this.dataProvider!);
+        edt.createTreeElements(element, this.subsystemFilter.find((sf) => sf.id === element.id)?.objects ?? []);
       }
     }
   }
@@ -400,7 +479,7 @@ function LoadAndParseConfigurationXml(uri: vscode.Uri, dataProvider: NodeWithIdT
   });
 }
 
-function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
+function CreateTreeElements(rootPath: vscode.Uri, element: TreeItem, metadataFile: MetadataFile, subsystemFilter: string[]) {
 	const versionMetadata = metadataFile.ConfigDumpInfo.ConfigVersions.Metadata;
 
   const treeItemIdSlash = element.id + '/';
@@ -443,17 +522,28 @@ function CreateTreeElements(element: TreeItem, metadataFile: MetadataFile) {
 		if (current.$_name.split('.').length !== 2) {
 			return previous;
 		}
+    if (subsystemFilter.length && subsystemFilter.indexOf(current.$_name) === -1) {
+			return previous;
+    }
 
     const treeItemId = treeItemIdSlash + current.$_id;
     const treeItemPath = `${treeItemIdSlash}${CreatePath(current.$_name)}`;
   
     switch (true) {
-      case current.$_name.startsWith('Subsystem.'):
+      case current.$_name.startsWith('Subsystem.'): {
+        const chilldren = GetSubsystemChildren(rootPath, element.id, versionMetadata, current.$_name);
+
         previous.subsystem.push(GetTreeItem(
-          treeItemId, current.$_name,
-          { icon: 'subsystem', children: GetSubsystemChildren(versionMetadata, current.$_name) }));
+          treeItemId, current.$_name, {
+            icon: 'subsystem',
+            context: `subsystem_${element.id}`,
+            children: chilldren,
+            command: 'metadataViewer.filterBySubsystem',
+            commandTitle: 'Filter by subsystem',
+            commandArguments: CollectSubsystemContent(rootPath, treeItemPath) }));
 
         break;
+      }
       case current.$_name.startsWith('CommonModule.'):
         previous.commonModule.push(GetTreeItem(
           treeItemId, current.$_name,
@@ -897,22 +987,74 @@ function SearchTree(element: TreeItem, matchingId: string): TreeItem | null {
 	return null;
 }
 
-function GetSubsystemChildren(versionMetadata: VersionMetadata[],
+function GetSubsystemChildren(
+  rootPath: vscode.Uri,
+  rootId: string,
+  versionMetadata: VersionMetadata[],
   name: string,
   level = 2
 ): TreeItem[] | undefined {
   const filtered = versionMetadata
-    .filter(f => f.$_name.startsWith(name) && f.$_name.split('.').length === 2 * level);
+    .filter(f => f.$_name.startsWith(`${name}.`) && f.$_name.split('.').length === 2 * level);
 
   if (filtered.length !== 0) {
     return filtered
-      .map(m => GetTreeItem(
-        '', m.$_name, {
-          icon: 'subsystem',
-          children: GetSubsystemChildren(versionMetadata, m.$_name, level + 1) }));
+      .map(m => {
+        const chilldren = GetSubsystemChildren(rootPath, rootId, versionMetadata, m.$_name, level + 1);
+
+        return GetTreeItem(
+          rootId + '/' + m.$_id, m.$_name, {
+            icon: 'subsystem',
+            context: `subsystem_${rootId}`,
+            children: chilldren,
+            command: 'metadataViewer.filterBySubsystem',
+            commandTitle: 'Filter by subsystem',
+            commandArguments: CollectSubsystemContent(rootPath, `${rootId}/${CreatePath(m.$_name)}`.replace(/\./g, '/'))
+          }
+        );
+      });
   }
 
   return undefined;
+}
+
+function CollectSubsystemContent(rootPath: vscode.Uri, treeItemPath: string): string[] {
+  // добавляю к фильтру сами подсистемы с иерархией
+  const subsystemContent: string[] = [
+    ...treeItemPath.slice(treeItemPath.indexOf('Subsystem')).replace(/Subsystems\//g, 'Subsystem.').split('/')
+  ];
+
+  const path = treeItemPath + '.xml';
+
+  vscode.workspace.fs.readFile(rootPath.with({ path }))
+    .then(configXml => {
+      const parser = new XMLParser({
+        ignoreAttributes : false,
+        attributeNamePrefix: '$_',
+      });
+      const result = parser.parse(Buffer.from(configXml));
+      const content = result.MetaDataObject.Subsystem.Properties.Content["xr:Item"];
+      if (content && content.length > 0) {
+        for (const contentElem of content) {
+          subsystemContent.push(contentElem["#text"]);
+        }
+      }
+    });
+
+  return subsystemContent;
+}
+
+function removeSubSystems(subsystemsTreeItem: TreeItem, subsystemFilter: string[]) {
+  const indexesToDelete: number[] = [];
+  subsystemsTreeItem.children?.forEach((ch, index) => {
+    if (subsystemFilter.indexOf(`Subsystem.${ch.label}`) === -1) {
+      indexesToDelete.push(index);
+    } else {
+      removeSubSystems(ch, subsystemFilter);
+    }
+  });
+  indexesToDelete.sort((a, b) => b - a);
+  indexesToDelete.forEach((d) => subsystemsTreeItem.children?.splice(d, 1));
 }
 
 export class NodeWithIdTreeDataProvider implements vscode.TreeDataProvider<TreeItem> {
