@@ -11,6 +11,7 @@ VS:1CMV - это расширение для вывода дерева мета�
 
 ## Возможности расширения
 
+<br>
 <img src="https://github.com/Bayselonarrend/vscode-1c-metadata-viewer/assets/105596284/1a628629-8f22-445f-aad4-a062e75fe9ba" align=right width=310>
 
 <br>
