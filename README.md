@@ -1,5 +1,7 @@
 # Вывод дерева метаданных конфигурации 1С и открытие модулей в VSC
 
+[![OpenYellow](https://img.shields.io/endpoint?url=https://openyellow.org/data/badges/2/560334726.json)](https://openyellow.org/grid?data=top&repo=560334726)
+
 [Дальнейшие планы (roadmap)](#что-ещё-планируется-roadmap)
 
 ## Возможности расширения
