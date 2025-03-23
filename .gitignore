@@ -5,7 +5,3 @@ yarn.lock
 form.sef.json
 # Liquid Studio artifact
 Output.xml
-
-# VSCode artifact
-.vscode
-*.vsix
