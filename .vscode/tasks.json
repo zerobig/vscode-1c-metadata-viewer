@@ -4,6 +4,20 @@
     "version": "2.0.0",
     "tasks": [
         {
+            "label": "npm: compile",
+            "type": "shell",
+            "command": "npm",
+            "args": ["run", "compile"],
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "problemMatcher": ["$tsc"],
+            "presentation": {
+                "reveal": "silent"
+            }
+        },
+        {
             "type": "npm",
             "script": "watch",
             "problemMatcher": "$tsc-watch",
@@ -11,10 +25,21 @@
             "presentation": {
                 "reveal": "never"
             },
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            }
+            "group": "build"
+        },
+        {
+            "label": "npm: install",
+            "type": "shell",
+            "command": "npm",
+            "args": ["install"],
+            "problemMatcher": []
+        },
+        {
+            "label": "vsce: package",
+            "type": "shell",
+            "command": "vsce",
+            "args": ["package"],
+            "problemMatcher": []
         }
     ]
 }

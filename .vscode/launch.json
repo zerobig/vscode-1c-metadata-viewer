@@ -1,6 +1,22 @@
-// A launch configuration that compiles the extension and then opens it inside a new window
 {
     "version": "0.2.0",
     "configurations": [
+        {
+            "type": "extensionHost",
+            "request": "launch",
+            "name": "Запустить расширение",
+            "args": [
+                "--extensionDevelopmentPath=${workspaceFolder}",
+                "--disable-extensions",
+                "--verbose"
+            ],
+            "outFiles": [
+                "${workspaceFolder}/out/**/*.js"
+            ],
+            "preLaunchTask": "npm: compile",
+            "env": {
+                "VSCODE_DEBUG_LEVEL": "debug"
+            }
+        }
     ]
 }
