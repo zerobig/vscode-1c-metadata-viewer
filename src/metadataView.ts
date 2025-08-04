@@ -59,7 +59,7 @@ export class MetadataView {
   panel: vscode.WebviewPanel | undefined = undefined;
   // Фильтр нужен по каждой конфигурации отдельно
   subsystemFilter: { id: string; objects: string[] }[] = [];
-  dataProvider: NodeWithIdTreeDataProvider | null = null;
+  public dataProvider: NodeWithIdTreeDataProvider | null = null;
 
 	constructor(context: vscode.ExtensionContext) {
     this.rootPath = (vscode.workspace.workspaceFolders && (vscode.workspace.workspaceFolders.length > 0))

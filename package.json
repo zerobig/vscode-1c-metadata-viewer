@@ -109,6 +109,11 @@
 			{
 				"command": "metadataViewer.clearFilter",
 				"title": "%1c-metadata-viewer.clearFilter.title%"
+			},
+			{
+				"command": "metadataViewer.quickNavigateMetadata",
+				"title": "Перейти к объекту метаданных",
+				"category": "1C"
 			}
 		],
 		"menus": {
@@ -217,6 +222,14 @@
 						"description": "%1c-metadata-viewer.searchDepth.title%"
 					}
 				}
+			}
+		],
+		"keybindings": [
+			{
+				"command": "metadataViewer.quickNavigateMetadata",
+				"key": "ctrl+alt+m",
+				"mac": "cmd+alt+m",
+				"when": "editorTextFocus || editorFocus || viewFocus || true"
 			}
 		]
 	},

@@ -5,6 +5,7 @@ import { MetadataView } from './metadataView';
 import * as fs from 'fs';
 import { FormPreviewer } from './formPreviewer';
 import { TreeItem } from './ConfigurationFormats/utils';
+import { QuickNavigateMetadataCommand } from './commands/quickNavigateMetadata';
 
 export function activate(context: vscode.ExtensionContext) {
 	vscode.commands.registerCommand('metadataViewer.openAppModule', (node: TreeItem) => {
@@ -136,7 +137,17 @@ export function activate(context: vscode.ExtensionContext) {
 		OpenFile(filePath);
 	});
 
-	new MetadataView(context);
+	const metadataView = new MetadataView(context);
+
+	// Регистрация команды быстрой навигации по метаданным
+	context.subscriptions.push(
+		vscode.commands.registerCommand('metadataViewer.quickNavigateMetadata', () => {
+			const command = new QuickNavigateMetadataCommand(metadataView);
+			command.execute().catch(error => {
+				vscode.window.showErrorMessage(`Ошибка выполнения команды: ${error.message}`);
+			});
+		})
+	);
 }
 
 function OpenFile(filePath: string) {
