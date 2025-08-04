@@ -249,17 +249,19 @@ export class MetadataView {
             synonym: GetContent(configurationProperties.Synonym),
             comment: configurationProperties.Comment,
             defaultRunMode: configurationProperties.DefaultRunMode,
-            usePurposes: configurationProperties.UsePurposes['v8:Value'].map((p: { [key: string]: string }) =>
-              p['#text'] === 'PlatformApplication' ? 'Приложение для платформы' : 'Приложение для мобильной платформы'),
+            usePurposes: configurationProperties.UsePurposes && configurationProperties.UsePurposes['v8:Value'] ? 
+              configurationProperties.UsePurposes['v8:Value'].map((p: { [key: string]: string }) =>
+              p['#text'] === 'PlatformApplication' ? 'Приложение для платформы' : 'Приложение для мобильной платформы') : [],
             scriptVariant: configurationProperties.ScriptVariant,
-            defaultRoles: configurationProperties.DefaultRoles['xr:Item'].map((r: { [key: string]: string }) =>
-              r['#text'].replace('Role.', 'Роль.')),
+            defaultRoles: configurationProperties.DefaultRoles && configurationProperties.DefaultRoles['xr:Item'] ?
+              configurationProperties.DefaultRoles['xr:Item'].map((r: { [key: string]: string }) =>
+              r['#text'].replace('Role.', 'Роль.')) : [],
             briefInformation: GetContent(configurationProperties.BriefInformation),
             detailedInformation: GetContent(configurationProperties.DetailedInformation),
             copyright: GetContent(configurationProperties.Copyright),
             vendorInformationAddress: GetContent(configurationProperties.VendorInformationAddress),
             configurationInformationAddress: GetContent(configurationProperties.ConfigurationInformationAddress),
-            vendor: configurationProperties.Vendor.replaceAll('"', '&quot;'),
+            vendor: configurationProperties.Vendor ? configurationProperties.Vendor.replaceAll('"', '&quot;') : '',
             version: configurationProperties.Version,
             updateCatalogAddress: configurationProperties.UpdateCatalogAddress,
             dataLockControlMode: configurationProperties.DataLockControlMode,
@@ -1142,12 +1144,19 @@ function GetMetadataName(name: string) {
 }
 
 function GetContent(object: { [key: string]: { [key: string]: string } }) {
-  if (!object['v8:item']) {
+  if (!object || !object['v8:item']) {
     return '';
   }
 
   if (Array.isArray(object['v8:item'])) {
-    return object['v8:item'][0]['v8:content'].split('"').join('&quot;');
+    if (object['v8:item'].length > 0 && object['v8:item'][0]['v8:content']) {
+      return object['v8:item'][0]['v8:content'].split('"').join('&quot;');
+    }
+    return '';
   }
-  return object['v8:item']['v8:content'].split('"').join('&quot;');
+  
+  if (object['v8:item']['v8:content']) {
+    return object['v8:item']['v8:content'].split('"').join('&quot;');
+  }
+  return '';
 }
